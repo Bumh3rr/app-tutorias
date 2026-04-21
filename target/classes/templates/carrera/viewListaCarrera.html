@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carreras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Carreras</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Gestiona las carreras del tecnológico.</p>
+                </div>
+                <a th:href="@{/carrera/agregar}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                    </svg>
+                    Agregar Carrera
+                </a>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tabla -->
+            <div th:if="${carreras != null and !#lists.isEmpty(carreras)}">
+                <div class="border rounded-3 p-1">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Clave</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="carrera : ${carreras}">
+                            <td th:text="${carrera.id}"></td>
+                            <td th:text="${carrera.nombre}"></td>
+                            <td>
+                                <span class="badge bg-secondary" th:text="${carrera.clave}"></span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${carrera.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${carrera.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/carrera/ver/{id}(id=${carrera.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/carrera/actualizar/{id}(id=${carrera.id})}"
+                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/carrera/delete/{id}(id=${carrera.id})}"
+                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${carreras != null and !#lists.isEmpty(carreras)}"
+                 class="text-center py-5 position-relative">
+                <img th:src="@{/images/utils/img.png}" alt="No hay carreras" class="mb-4"
+                     style="max-width: 300px; width: 100%;">
+
+                <!-- Botones flotantes para agregar nuevo departamento -->
+                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                    <!-- titulo -->
+                    <h4 class="mb-3">No hay carreras registrados</h4>
+
+                    <!-- subtitulo -->
+                    <p class="mb-4 text-muted">Agrega una nueva carrera para comenzar a gestionar tu equipo.</p>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/carrera}"
+                           class="btn btn-outline-secondary">
+                            Refrescar
+                        </a>
+
+                        <a th:href="@{/carrera/agregar}"
+                           class="btn btn-primary">
+                            Agregar Carrera
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="#FFFFFF"
+                                      d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

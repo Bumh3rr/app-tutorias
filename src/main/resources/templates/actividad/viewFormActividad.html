@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Actividad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+
+            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4"
+                        th:text="${isEdit} ? 'Editar Actividad' : 'Agregar Actividad'"></h3>
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          th:object="${actividad}"
+                          th:action="${isEdit} ? @{/actividad/actualizar/{id}(id=${actividad.id})} : @{/actividad/guardar}">
+
+                        <!-- ID -->
+                        <div class="mb-3" th:if="${actividad.id != null}">
+                            <label class="form-label">ID</label>
+                            <input type="number" class="form-control" th:field="*{id}" readonly>
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre"
+                                   placeholder="ej. Detección de necesidades"
+                                   required th:field="*{nombre}">
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" rows="3"
+                                      placeholder="Describe la actividad..."
+                                      th:field="*{descripcion}"></textarea>
+                        </div>
+
+                        <!-- Foto -->
+                        <div class="mb-3">
+                            <label for="fotoFile" class="form-label">Evidencia / Imagen</label>
+                            <input type="file" class="form-control" id="fotoFile"
+                                   name="fotoFile" accept="image/*">
+                            <small class="text-secondary-emphasis">Acepta: JPG, PNG. Máximo 10MB</small>
+                        </div>
+
+                        <!-- Vista previa foto -->
+                        <div class="mb-3" th:if="${actividad.foto != null}">
+                            <label class="form-label">Imagen actual</label>
+                            <div>
+                                <img th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                                     alt="Imagen actual"
+                                     style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
+                            </div>
+                            <input type="hidden" th:field="*{foto}">
+                        </div>
+
+                        <!-- PAT -->
+                        <div class="mb-3">
+                            <label for="pat.id" class="form-label">Plan de Acción Tutorial</label>
+                            <select class="form-select" id="pat.id" name="pat.id"
+                                    th:field="*{pat.id}">
+                                <option value="">Sin PAT asignado</option>
+                                <option th:each="p : ${pats}"
+                                        th:value="${p.id}"
+                                        th:text="${p.nombre}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Semana y Fecha -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label for="semana" class="form-label">Semana</label>
+                                <input type="number" class="form-control" id="semana"
+                                       placeholder="ej. 1" min="1" max="10"
+                                       required th:field="*{semana}">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="fecha" class="form-label">Fecha</label>
+                                <input type="date" class="form-control" id="fecha"
+                                       required th:field="*{fecha}">
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <label for="activo" class="form-label">Estado</label>
+                            <select class="form-select" id="activo" th:field="*{activo}">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a th:href="@{/actividad}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

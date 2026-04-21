@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen de Asistencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="mb-4">
+                <h3 class="mb-1">Resumen de Asistencia</h3>
+                <p class="text-body-secondary fs-6 mb-0"
+                   th:text="${resumen != null} ? ${resumen.nombreTutorado} : ''"></p>
+            </div>
+
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${resumen != null}">
+
+                <!-- Tarjeta resultado acreditación -->
+                <div class="card border-0 mb-4 p-4"
+                     th:classappend="${resumen.acreditado} ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'"
+                     style="border-radius: var(--bs-border-radius-lg);">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="text-center">
+                            <div class="display-4 fw-semibold"
+                                 th:text="${resumen.porcentaje} + '%'"
+                                 th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
+                            </div>
+                            <small class="text-body-secondary">asistencia</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-1"
+                                th:text="${resumen.acreditado} ? 'ACREDITADO' : 'NO ACREDITADO'"
+                                th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
+                            </h4>
+                            <p class="text-body-secondary mb-0">
+                                Se requiere mínimo 80% de asistencia para acreditar.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="card bg-body-secondary border-0">
+                            <div class="card-body text-center">
+                                <p class="text-body-secondary small mb-1">Total sesiones</p>
+                                <h3 class="fw-semibold mb-0" th:text="${resumen.totalSesiones}"></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card bg-body-secondary border-0">
+                            <div class="card-body text-center">
+                                <p class="text-body-secondary small mb-1">Presentes</p>
+                                <h3 class="fw-semibold mb-0 text-success"
+                                    th:text="${resumen.asistenciasPresente}"></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card bg-body-secondary border-0">
+                            <div class="card-body text-center">
+                                <p class="text-body-secondary small mb-1">Recuperadas</p>
+                                <h3 class="fw-semibold mb-0 text-warning"
+                                    th:text="${resumen.asistenciasRecuperadas}"></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="card bg-body-secondary border-0">
+                            <div class="card-body text-center">
+                                <p class="text-body-secondary small mb-1">Total acreditadas</p>
+                                <h3 class="fw-semibold mb-0"
+                                    th:text="${resumen.totalAcreditadas}"></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de progreso -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-body-secondary">Progreso de asistencia</small>
+                        <small class="text-body-secondary">Mínimo requerido: 80%</small>
+                    </div>
+                    <div class="progress" style="height: 12px; border-radius: 8px;">
+                        <div class="progress-bar"
+                             role="progressbar"
+                             th:style="'width: ' + ${resumen.porcentaje} + '%'"
+                             th:classappend="${resumen.acreditado} ? 'bg-success' : 'bg-danger'"
+                             th:attr="aria-valuenow=${resumen.porcentaje}"
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <!-- Marcador del 80% -->
+                    <div class="position-relative" style="height: 4px;">
+                        <div style="position:absolute; left:80%; top:-16px; width:2px; height:28px;
+                                    background: rgba(255,255,255,0.3);"></div>
+                    </div>
+                </div>
+
+                <!-- Historial de sesiones -->
+                <h5 class="mb-3">Historial de sesiones</h5>
+                <div th:if="${historial != null and !#lists.isEmpty(historial)}">
+                    <div class="border rounded-3 p-1">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Sesión</th>
+                                <th>Semana</th>
+                                <th>Fecha</th>
+                                <th>Presente</th>
+                                <th>Recuperada</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="asistencia : ${historial}">
+                                <td th:text="${asistencia.sesion != null} ? 'Sesión #' + ${asistencia.sesion.id} : '---'"></td>
+                                <td>
+                                        <span class="badge bg-secondary"
+                                              th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : '---'">
+                                        </span>
+                                </td>
+                                <td th:text="${asistencia.sesion != null and asistencia.sesion.fechaImparticion != null} ?
+                                                 ${#dates.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
+                                </td>
+                                <td>
+                                        <span class="badge rounded-pill"
+                                              th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'"
+                                              th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'">
+                                        </span>
+                                </td>
+                                <td>
+                                        <span class="badge rounded-pill"
+                                              th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'"
+                                              th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'">
+                                        </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/asistencia}" class="btn btn-secondary">Volver</a>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

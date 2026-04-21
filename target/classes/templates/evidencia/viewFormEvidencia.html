@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Evidencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4"
+                        th:text="${isEdit} ? 'Editar Evidencia' : 'Subir Evidencia'"></h3>
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          th:object="${evidencia}"
+                          th:action="${isEdit} ? @{/evidencia/actualizar/{id}(id=${evidencia.id})} : @{/evidencia/guardar}">
+
+                        <div class="mb-3" th:if="${evidencia.id != null}">
+                            <label class="form-label">ID</label>
+                            <input type="number" class="form-control" th:field="*{id}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sesion.id" class="form-label">Sesión</label>
+                            <select class="form-select" id="sesion.id" name="sesion.id"
+                                    th:field="*{sesion.id}" required>
+                                <option value="">Selecciona una sesión...</option>
+                                <option th:each="s : ${sesiones}"
+                                        th:value="${s.id}"
+                                        th:text="'Semana ' + ${s.semana} + ' — ' + ${s.tutor != null ? s.tutor.nombre + ' ' + s.tutor.apellido : 'Sin tutor'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="archivoFile" class="form-label">Archivo de evidencia</label>
+                            <input type="file" class="form-control" id="archivoFile"
+                                   name="archivoFile" accept="image/*">
+                            <small class="text-secondary-emphasis">Acepta: JPG, PNG. Máximo 10MB</small>
+                        </div>
+
+                        <div class="mb-3" th:if="${evidencia.archivoUrl != null}">
+                            <label class="form-label">Archivo actual</label>
+                            <div>
+                                <img th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                                     alt="Evidencia actual"
+                                     style="width:120px; height:120px; object-fit:cover; border-radius:8px;">
+                            </div>
+                            <input type="hidden" th:field="*{archivoUrl}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notasCoordinador" class="form-label">Notas del coordinador</label>
+                            <textarea class="form-control" id="notasCoordinador" rows="3"
+                                      placeholder="Observaciones o notas adicionales..."
+                                      th:field="*{notasCoordinador}"></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="estatusValidacion" class="form-label">Estatus de validación</label>
+                            <select class="form-select" id="estatusValidacion" th:field="*{estatusValidacion}">
+                                <option value="PENDIENTE">Pendiente</option>
+                                <option value="VALIDADA">Validada</option>
+                                <option value="RECHAZADA">Rechazada</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a th:href="@{/evidencia}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

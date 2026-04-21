@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detección de Necesidades</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Detección de Necesidades</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Instrumento aplicado a los tutorados para identificar carencias académicas, económicas y psicológicas.</p>
+                </div>
+                <a th:href="@{/deteccion/agregar}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                    </svg>
+                    Registrar Detección
+                </a>
+            </div>
+
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/deteccion}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-filters mb-4">
+                <h6 class="mb-3">Buscar Detecciones</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutorado">Por Tutorado</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sesion">Por Sesión</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-necesidad">Por Necesidad</button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3">
+
+                    <div class="tab-pane fade show active" id="tab-todos">
+                        <a th:href="@{/deteccion}" class="btn btn-primary btn-sm">Ver todas</a>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-tutorado">
+                        <form method="get" th:action="@{/deteccion}">
+                            <input type="hidden" name="tipoBusqueda" value="tutorado">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idTutorado" class="form-select" required>
+                                        <option value="">Selecciona un tutorado...</option>
+                                        <option th:each="t : ${tutorados}"
+                                                th:value="${t.id}"
+                                                th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}"
+                                                th:selected="${t.id == idTutoradoSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-sesion">
+                        <form method="get" th:action="@{/deteccion}">
+                            <input type="hidden" name="tipoBusqueda" value="sesion">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idSesion" class="form-select" required>
+                                        <option value="">Selecciona una sesión...</option>
+                                        <option th:each="s : ${sesiones}"
+                                                th:value="${s.id}"
+                                                th:text="'Semana ' + ${s.semana} + ' — ' + ${s.tutor != null ? s.tutor.nombre + ' ' + s.tutor.apellido : 'Sin tutor'}"
+                                                th:selected="${s.id == idSesionSeleccionada}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-necesidad">
+                        <form method="get" th:action="@{/deteccion}">
+                            <input type="hidden" name="tipoBusqueda" value="necesidad">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="necesidad" class="form-select" required>
+                                        <option value="">Selecciona una necesidad...</option>
+                                        <option value="algebra">Álgebra</option>
+                                        <option value="calculo">Cálculo Diferencial</option>
+                                        <option value="economica">Económica</option>
+                                        <option value="psicologica">Psicológica</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div th:if="${detecciones != null and !#lists.isEmpty(detecciones)}">
+                <div class="border rounded-3 p-1">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tutorado</th>
+                            <th>Sesión</th>
+                            <th>Álgebra</th>
+                            <th>Cálculo</th>
+                            <th>Derecho</th>
+                            <th>Económica</th>
+                            <th>Psicológica</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="deteccion : ${detecciones}">
+                            <td th:text="${deteccion.id}"></td>
+                            <td th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.nombre} + ' ' + ${deteccion.tutorado.apellido} : 'Sin tutorado'"></td>
+                            <td th:text="${deteccion.sesion != null} ? 'Semana ' + ${deteccion.sesion.semana} : '---'"></td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadAlgebra == 1} ? 'Sí' : 'No'"
+                                          th:classappend="${deteccion.necesidadAlgebra == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadCalculo == 1} ? 'Sí' : 'No'"
+                                          th:classappend="${deteccion.necesidadCalculo == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadDerecho == 1} ? 'Sí' : 'No'"
+                                          th:classappend="${deteccion.necesidadDerecho == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadEconomica == 1} ? 'Sí' : 'No'"
+                                          th:classappend="${deteccion.necesidadEconomica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadPsicologica == 1} ? 'Sí' : 'No'"
+                                          th:classappend="${deteccion.necesidadPsicologica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td th:text="${deteccion.fechaAplicacion != null} ? ${#dates.format(deteccion.fechaAplicacion, 'dd/MM/yyyy')} : '---'"></td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/deteccion/ver/{id}(id=${deteccion.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/deteccion/actualizar/{id}(id=${deteccion.id})}"
+                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/deteccion/delete/{id}(id=${deteccion.id})}"
+                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${detecciones != null and !#lists.isEmpty(detecciones)}"
+                 class="text-center py-5 position-relative">
+                <img th:src="@{/images/utils/img.png}" alt="No hay detecciones" class="mb-4"
+                     style="max-width: 300px; width: 100%;">
+                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                    <h4 class="mb-3">No hay detecciones registradas</h4>
+                    <p class="mb-4 text-muted">Registra la detección de necesidades de los tutorados.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/deteccion}" class="btn btn-outline-secondary">Refrescar</a>
+                        <a th:href="@{/deteccion/agregar}" class="btn btn-primary">
+                            Registrar Detección
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

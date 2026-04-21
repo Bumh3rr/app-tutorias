@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio — Sistema de Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="mb-4">
+                <h3 class="mb-1">Bienvenido al Sistema de Tutorías</h3>
+                <p class="text-body-secondary fs-6 mb-0">
+                    Tecnológico de Chilpancingo — Resumen del programa activo.
+                </p>
+            </div>
+
+            <!-- Alerta error -->
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tarjetas estadísticas -->
+            <div class="row g-3 mb-4">
+
+                <div class="col-6 col-md-3">
+                    <div class="card bg-body-secondary border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-body-secondary small mb-1">Tutores activos</p>
+                            <h2 class="fw-semibold mb-0" th:text="${totalTutores}">0</h2>
+                            <small class="text-body-secondary">semestre actual</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="card bg-body-secondary border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-body-secondary small mb-1">Tutorados</p>
+                            <h2 class="fw-semibold mb-0" th:text="${totalTutorados}">0</h2>
+                            <small class="text-body-secondary">nuevo ingreso</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="card bg-body-secondary border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-body-secondary small mb-1">Actividades PAT</p>
+                            <h2 class="fw-semibold mb-0" th:text="${totalActividades}">0</h2>
+                            <small class="text-body-secondary">programadas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="card bg-body-secondary border-0 h-100">
+                        <div class="card-body">
+                            <p class="text-body-secondary small mb-1">Asignaciones</p>
+                            <h2 class="fw-semibold mb-0" th:text="${totalAsignaciones}">0</h2>
+                            <small class="text-body-secondary">activas</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Próximas actividades -->
+            <div class="mb-3">
+                <h5 class="mb-3">Próximas actividades</h5>
+
+                <div th:if="${proximasActividades != null and !#lists.isEmpty(proximasActividades)}">
+                    <div class="border rounded-3 p-1">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>PAT</th>
+                                <th>Semana</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="actividad : ${proximasActividades}">
+                                <td th:text="${actividad.nombre}"></td>
+                                <td th:text="${actividad.pat != null} ? ${actividad.pat.nombre} : 'Sin PAT'"></td>
+                                <td>
+                                        <span class="badge bg-secondary"
+                                              th:text="'Semana ' + ${actividad.semana}"></span>
+                                </td>
+                                <td th:text="${#dates.format(actividad.fecha, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                        <span class="badge rounded-pill"
+                                              th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"
+                                              th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                        </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/actividad/ver/{id}(id=${actividad.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Empty state próximas actividades -->
+                <div th:unless="${proximasActividades != null and !#lists.isEmpty(proximasActividades)}"
+                     class="text-center py-5 position-relative">
+                    <img th:src="@{/images/utils/img.png}" alt="Sin actividades" class="mb-4"
+                         style="max-width: 300px; width: 100%;">
+                    <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                        <h4 class="mb-3">No hay actividades próximas</h4>
+                        <p class="mb-4 text-muted">Agrega actividades al PAT para verlas aquí.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a th:href="@{/}" class="btn btn-outline-secondary">Refrescar</a>
+                            <a th:href="@{/actividad/agregar}" class="btn btn-primary">
+                                Agregar Actividad
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Accesos rápidos -->
+            <div>
+                <h5 class="mb-3">Accesos rápidos</h5>
+                <div class="row g-3">
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/tutor/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5" class="text-primary">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Agregar Tutor</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/tutorado/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Agregar Tutorado</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/asignacion/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <line x1="8" y1="6" x2="21" y2="6"/>
+                                    <line x1="8" y1="12" x2="21" y2="12"/>
+                                    <line x1="8" y1="18" x2="21" y2="18"/>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Nueva Asignación</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/pat/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Agregar PAT</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/actividad/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <polyline points="9 11 12 14 22 4"/>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Agregar Actividad</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <a th:href="@{/semestre/agregar}" class="text-decoration-none">
+                            <div class="card bg-body-secondary border-0 h-100 p-3 d-flex flex-row align-items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span class="text-body-primary small fw-medium">Agregar Semestre</span>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

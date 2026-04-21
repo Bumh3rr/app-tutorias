@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Semestre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+
+            <div class="card bg-body-secondary w-100" style="max-width: 480px;">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4"
+                        th:text="${isEdit} ? 'Editar Semestre' : 'Agregar Semestre'"></h3>
+
+                    <form method="post"
+                          th:object="${semestre}"
+                          th:action="${isEdit} ? @{/semestre/actualizar/{id}(id=${semestre.id})} : @{/semestre/guardar}">
+
+                        <!-- ID (solo edición) -->
+                        <div class="mb-3" th:if="${semestre.id != null}">
+                            <label class="form-label">ID</label>
+                            <input type="number" class="form-control" th:field="*{id}" readonly>
+                        </div>
+
+                        <!-- Periodo -->
+                        <div class="mb-3">
+                            <label for="periodo" class="form-label">Periodo</label>
+                            <select class="form-select" id="periodo" name="periodo"
+                                    required
+                                    th:field="*{periodo}">
+                                >
+                                <option value="Enero-Junio">Enero-Junio</option>
+                                <option value="Agosto-Diciembre">Agosto-Diciembre</option>
+                            </select>
+                        </div>
+
+                        <!-- Año -->
+                        <div class="mb-3">
+                            <label for="anio" class="form-label">Año</label>
+                            <input type="number" class="form-control" id="anio"
+                                   placeholder="ej. 2025"
+                                   required th:field="*{anio}">
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <label for="activo" class="form-label">Estado</label>
+                            <select class="form-select" id="activo" th:field="*{activo}">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a th:href="@{/semestre}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

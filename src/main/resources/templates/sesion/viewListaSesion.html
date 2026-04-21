@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesiones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Sesiones</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Gestiona las sesiones semanales de tutoría.</p>
+                </div>
+                <a th:href="@{/sesion/agregar}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                    </svg>
+                    Agregar Sesión
+                </a>
+            </div>
+
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/sesion}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-filters mb-4">
+                <h6 class="mb-3">Buscar Sesiones</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutor">Por Tutor</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-semana">Por Semana</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutor-semana">Tutor y Semana</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-estatus">Por Estatus</button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3">
+
+                    <div class="tab-pane fade show active" id="tab-todos">
+                        <a th:href="@{/sesion}" class="btn btn-primary btn-sm">Ver todas</a>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-tutor">
+                        <form method="get" th:action="@{/sesion}">
+                            <input type="hidden" name="tipoBusqueda" value="tutor">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idTutor" class="form-select" required>
+                                        <option value="">Selecciona un tutor...</option>
+                                        <option th:each="t : ${tutores}"
+                                                th:value="${t.id}"
+                                                th:text="${t.nombre} + ' ' + ${t.apellido}"
+                                                th:selected="${t.id == idTutorSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-semana">
+                        <form method="get" th:action="@{/sesion}">
+                            <input type="hidden" name="tipoBusqueda" value="semana">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="semana" class="form-select" required>
+                                        <option value="">Selecciona una semana...</option>
+                                        <option th:each="i : ${#numbers.sequence(1, 10)}"
+                                                th:value="${i}"
+                                                th:text="'Semana ' + ${i}"
+                                                th:selected="${i == semanaSeleccionada}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-tutor-semana">
+                        <form method="get" th:action="@{/sesion}">
+                            <input type="hidden" name="tipoBusqueda" value="tutorSemana">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <select name="idTutor" class="form-select" required>
+                                        <option value="">Tutor...</option>
+                                        <option th:each="t : ${tutores}"
+                                                th:value="${t.id}"
+                                                th:text="${t.nombre} + ' ' + ${t.apellido}"
+                                                th:selected="${t.id == idTutorSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select name="semana" class="form-select" required>
+                                        <option value="">Semana...</option>
+                                        <option th:each="i : ${#numbers.sequence(1, 10)}"
+                                                th:value="${i}"
+                                                th:text="'Semana ' + ${i}"
+                                                th:selected="${i == semanaSeleccionada}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-estatus">
+                        <form method="get" th:action="@{/sesion}">
+                            <input type="hidden" name="tipoBusqueda" value="estatus">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="estatus" class="form-select" required>
+                                        <option value="">Selecciona un estatus...</option>
+                                        <option value="PENDIENTE" th:selected="${'PENDIENTE' == estatusSeleccionado}">Pendiente</option>
+                                        <option value="REALIZADA" th:selected="${'REALIZADA' == estatusSeleccionado}">Realizada</option>
+                                        <option value="CANCELADA" th:selected="${'CANCELADA' == estatusSeleccionado}">Cancelada</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}">
+                <div class="border rounded-3 p-1">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tutor</th>
+                            <th>Actividad</th>
+                            <th>Semana</th>
+                            <th>Fecha</th>
+                            <th>Estatus</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="sesion : ${sesiones}">
+                            <td th:text="${sesion.id}"></td>
+                            <td th:text="${sesion.tutor != null} ? ${sesion.tutor.nombre} + ' ' + ${sesion.tutor.apellido} : 'Sin tutor'"></td>
+                            <td th:text="${sesion.actividad != null} ? ${sesion.actividad.nombre} : 'Sin actividad'"></td>
+                            <td><span class="badge bg-secondary" th:text="'Semana ' + ${sesion.semana}"></span></td>
+                            <td th:text="${sesion.fechaImparticion != null} ? ${#dates.format(sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'"></td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.estatusRegistro}"
+                                          th:classappend="${sesion.estatusRegistro == 'REALIZADA'} ? 'badge-active' :
+                                                          (${sesion.estatusRegistro == 'CANCELADA'} ? 'badge-inactive' : 'bg-warning text-dark')">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${sesion.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/asistencia/registrar/{id}(id=${sesion.id})}"
+                                       class="btn btn-sm btn-outline-success">Asistencia</a>
+                                    <a th:href="@{/sesion/actualizar/{id}(id=${sesion.id})}"
+                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/sesion/delete/{id}(id=${sesion.id})}"
+                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}"
+                 class="text-center py-5 position-relative">
+                <img th:src="@{/images/utils/img.png}" alt="No hay sesiones" class="mb-4"
+                     style="max-width: 300px; width: 100%;">
+                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                    <h4 class="mb-3">No hay sesiones registradas</h4>
+                    <p class="mb-4 text-muted">Agrega una nueva sesión para comenzar el registro de asistencias.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/sesion}" class="btn btn-outline-secondary">Refrescar</a>
+                        <a th:href="@{/sesion/agregar}" class="btn btn-primary">
+                            Agregar Sesión
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

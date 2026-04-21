@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes de Acción Tutorial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Planes de Acción Tutorial</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Gestiona los PAT del programa de tutorías.</p>
+                </div>
+                <a th:href="@{/pat/agregar}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                    </svg>
+                    Agregar PAT
+                </a>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Filtro activo -->
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/pat}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-filters mb-4">
+                <h6 class="mb-3">Buscar PAT</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">
+                            Todos
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-generales">
+                            Solo Generales
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-carrera-semestre">
+                            Por Carrera y Semestre
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3">
+
+                    <!-- Tab todos -->
+                    <div class="tab-pane fade show active" id="tab-todos">
+                        <a th:href="@{/pat}" class="btn btn-primary btn-sm">Ver todos</a>
+                    </div>
+
+                    <!-- Tab solo generales -->
+                    <div class="tab-pane fade" id="tab-generales">
+                        <a th:href="@{/pat(soloGenerales=true)}" class="btn btn-primary btn-sm">
+                            Ver PAT Generales
+                        </a>
+                    </div>
+
+                    <!-- Tab por carrera y semestre -->
+                    <div class="tab-pane fade" id="tab-carrera-semestre">
+                        <form method="get" th:action="@{/pat}">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <select name="idCarrera" class="form-select" required>
+                                        <option value="">Carrera...</option>
+                                        <option th:each="c : ${carreras}"
+                                                th:value="${c.id}"
+                                                th:text="${c.nombre}"
+                                                th:selected="${c.id == idCarreraSeleccionada}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select name="idSemestre" class="form-select" required>
+                                        <option value="">Semestre...</option>
+                                        <option th:each="s : ${semestres}"
+                                                th:value="${s.id}"
+                                                th:text="${s.periodo} + ' ' + ${s.anio}"
+                                                th:selected="${s.id == idSemestreSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div th:if="${pats != null and !#lists.isEmpty(pats)}">
+                <div class="border rounded-3 p-1">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Foto</th>
+                            <th>Nombre</th>
+                            <th>Carrera</th>
+                            <th>Semestre</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="pat : ${pats}">
+                            <td th:text="${pat.id}"></td>
+                            <td>
+                                <img th:if="${pat.foto != null}"
+                                     th:src="@{/pat/{foto}(foto=${pat.foto})}"
+                                     alt="Foto"
+                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
+                                <img th:unless="${pat.foto != null}"
+                                     src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                     alt="Sin foto"
+                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
+                            </td>
+                            <td th:text="${pat.nombre}"></td>
+                            <td th:text="${pat.carrera != null} ? ${pat.carrera.nombre} : 'General'"></td>
+                            <td th:text="${pat.semestre != null} ? ${pat.semestre.periodo} + ' ' + ${pat.semestre.anio} : '---'"></td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${pat.esGeneral == 1} ? 'General' : 'Por carrera'"
+                                          th:classappend="${pat.esGeneral == 1} ? 'bg-primary' : 'bg-secondary'">
+                                    </span>
+                            </td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${pat.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${pat.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/pat/ver/{id}(id=${pat.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}"
+                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/pat/delete/{id}(id=${pat.id})}"
+                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${pats != null and !#lists.isEmpty(pats)}"
+                 class="text-center py-5 position-relative">
+                <img th:src="@{/images/utils/img.png}" alt="No hay PAT" class="mb-4"
+                     style="max-width: 300px; width: 100%;">
+                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                    <h4 class="mb-3">No hay planes de acción tutorial registrados</h4>
+                    <p class="mb-4 text-muted">Agrega un nuevo PAT para comenzar con el programa.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/pat}" class="btn btn-outline-secondary">Refrescar</a>
+                        <a th:href="@{/pat/agregar}" class="btn btn-primary">
+                            Agregar PAT
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

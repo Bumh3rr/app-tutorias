@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Detección</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center">
+            <div class="card bg-body-secondary w-100" style="max-width: 580px;">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-1">Detección de Necesidades</h4>
+                    <p class="text-secondary-emphasis small mb-4">Resultado del instrumento aplicado</p>
+
+                    <!-- Info tutorado -->
+                    <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
+                         style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                        <img th:if="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
+                             th:src="@{/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
+                             alt="Foto"
+                             style="width:56px; height:56px; object-fit:cover; border-radius:50%;">
+                        <img th:unless="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
+                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                             alt="Sin foto"
+                             style="width:56px; height:56px; object-fit:cover; border-radius:50%;">
+                        <div>
+                            <h5 class="mb-0 fw-semibold"
+                                th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.nombre} + ' ' + ${deteccion.tutorado.apellido} : 'Sin tutorado'">
+                            </h5>
+                            <small class="text-secondary"
+                                   th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.numeroControl} : ''"></small>
+                        </div>
+                    </div>
+
+                    <!-- Datos generales -->
+                    <div class="vstack gap-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">ID</span>
+                            <span class="fw-semibold" th:text="${deteccion.id}"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Sesión</span>
+                            <span class="fw-semibold"
+                                  th:text="${deteccion.sesion != null} ? 'Semana ' + ${deteccion.sesion.semana} : 'Sin sesión'"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Fecha de aplicación</span>
+                            <span class="fw-semibold"
+                                  th:text="${deteccion.fechaAplicacion != null} ? ${#dates.format(deteccion.fechaAplicacion, 'dd/MM/yyyy')} : '---'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Necesidades académicas -->
+                    <h6 class="text-body-secondary mb-2">Necesidades Académicas</h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 text-center"
+                                 th:style="${deteccion.necesidadAlgebra == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
+                                <div class="fw-medium mb-1">Álgebra</div>
+                                <span class="badge rounded-pill"
+                                      th:text="${deteccion.necesidadAlgebra == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                      th:classappend="${deteccion.necesidadAlgebra == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 text-center"
+                                 th:style="${deteccion.necesidadCalculo == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
+                                <div class="fw-medium mb-1">Cálculo</div>
+                                <span class="badge rounded-pill"
+                                      th:text="${deteccion.necesidadCalculo == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                      th:classappend="${deteccion.necesidadCalculo == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 text-center"
+                                 th:style="${deteccion.necesidadDerecho == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
+                                <div class="fw-medium mb-1">Intro. Derecho</div>
+                                <span class="badge rounded-pill"
+                                      th:text="${deteccion.necesidadDerecho == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                      th:classappend="${deteccion.necesidadDerecho == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Otra materia -->
+                    <div class="mb-4" th:if="${deteccion.necesidadOtra != null and !deteccion.necesidadOtra.isEmpty()}">
+                        <h6 class="text-body-secondary mb-2">Otra materia con dificultad</h6>
+                        <div class="p-3 rounded-3"
+                             style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3);">
+                            <span class="fw-medium" th:text="${deteccion.necesidadOtra}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Necesidades integrales -->
+                    <h6 class="text-body-secondary mb-2">Apoyo Integral</h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 text-center"
+                                 th:style="${deteccion.necesidadEconomica == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
+                                <div class="fw-medium mb-1">Apoyo Económico</div>
+                                <span class="badge rounded-pill"
+                                      th:text="${deteccion.necesidadEconomica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                      th:classappend="${deteccion.necesidadEconomica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 text-center"
+                                 th:style="${deteccion.necesidadPsicologica == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
+                                <div class="fw-medium mb-1">Apoyo Psicológico</div>
+                                <span class="badge rounded-pill"
+                                      th:text="${deteccion.necesidadPsicologica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                      th:classappend="${deteccion.necesidadPsicologica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="mb-4"
+                         th:if="${deteccion.observaciones != null and !deteccion.observaciones.isEmpty()}">
+                        <h6 class="text-body-secondary mb-2">Observaciones del tutor</h6>
+                        <div class="p-3 rounded-3"
+                             style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                            <p class="mb-0 text-body-secondary small" th:text="${deteccion.observaciones}"></p>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2 mt-2">
+                        <a th:href="@{/deteccion/actualizar/{id}(id=${deteccion.id})}"
+                           class="btn btn-primary w-100">Editar</a>
+                        <a th:href="@{/deteccion}" class="btn btn-secondary w-100">Volver</a>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

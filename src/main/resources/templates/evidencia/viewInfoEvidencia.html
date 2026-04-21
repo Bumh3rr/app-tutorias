@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Evidencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-1">Detalle de Evidencia</h4>
+                    <p class="text-secondary-emphasis small mb-4">Información de la evidencia registrada</p>
+
+                    <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show">
+                        <span th:text="${msg_success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show">
+                        <span th:text="${msg_error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Imagen evidencia -->
+                    <div class="mb-4 text-center" th:if="${evidencia.archivoUrl != null}">
+                        <img th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                             alt="Evidencia"
+                             style="max-width:100%; max-height:250px; object-fit:contain; border-radius:8px;
+                                    border: 1px solid rgba(255,255,255,0.08);">
+                    </div>
+
+                    <div class="vstack gap-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">ID</span>
+                            <span class="fw-semibold" th:text="${evidencia.id}"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Sesión</span>
+                            <span class="fw-semibold"
+                                  th:text="${evidencia.sesion != null} ? 'Semana ' + ${evidencia.sesion.semana} : 'Sin sesión'"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Tutor</span>
+                            <span class="fw-semibold"
+                                  th:text="${evidencia.sesion != null and evidencia.sesion.tutor != null} ?
+                                           ${evidencia.sesion.tutor.nombre} + ' ' + ${evidencia.sesion.tutor.apellido} : '---'">
+                            </span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Fecha subida</span>
+                            <span class="fw-semibold"
+                                  th:text="${evidencia.fechaSubida != null} ? ${#dates.format(evidencia.fechaSubida, 'dd/MM/yyyy')} : '---'"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="text-body-secondary">Notas coordinador</span>
+                            <span class="fw-semibold text-end" style="max-width:60%"
+                                  th:text="${evidencia.notasCoordinador != null and !evidencia.notasCoordinador.isEmpty()} ? ${evidencia.notasCoordinador} : 'Sin notas'">
+                            </span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Estatus validación</span>
+                            <span class="badge rounded-pill"
+                                  th:text="${evidencia.estatusValidacion}"
+                                  th:classappend="${evidencia.estatusValidacion == 'VALIDADA'} ? 'badge-active' :
+                                                  (${evidencia.estatusValidacion == 'RECHAZADA'} ? 'badge-inactive' : 'bg-warning text-dark')">
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Acciones de validación -->
+                    <div class="mt-4 p-3 rounded-3"
+                         th:if="${evidencia.estatusValidacion == 'PENDIENTE'}"
+                         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                        <p class="text-body-secondary small mb-3">Acciones de validación</p>
+                        <div class="d-flex gap-2">
+                            <form th:action="@{/evidencia/validar/{id}(id=${evidencia.id})}" method="post" class="flex-grow-1">
+                                <input type="hidden" name="notas" value="Evidencia aprobada por coordinador">
+                                <button type="submit" class="btn btn-success w-100 btn-sm">Validar</button>
+                            </form>
+                            <button type="button" class="btn btn-danger flex-grow-1 btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#rechazarModal">
+                                Rechazar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}"
+                           class="btn btn-primary w-100">Editar</a>
+                        <a th:href="@{/evidencia}" class="btn btn-secondary w-100">Volver</a>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<!-- Modal rechazar -->
+<div class="modal fade" id="rechazarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rechazar evidencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/evidencia/rechazar/{id}(id=${evidencia.id})}" method="post">
+                <div class="modal-body">
+                    <label for="notasRechazo" class="form-label">Motivo del rechazo</label>
+                    <textarea class="form-control" id="notasRechazo" name="notas" rows="3"
+                              placeholder="Describe el motivo del rechazo..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Rechazar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

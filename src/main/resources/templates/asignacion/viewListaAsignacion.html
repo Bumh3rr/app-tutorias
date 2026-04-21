@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="mb-1">Asignaciones</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Gestiona la asignación de tutorados a tutores.</p>
+                </div>
+                <a th:href="@{/asignacion/agregar}" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                    </svg>
+                    Agregar Asignación
+                </a>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Filtro activo -->
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/asignacion}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-filters mb-4">
+                <h6 class="mb-3">Buscar Asignaciones</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">
+                            Todas
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutorado">
+                            Tutorías de un Tutorado
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-semestre">
+                            Por Semestre
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutor-semestre">
+                            Por Tutor y Semestre
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3">
+
+                    <!-- Tab todos -->
+                    <div class="tab-pane fade show active" id="tab-todos">
+                        <a th:href="@{/asignacion}" class="btn btn-primary btn-sm">Ver todas</a>
+                    </div>
+
+                    <!-- Tab tutorías de un tutorado -->
+                    <div class="tab-pane fade" id="tab-tutorado">
+                        <form method="get" th:action="@{/asignacion}">
+                            <input type="hidden" name="tipoBusqueda" value="tutorado">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idTutorado" class="form-select" required>
+                                        <option value="">Selecciona un tutorado...</option>
+                                        <option th:each="t : ${tutorados}"
+                                                th:value="${t.id}"
+                                                th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}"
+                                                th:selected="${t.id == idTutoradoSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab por semestre -->
+                    <div class="tab-pane fade" id="tab-semestre">
+                        <form method="get" th:action="@{/asignacion}">
+                            <input type="hidden" name="tipoBusqueda" value="semestre">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idSemestre" class="form-select" required>
+                                        <option value="">Selecciona un semestre...</option>
+                                        <option th:each="s : ${semestres}"
+                                                th:value="${s.id}"
+                                                th:text="${s.periodo} + ' ' + ${s.anio}"
+                                                th:selected="${s.id == idSemestreSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab por tutor y semestre -->
+                    <div class="tab-pane fade" id="tab-tutor-semestre">
+                        <form method="get" th:action="@{/asignacion}">
+                            <input type="hidden" name="tipoBusqueda" value="tutorSemestre">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <select name="idTutor" class="form-select" required>
+                                        <option value="">Tutor...</option>
+                                        <option th:each="t : ${tutores}"
+                                                th:value="${t.id}"
+                                                th:text="${t.nombre} + ' ' + ${t.apellido}"
+                                                th:selected="${t.id == idTutorSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <select name="idSemestre" class="form-select" required>
+                                        <option value="">Semestre...</option>
+                                        <option th:each="s : ${semestres}"
+                                                th:value="${s.id}"
+                                                th:text="${s.periodo} + ' ' + ${s.anio}"
+                                                th:selected="${s.id == idSemestreSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}">
+                <div class="border rounded-3 p-1">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Oficio</th>
+                            <th>Tutor</th>
+                            <th>Tutorado</th>
+                            <th>No. Control</th>
+                            <th>Semestre</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asignacion : ${asignaciones}">
+                            <td th:text="${asignacion.id}"></td>
+                            <td>
+                                <img th:if="${asignacion.foto != null}"
+                                     th:src="@{/asignacion/{foto}(foto=${asignacion.foto})}"
+                                     alt="Oficio"
+                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
+                                <img th:unless="${asignacion.foto != null}"
+                                     src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                     alt="Sin oficio"
+                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
+                            </td>
+                            <td th:text="${asignacion.tutor != null} ? ${asignacion.tutor.nombre} + ' ' + ${asignacion.tutor.apellido} : 'Sin tutor'"></td>
+                            <td th:text="${asignacion.tutorado != null} ? ${asignacion.tutorado.nombre} + ' ' + ${asignacion.tutorado.apellido} : 'Sin tutorado'"></td>
+                            <td th:text="${asignacion.tutorado != null} ? ${asignacion.tutorado.numeroControl} : '---'"></td>
+                            <td th:text="${asignacion.semestre != null} ? ${asignacion.semestre.periodo} + ' ' + ${asignacion.semestre.anio} : 'Sin semestre'"></td>
+                            <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${asignacion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${asignacion.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/asignacion/ver/{id}(id=${asignacion.id})}"
+                                       class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/asignacion/actualizar/{id}(id=${asignacion.id})}"
+                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/asignacion/delete/{id}(id=${asignacion.id})}"
+                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${asignaciones != null and !#lists.isEmpty(asignaciones)}"
+                 class="text-center py-5 position-relative">
+                <img th:src="@{/images/utils/img.png}" alt="No hay asignaciones" class="mb-4"
+                     style="max-width: 300px; width: 100%;">
+                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
+                    <h4 class="mb-3">No hay asignaciones registradas</h4>
+                    <p class="mb-4 text-muted">Agrega una nueva asignación para vincular tutorados con tutores.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a th:href="@{/asignacion}" class="btn btn-outline-secondary">Refrescar</a>
+                        <a th:href="@{/asignacion/agregar}" class="btn btn-primary">
+                            Agregar Asignación
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

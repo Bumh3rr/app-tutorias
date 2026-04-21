@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Detección</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .necesidad-card {
+            background: rgba(255,255,255,0.03);
+            border: 0.5px solid rgba(255,255,255,0.08);
+            border-radius: var(--bs-border-radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .necesidad-card:hover { background: rgba(255,255,255,0.06); }
+        .necesidad-card.selected {
+            background: rgba(220,53,69,0.12);
+            border-color: rgba(220,53,69,0.4);
+        }
+        .necesidad-card .form-check-input { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center">
+            <div class="card bg-body-secondary w-100" style="max-width: 620px;">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-1"
+                        th:text="${isEdit} ? 'Editar Detección' : 'Registrar Detección de Necesidades'"></h3>
+                    <p class="text-center text-body-secondary small mb-4">
+                        Instrumento aplicado al tutorado para identificar sus necesidades de apoyo.
+                    </p>
+
+                    <form method="post"
+                          th:object="${deteccion}"
+                          th:action="${isEdit} ? @{/deteccion/actualizar/{id}(id=${deteccion.id})} : @{/deteccion/guardar}">
+
+                        <!-- ID -->
+                        <div class="mb-3" th:if="${deteccion.id != null}">
+                            <label class="form-label">ID</label>
+                            <input type="number" class="form-control" th:field="*{id}" readonly>
+                        </div>
+
+                        <!-- Tutorado -->
+                        <div class="mb-3">
+                            <label for="tutorado.id" class="form-label">Tutorado</label>
+                            <select class="form-select" id="tutorado.id" name="tutorado.id"
+                                    th:field="*{tutorado.id}" required>
+                                <option value="">Selecciona un tutorado...</option>
+                                <option th:each="t : ${tutorados}"
+                                        th:value="${t.id}"
+                                        th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Sesión -->
+                        <div class="mb-3">
+                            <label for="sesion.id" class="form-label">Sesión donde se aplicó</label>
+                            <select class="form-select" id="sesion.id" name="sesion.id"
+                                    th:field="*{sesion.id}">
+                                <option value="">Sin sesión asignada</option>
+                                <option th:each="s : ${sesiones}"
+                                        th:value="${s.id}"
+                                        th:text="'Semana ' + ${s.semana} + ' — ' + ${s.tutor != null ? s.tutor.nombre + ' ' + s.tutor.apellido : 'Sin tutor'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Fecha de aplicación -->
+                        <div class="mb-4">
+                            <label for="fechaAplicacion" class="form-label">Fecha de aplicación</label>
+                            <input type="date" class="form-control" id="fechaAplicacion"
+                                   th:field="*{fechaAplicacion}">
+                        </div>
+
+                        <!-- Necesidades académicas -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Necesidades Académicas</label>
+                            <small class="d-block text-body-secondary mb-3">
+                                Selecciona las materias en las que el tutorado presenta deficiencias.
+                            </small>
+                            <div class="row g-2">
+
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-algebra"
+                                         th:classappend="${deteccion.necesidadAlgebra == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="necesidadAlgebra"
+                                                   name="necesidadAlgebra"
+                                                   value="1"
+                                                   th:checked="${deteccion.necesidadAlgebra == 1}">
+                                            <label class="form-check-label w-100" for="necesidadAlgebra">
+                                                <span class="fw-medium d-block">Álgebra</span>
+                                                <small class="text-body-secondary">Matemáticas básicas</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-calculo"
+                                         th:classappend="${deteccion.necesidadCalculo == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="necesidadCalculo"
+                                                   name="necesidadCalculo"
+                                                   value="1"
+                                                   th:checked="${deteccion.necesidadCalculo == 1}">
+                                            <label class="form-check-label w-100" for="necesidadCalculo">
+                                                <span class="fw-medium d-block">Cálculo Diferencial</span>
+                                                <small class="text-body-secondary">Cálculo nivel superior</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-derecho"
+                                         th:classappend="${deteccion.necesidadDerecho == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="necesidadDerecho"
+                                                   name="necesidadDerecho"
+                                                   value="1"
+                                                   th:checked="${deteccion.necesidadDerecho == 1}">
+                                            <label class="form-check-label w-100" for="necesidadDerecho">
+                                                <span class="fw-medium d-block">Intro. al Derecho</span>
+                                                <small class="text-body-secondary">Fundamentos legales</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Otra materia -->
+                        <div class="mb-4">
+                            <label for="necesidadOtra" class="form-label">Otra materia con dificultad</label>
+                            <input type="text" class="form-control" id="necesidadOtra"
+                                   placeholder="ej. Física, Química, Programación..."
+                                   th:field="*{necesidadOtra}">
+                        </div>
+
+                        <!-- Necesidades integrales -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Necesidades de Apoyo Integral</label>
+                            <small class="d-block text-body-secondary mb-3">
+                                Selecciona si el tutorado requiere apoyo adicional.
+                            </small>
+                            <div class="row g-2">
+
+                                <div class="col-md-6">
+                                    <div class="necesidad-card" id="card-economica"
+                                         th:classappend="${deteccion.necesidadEconomica == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="necesidadEconomica"
+                                                   name="necesidadEconomica"
+                                                   value="1"
+                                                   th:checked="${deteccion.necesidadEconomica == 1}">
+                                            <label class="form-check-label w-100" for="necesidadEconomica">
+                                                <span class="fw-medium d-block">Apoyo Económico</span>
+                                                <small class="text-body-secondary">Becas o apoyos financieros</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="necesidad-card" id="card-psicologica"
+                                         th:classappend="${deteccion.necesidadPsicologica == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="necesidadPsicologica"
+                                                   name="necesidadPsicologica"
+                                                   value="1"
+                                                   th:checked="${deteccion.necesidadPsicologica == 1}">
+                                            <label class="form-check-label w-100" for="necesidadPsicologica">
+                                                <span class="fw-medium d-block">Apoyo Psicológico</span>
+                                                <small class="text-body-secondary">Atención psicoterapéutica</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="mb-4">
+                            <label for="observaciones" class="form-label">Observaciones del tutor</label>
+                            <textarea class="form-control" id="observaciones" rows="3"
+                                      placeholder="Notas adicionales sobre el tutorado..."
+                                      th:field="*{observaciones}"></textarea>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a th:href="@{/deteccion}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checks = document.querySelectorAll('.necesidad-check');
+        checks.forEach(check => {
+            const card = check.closest('.necesidad-card');
+            check.addEventListener('change', function () {
+                card.classList.toggle('selected', this.checked);
+            });
+            card.addEventListener('click', function (e) {
+                if (e.target !== check && !e.target.closest('label')) {
+                    check.checked = !check.checked;
+                    check.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Asignación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+
+            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
+                <div class="card-body p-4">
+                    <h4 class="mb-1">Detalle de Asignación</h4>
+                    <p class="text-secondary-emphasis small mb-4">Información de la asignación registrada</p>
+
+                    <!-- Oficio -->
+                    <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
+                         style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                        <img th:if="${asignacion.foto != null}"
+                             th:src="@{/asignacion/{foto}(foto=${asignacion.foto})}"
+                             alt="Oficio"
+                             style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
+                        <img th:unless="${asignacion.foto != null}"
+                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                             alt="Sin oficio"
+                             style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
+                        <div>
+                            <h5 class="mb-1 fw-semibold">Asignación
+                                <span th:text="'#' + ${asignacion.id}"></span>
+                            </h5>
+                            <small class="text-secondary">Oficio de asignación</small>
+                        </div>
+                    </div>
+
+                    <!-- Datos Tutor -->
+                    <h6 class="text-body-secondary mb-2">Tutor</h6>
+                    <div class="p-3 rounded-3 mb-3"
+                         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                        <div class="d-flex align-items-center gap-3">
+                            <img th:if="${asignacion.tutor != null and asignacion.tutor.foto != null}"
+                                 th:src="@{/tutor/{foto}(foto=${asignacion.tutor.foto})}"
+                                 alt="Foto tutor"
+                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
+                            <img th:unless="${asignacion.tutor != null and asignacion.tutor.foto != null}"
+                                 src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                 alt="Sin foto"
+                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
+                            <div>
+                                <p class="mb-0 fw-semibold"
+                                   th:text="${asignacion.tutor != null} ? ${asignacion.tutor.nombre} + ' ' + ${asignacion.tutor.apellido} : 'Sin tutor'"></p>
+                                <small class="text-secondary"
+                                       th:text="${asignacion.tutor != null} ? ${asignacion.tutor.numeroControl} : ''"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Tutorado -->
+                    <h6 class="text-body-secondary mb-2">Tutorado</h6>
+                    <div class="p-3 rounded-3 mb-3"
+                         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                        <div class="d-flex align-items-center gap-3">
+                            <img th:if="${asignacion.tutorado != null and asignacion.tutorado.foto != null}"
+                                 th:src="@{/tutorado/{foto}(foto=${asignacion.tutorado.foto})}"
+                                 alt="Foto tutorado"
+                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
+                            <img th:unless="${asignacion.tutorado != null and asignacion.tutorado.foto != null}"
+                                 src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                 alt="Sin foto"
+                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
+                            <div>
+                                <p class="mb-0 fw-semibold"
+                                   th:text="${asignacion.tutorado != null} ? ${asignacion.tutorado.nombre} + ' ' + ${asignacion.tutorado.apellido} : 'Sin tutorado'"></p>
+                                <small class="text-secondary"
+                                       th:text="${asignacion.tutorado != null} ? ${asignacion.tutorado.numeroControl} : ''"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resto de datos -->
+                    <div class="vstack gap-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Semestre</span>
+                            <span class="fw-semibold"
+                                  th:text="${asignacion.semestre != null} ? ${asignacion.semestre.periodo} + ' ' + ${asignacion.semestre.anio} : 'Sin asignar'"></span>
+                        </div>
+                        <hr class="my-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Estado</span>
+                            <span class="badge rounded-pill"
+                                  th:text="${asignacion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                  th:classappend="${asignacion.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2 mt-4">
+                        <a th:href="@{/asignacion/actualizar/{id}(id=${asignacion.id})}"
+                           class="btn btn-primary w-100">Editar</a>
+                        <a th:href="@{/asignacion}" class="btn btn-secondary w-100">Volver</a>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

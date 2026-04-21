@@ -1,0 +1,250 @@
+<!-- ==================== SIDEBAR ==================== -->
+<aside th:fragment="sidebar">
+    <div class="sidebar" id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <div class="bg-white rounded-circle p-1">
+                    <img th:src="@{/images/tecnm/logoTecnm.png}" alt="Logo" style="width: 22px; height: 22px;">
+                </div>
+            </div>
+            <div class="brand-text-container">
+                <span class="brand-text">Sistema Tutorías</span>
+                <span class="brand-sub">Tec. Chilpancingo</span>
+            </div>
+        </div>
+
+        <!-- Principal -->
+        <span class="section-label">Principal</span>
+        <a th:href="@{/}" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <span class="nav-label">Inicio</span>
+        </a>
+
+        <!-- Catálogos -->
+        <span class="section-label">Catálogos</span>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-catalogos', 'chev-catalogos')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span class="nav-label">Catálogos</span>
+                <svg class="chevron" id="chev-catalogos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-catalogos">
+                <a th:href="@{/semestre}" class="nav-child">Semestres</a>
+                <a th:href="@{/carrera}" class="nav-child">Carreras</a>
+            </div>
+        </div>
+
+        <!-- Tutorías -->
+        <span class="section-label">Tutorías</span>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-tutores', 'chev-tutores')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span class="nav-label">Tutores</span>
+                <svg class="chevron" id="chev-tutores" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-tutores">
+                <a th:href="@{/tutor}" class="nav-child">Lista de tutores</a>
+                <a th:href="@{/tutor/agregar}" class="nav-child">Agregar tutor</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-tutorados', 'chev-tutorados')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span class="nav-label">Tutorados</span>
+                <svg class="chevron" id="chev-tutorados" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-tutorados">
+                <a th:href="@{/tutorado}" class="nav-child">Lista de tutorados</a>
+                <a th:href="@{/tutorado/agregar}" class="nav-child">Agregar tutorado</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-pat', 'chev-pat')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span class="nav-label">Plan de Acción Tutorial</span>
+                <svg class="chevron" id="chev-pat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-pat">
+                <a th:href="@{/pat}" class="nav-child">Lista de PAT</a>
+                <a th:href="@{/pat/agregar}" class="nav-child">Agregar PAT</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-actividades', 'chev-actividades')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 11 12 14 22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <span class="nav-label">Actividades</span>
+                <svg class="chevron" id="chev-actividades" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-actividades">
+                <a th:href="@{/actividad}" class="nav-child">Lista de actividades</a>
+                <a th:href="@{/actividad/agregar}" class="nav-child">Agregar actividad</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-asignaciones', 'chev-asignaciones')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                <span class="nav-label">Asignaciones</span>
+                <svg class="chevron" id="chev-asignaciones" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-asignaciones">
+                <a th:href="@{/asignacion}" class="nav-child">Lista de asignaciones</a>
+                <a th:href="@{/asignacion/agregar}" class="nav-child">Agregar asignación</a>
+            </div>
+        </div>
+
+        <!-- Seguimiento -->
+        <span class="section-label">Seguimiento</span>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-sesiones', 'chev-sesiones')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span class="nav-label">Sesiones</span>
+                <svg class="chevron" id="chev-sesiones" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-sesiones">
+                <a th:href="@{/sesion}" class="nav-child">Lista de sesiones</a>
+                <a th:href="@{/sesion/agregar}" class="nav-child">Agregar sesión</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-asistencias', 'chev-asistencias')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <polyline points="16 11 18 13 22 9"/>
+                </svg>
+                <span class="nav-label">Asistencias</span>
+                <svg class="chevron" id="chev-asistencias" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-asistencias">
+                <a th:href="@{/asistencia}" class="nav-child">Lista de asistencias</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-evidencias', 'chev-evidencias')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span class="nav-label">Evidencias</span>
+                <svg class="chevron" id="chev-evidencias" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-evidencias">
+                <a th:href="@{/evidencia}" class="nav-child">Lista de evidencias</a>
+                <a th:href="@{/evidencia/agregar}" class="nav-child">Subir evidencia</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-coordinadores', 'chev-coordinadores')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                    <polyline points="16 11 18 13 22 9"/>
+                </svg>
+                <span class="nav-label">Coordinadores</span>
+                <svg class="chevron" id="chev-coordinadores" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-coordinadores">
+                <a th:href="@{/coordinador}" class="nav-child">Lista de coordinadores</a>
+                <a th:href="@{/coordinador/agregar}" class="nav-child">Agregar coordinador</a>
+            </div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-item nav-toggle" onclick="toggleGroup('g-deteccion', 'chev-deteccion')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <span class="nav-label">Detección de Necesidades</span>
+                <svg class="chevron" id="chev-deteccion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+            <div class="nav-children" id="g-deteccion">
+                <a th:href="@{/deteccion}" class="nav-child">Lista de detecciones</a>
+                <a th:href="@{/deteccion/agregar}" class="nav-child">Registrar detección</a>
+            </div>
+        </div>
+
+        <!-- Toggle collapse -->
+        <div class="toggle-btn" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" id="toggle-icon">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            <span class="nav-label">Contraer</span>
+        </div>
+
+    </div>
+</aside>
+
+<!-- ==================== FOOTER ==================== -->
+<footer th:fragment="footer" class="footer-sidebar">
+    <div class="container-fluid">
+        &copy; 2026 Sistema de Tutorías — Tecnológico de Chilpancingo
+    </div>
+</footer>
+
