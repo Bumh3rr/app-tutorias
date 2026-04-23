@@ -13,7 +13,7 @@
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
+        <main class="app-main d-flex justify-content-center align-items-center">
 
             <div class="card bg-body-secondary w-100" style="max-width: 560px;">
                 <div class="card-body p-4">
@@ -87,15 +87,6 @@
                                      style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
                             </div>
                             <input type="hidden" th:field="*{foto}">
-                        </div>
-
-                        <!-- Estado -->
-                        <div class="mb-4">
-                            <label for="activo" class="form-label">Estado</label>
-                            <select class="form-select" id="activo" th:field="*{activo}">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
                         </div>
 
                         <!-- Botones -->

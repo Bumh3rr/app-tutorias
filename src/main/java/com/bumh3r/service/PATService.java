@@ -1,6 +1,8 @@
 package com.bumh3r.service;
 
 import com.bumh3r.entity.PAT;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 public interface PATService {
@@ -15,4 +17,9 @@ public interface PATService {
 
     // PAT por carrera y semestre
     List<PAT> buscarPATporCarreraYSemestre(Integer idCarrera, Integer idSemestre);
+
+    // Por paginación
+    Page<PAT> obtenerPATGeneralesPaginacion(Integer page, Integer pageSize, String sortBy, String sort);
+    Page<PAT> buscarPATporCarreraYSemestrePaginacion(Integer idCarrera, Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<PAT> obtenerTodosPATPaginacion(Integer page, Integer pageSize, String sortBy, String sort);
 }

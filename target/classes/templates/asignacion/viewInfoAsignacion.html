@@ -28,7 +28,7 @@
                              alt="Oficio"
                              style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
                         <img th:unless="${asignacion.foto != null}"
-                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                             th:src="@{/images/utils/sin_imagen.png}"
                              alt="Sin oficio"
                              style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
                         <div>
@@ -49,7 +49,7 @@
                                  alt="Foto tutor"
                                  style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
                             <img th:unless="${asignacion.tutor != null and asignacion.tutor.foto != null}"
-                                 src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                 th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${asignacion.tutor.nombre}+${asignacion.tutor.apellido}|}"
                                  alt="Sin foto"
                                  style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
                             <div>
@@ -71,7 +71,7 @@
                                  alt="Foto tutorado"
                                  style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
                             <img th:unless="${asignacion.tutorado != null and asignacion.tutorado.foto != null}"
-                                 src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                 th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${asignacion.tutorado.nombre}+${asignacion.tutorado.apellido}|}"
                                  alt="Sin foto"
                                  style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
                             <div>

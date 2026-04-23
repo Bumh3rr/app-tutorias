@@ -52,7 +52,6 @@ public class AsignacionTutoradoServiceImpl implements AsignacionTutoradoService 
         asignacionDB.setTutorado(asignacion.getTutorado());
         asignacionDB.setSemestre(asignacion.getSemestre());
         asignacionDB.setFoto(asignacion.getFoto());
-        asignacionDB.setActivo(asignacion.getActivo());
 
         this.iAsignacionTutoradoRepository.save(asignacionDB);
     }

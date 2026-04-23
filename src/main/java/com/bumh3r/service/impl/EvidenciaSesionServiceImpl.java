@@ -42,13 +42,10 @@ public class EvidenciaSesionServiceImpl implements EvidenciaSesionService {
                 .orElseThrow(() -> new NoSuchElementException("Evidencia no encontrada"));
 
         resolverRelaciones(evidencia);
-
         evidenciaDB.setSesion(evidencia.getSesion());
         evidenciaDB.setArchivoUrl(evidencia.getArchivoUrl());
         evidenciaDB.setNotasCoordinador(evidencia.getNotasCoordinador());
         evidenciaDB.setEstatusValidacion(evidencia.getEstatusValidacion());
-        evidenciaDB.setFechaSubida(evidencia.getFechaSubida());
-        evidenciaDB.setActivo(evidencia.getActivo());
 
         this.iEvidenciaSesionRepository.save(evidenciaDB);
     }

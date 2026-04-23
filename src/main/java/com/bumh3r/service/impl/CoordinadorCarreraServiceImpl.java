@@ -52,7 +52,6 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
         coordinadorDB.setCargo(coordinador.getCargo());
         coordinadorDB.setCarrera(coordinador.getCarrera());
         coordinadorDB.setSemestre(coordinador.getSemestre());
-        coordinadorDB.setActivo(coordinador.getActivo());
 
         this.iCoordinadorCarreraRepository.save(coordinadorDB);
     }

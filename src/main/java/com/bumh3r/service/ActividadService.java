@@ -1,6 +1,8 @@
 package com.bumh3r.service;
 
 import com.bumh3r.entity.Actividad;
+import org.springframework.data.domain.Page;
+
 import java.util.Date;
 import java.util.List;
 
@@ -19,4 +21,10 @@ public interface ActividadService {
 
     // Actividades de un PAT específico
     List<Actividad> buscarActividadesPorPAT(Integer idPat);
+
+    // Paginado y ordenamiento
+    Page<Actividad> buscarActividadesPorFechaPaginado(Date fechaDate, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Actividad> buscarActividadesPorRangoFechasPaginado(Date fInicio, Date fFin, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Actividad> buscarActividadesPorPATPaginado(Integer idPat, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Actividad> obtenerTodasActividadesPaginado(Integer page, Integer pageSize, String sortBy, String sort);
 }

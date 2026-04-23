@@ -7,8 +7,11 @@ import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.IPATRepository;
 import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.service.PATService;
+import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,11 +27,8 @@ public class PATServiceImpl implements PATService {
     private ICarreraRepository iCarreraRepository;
     @Autowired
     private ISemestreRepository iSemestreRepository;
-
-    @Override
-    public List<PAT> obtenerTodosPAT() {
-        return this.iPATRepository.findByActivo(1);
-    }
+    @Autowired
+    private PaginationUtil paginationUtil;
 
     @Override
     public void guardarPAT(PAT pat) {
@@ -50,7 +50,6 @@ public class PATServiceImpl implements PATService {
         patDB.setSemestre(pat.getSemestre());
         patDB.setCarrera(pat.getCarrera());
         patDB.setEsGeneral(pat.getEsGeneral());
-        patDB.setActivo(pat.getActivo());
 
         this.iPATRepository.save(patDB);
     }
@@ -74,12 +73,39 @@ public class PATServiceImpl implements PATService {
     }
 
     @Override
+    public Page<PAT> obtenerPATGeneralesPaginacion(Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iPATRepository.findByActivoAndEsGeneral(1, 1, pageable);
+    }
+
+    @Override
     public List<PAT> buscarPATporCarreraYSemestre(Integer idCarrera, Integer idSemestre) {
         Carrera carrera = this.iCarreraRepository.findById(idCarrera)
                 .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
         Semestre semestre = this.iSemestreRepository.findById(idSemestre)
                 .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         return this.iPATRepository.findByActivoAndCarreraAndSemestre(1, carrera, semestre);
+    }
+
+    @Override
+    public Page<PAT> buscarPATporCarreraYSemestrePaginacion(Integer idCarrera, Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort) {
+        Carrera carrera = this.iCarreraRepository.findById(idCarrera)
+                .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
+        Semestre semestre = this.iSemestreRepository.findById(idSemestre)
+                .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iPATRepository.findByActivoAndCarreraAndSemestre(1, carrera, semestre, pageable);
+    }
+
+    @Override
+    public List<PAT> obtenerTodosPAT() {
+        return this.iPATRepository.findByActivo(1);
+    }
+
+    @Override
+    public Page<PAT> obtenerTodosPATPaginacion(Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iPATRepository.findByActivo(1,pageable);
     }
 
     private void resolverRelaciones(PAT pat) {

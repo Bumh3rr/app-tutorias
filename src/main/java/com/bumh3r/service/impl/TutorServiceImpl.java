@@ -7,8 +7,14 @@ import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.repository.ITutorRepository;
 import com.bumh3r.service.TutorService;
+import com.bumh3r.service.utils.PaginationUtil;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,11 +30,8 @@ public class TutorServiceImpl implements TutorService {
     private ICarreraRepository iCarreraRepository;
     @Autowired
     private ISemestreRepository iSemestreRepository;
-
-    @Override
-    public List<Tutor> obtenerTodosTutores() {
-        return this.iTutorRepository.findByActivo(1);
-    }
+    @Autowired
+    private PaginationUtil paginationUtil;
 
     @Override
     public void guardarTutor(Tutor tutor) {
@@ -53,7 +56,6 @@ public class TutorServiceImpl implements TutorService {
         tutorDB.setHorario(tutor.getHorario());
         tutorDB.setCarrera(tutor.getCarrera());
         tutorDB.setSemestre(tutor.getSemestre());
-        tutorDB.setActivo(tutor.getActivo());
 
         this.iTutorRepository.save(tutorDB);
     }
@@ -72,19 +74,34 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
-    public List<Tutor> buscarTutoresPorSemestre(Integer idSemestre) {
-        Semestre semestre = this.iSemestreRepository.findById(idSemestre)
-                .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
-        return this.iTutorRepository.findByActivoAndSemestre(1, semestre);
-    }
-
-    @Override
-    public List<Tutor> buscarTutoresPorSemestreYCarrera(Integer idSemestre, Integer idCarrera) {
+    public Page<Tutor> buscarTutoresPorSemestreYCarreraPaginado(Integer idSemestre, Integer idCarrera, Integer page, Integer pageSize, String sortBy, String sort) {
         Semestre semestre = this.iSemestreRepository.findById(idSemestre)
                 .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         Carrera carrera = this.iCarreraRepository.findById(idCarrera)
                 .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
-        return this.iTutorRepository.findByActivoAndSemestreAndCarrera(1, semestre, carrera);
+
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.findByActivoAndSemestreAndCarrera(1, semestre, carrera, pageable);
+    }
+
+    @Override
+    public Page<Tutor> buscarTutoresPorSemestrePaginado(Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort) {
+        Semestre semestre = this.iSemestreRepository.findById(idSemestre)
+                .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.findByActivoAndSemestre(1, semestre, pageable);
+    }
+
+    @Override
+    public Page<Tutor> obtenerTodosTutoresPaginado(Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public List<Tutor> obtenerTodosTutores() {
+        return this.iTutorRepository.findByActivo(1);
     }
 
     private void resolverRelaciones(Tutor tutor) {

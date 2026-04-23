@@ -11,12 +11,15 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
@@ -39,33 +42,51 @@ public class PATController {
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "soloGenerales", required = false) Boolean soloGenerales,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
             Model model) {
 
-        List<PAT> pats;
+        Page<PAT> pats;
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
         List<Semestre> semestres = this.semestreService.obtenerTodosSemestres();
 
         try {
             if (Boolean.TRUE.equals(soloGenerales)) {
-                pats = this.patService.obtenerPATGenerales();
+                pats = this.patService.obtenerPATGeneralesPaginacion(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Solo PAT generales");
             } else if (idCarrera != null && idSemestre != null) {
-                pats = this.patService.buscarPATporCarreraYSemestre(idCarrera, idSemestre);
+                pats = this.patService.buscarPATporCarreraYSemestrePaginacion(idCarrera, idSemestre, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Carrera y semestre seleccionados");
             } else {
-                pats = this.patService.obtenerTodosPAT();
+                pats = this.patService.obtenerTodosPATPaginacion(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            pats = this.patService.obtenerTodosPAT();
+            pats = this.patService.obtenerTodosPATPaginacion(0,pageSize,sortBy, "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("pats", pats);
+        HashMap<String, String> mapSort = new LinkedHashMap<>();
+        mapSort.put("id", "ID");
+
+        model.addAttribute("pats", pats.getContent());
+        model.addAttribute("paginaActual", pats.getNumber());
+        model.addAttribute("totalPaginas", pats.getTotalPages());
+        model.addAttribute("totalElementos", pats.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+
         model.addAttribute("carreras", carreras);
         model.addAttribute("semestres", semestres);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
+        model.addAttribute("soloGenerales", soloGenerales);
+
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sort", sort);
+        model.addAttribute("mapSort", mapSort);
+
         return "pat/viewListaPAT";
     }
 

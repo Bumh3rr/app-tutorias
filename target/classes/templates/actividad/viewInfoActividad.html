@@ -26,7 +26,7 @@
                              alt="Foto"
                              style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
                         <img th:unless="${actividad.foto != null}"
-                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                             th:src="@{/images/utils/sin_imagen.png}"
                              alt="Sin foto"
                              style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
                         <div>

@@ -5,8 +5,11 @@ import com.bumh3r.entity.PAT;
 import com.bumh3r.repository.IActividadRepository;
 import com.bumh3r.repository.IPATRepository;
 import com.bumh3r.service.ActividadService;
+import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,6 +24,8 @@ public class ActividadServiceImpl implements ActividadService {
     private IActividadRepository iActividadRepository;
     @Autowired
     private IPATRepository iPATRepository;
+    @Autowired
+    private PaginationUtil paginationUtil;
 
     @Override
     public List<Actividad> obtenerTodasActividades() {
@@ -47,7 +52,6 @@ public class ActividadServiceImpl implements ActividadService {
         actividadDB.setSemana(actividad.getSemana());
         actividadDB.setFoto(actividad.getFoto());
         actividadDB.setPat(actividad.getPat());
-        actividadDB.setActivo(actividad.getActivo());
 
         this.iActividadRepository.save(actividadDB);
     }
@@ -80,6 +84,32 @@ public class ActividadServiceImpl implements ActividadService {
         PAT pat = this.iPATRepository.findById(idPat)
                 .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
         return this.iActividadRepository.findByActivoAndPat(1, pat);
+    }
+
+    @Override
+    public Page<Actividad> buscarActividadesPorFechaPaginado(Date fechaDate, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iActividadRepository.findByActivoAndFecha(1, fechaDate, pageable);
+    }
+
+    @Override
+    public Page<Actividad> buscarActividadesPorRangoFechasPaginado(Date fInicio, Date fFin, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iActividadRepository.findByActivoAndFechaBetween(1, fInicio, fFin, pageable);
+    }
+
+    @Override
+    public Page<Actividad> buscarActividadesPorPATPaginado(Integer idPat, Integer page, Integer pageSize, String sortBy, String sort) {
+        PAT pat = this.iPATRepository.findById(idPat)
+                .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iActividadRepository.findByActivoAndPat(1, pat, pageable);
+    }
+
+    @Override
+    public Page<Actividad> obtenerTodasActividadesPaginado(Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iActividadRepository.findByActivo(1, pageable);
     }
 
     private void resolverRelaciones(Actividad actividad) {

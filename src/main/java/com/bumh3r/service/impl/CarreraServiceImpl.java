@@ -35,7 +35,6 @@ public class CarreraServiceImpl implements CarreraService {
 
         carreraDB.setNombre(carrera.getNombre());
         carreraDB.setClave(carrera.getClave());
-        carreraDB.setActivo(carrera.getActivo());
 
         this.iCarreraRepository.save(carreraDB);
     }

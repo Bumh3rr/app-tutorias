@@ -22,7 +22,8 @@
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los alumnos tutorados del programa.</p>
                 </div>
                 <a th:href="@{/tutorado/agregar}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                         fill="currentColor">
                         <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
                     </svg>
                     Agregar Tutorado
@@ -101,6 +102,58 @@
                 </div>
             </div>
 
+            <!-- Result -->
+            <div class="d-flex gap-3 justify-content-end align-items-center mb-2">
+
+                <div class="dropdown">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Ordenar Por
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <div class="list-group">
+                                <a class="list-group-item list-group-item-action"
+                                   th:each="map : ${mapSort}"
+                                   th:classappend="${map.key == sortBy ? 'active' : ''}"
+                                   th:href="@{/tutorado(sort=${sort}, sortBy = ${map.key}, page=${paginaActual}, pageSize=${pageSize}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}"
+                                   th:text="${map.value}"
+                                >
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- Botón Asc -->
+                        <li class="page-item"
+                            th:classappend="${sort == 'asc'} ? 'active' : ''">
+                            <a class="page-link"
+                               th:text="Asc"
+                               th:href="@{/tutorado(sort='asc', sortBy = ${sortBy}, page=${paginaActual}, pageSize=${pageSize}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                            </a>
+                        </li>
+                        <!-- Botón Desc -->
+                        <li class="page-item"
+                            th:classappend="${sort == 'desc'} ? 'active' : ''">
+                            <a class="page-link"
+                               th:text="Desc"
+                               th:href="@{/tutorado(sort='desc', sortBy = ${sortBy}, page=${paginaActual}, pageSize=${pageSize}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+                <small class="text-body-secondary"
+                       th:with="inicio=${totalElementos == 0 ? 0 : (paginaActual == 0 ? 1 : paginaActual * pageSize)}, fin=${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}"
+                       th:text="${inicio} + '-' + ${fin} + ' de ' + ${totalElementos}">
+                </small>
+            </div>
+
             <!-- Tabla -->
             <div th:if="${tutorados != null and !#lists.isEmpty(tutorados)}">
                 <div class="border rounded-3 p-1">
@@ -156,6 +209,61 @@
                 </div>
             </div>
 
+            <!-- Paginación -->
+            <div th:if="${totalPaginas > 1}"
+                 class="d-flex justify-content-between align-items-center mt-3 px-1">
+
+                <small class="text-body-secondary"
+                       th:text="'Pagina ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}">
+                </small>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+
+                        <!-- Anterior -->
+                        <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/tutorado(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                                &laquo;
+                            </a>
+                        </li>
+
+                        <!-- Números de página -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                            th:classappend="${i == paginaActual} ? 'active'">
+                            <a class="page-link"
+                               th:text="${i + 1}"
+                               th:href="@{/tutorado(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                            </a>
+                        </li>
+
+                        <!-- Siguiente -->
+                        <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/tutorado(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                                &raquo;
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+                <!-- Selector de tamaño de página -->
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-body-secondary">Mostrar</small>
+                    <select class="form-select form-select-sm" style="width: auto;"
+                            onchange="cambiarPageSize(this.value)">
+                        <option value="5" th:selected="${pageSize == 5}">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                    <small class="text-body-secondary">por página</small>
+                </div>
+
+            </div>
+
             <!-- Empty state -->
             <div th:unless="${tutorados != null and !#lists.isEmpty(tutorados)}"
                  class="text-center py-5 position-relative">
@@ -169,7 +277,8 @@
                         <a th:href="@{/tutorado/agregar}" class="btn btn-primary">
                             Agregar Tutorado
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                                <path fill="#FFFFFF"
+                                      d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
                             </svg>
                         </a>
                     </div>
@@ -183,5 +292,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/fn_pagination.js}"></script>
+
 </body>
 </html>

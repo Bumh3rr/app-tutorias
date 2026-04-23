@@ -181,7 +181,7 @@
                                      alt="Oficio"
                                      style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
                                 <img th:unless="${asignacion.foto != null}"
-                                     src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                     th:src="@{/images/utils/sin_imagen.png}"
                                      alt="Sin oficio"
                                      style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
                             </td>

@@ -46,15 +46,6 @@
                                    required th:field="*{clave}">
                         </div>
 
-                        <!-- Estado -->
-                        <div class="mb-4">
-                            <label for="activo" class="form-label">Estado</label>
-                            <select class="form-select" id="activo" th:field="*{activo}">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
                         <!-- Botones -->
                         <div class="d-flex gap-2 justify-content-end">
                             <a th:href="@{/carrera}" class="btn btn-secondary">Cancelar</a>

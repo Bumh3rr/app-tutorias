@@ -11,12 +11,15 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
@@ -38,33 +41,53 @@ public class TutorController {
     public String obtenerVistaListaTutores(
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
             Model model) {
 
-        List<Tutor> tutores;
+        Page<Tutor> paginaTutores;
         List<Semestre> semestres = this.semestreService.obtenerTodosSemestres();
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
 
         try {
             if (idSemestre != null && idCarrera != null) {
-                tutores = this.tutorService.buscarTutoresPorSemestreYCarrera(idSemestre, idCarrera);
+                paginaTutores = this.tutorService.buscarTutoresPorSemestreYCarreraPaginado(idSemestre, idCarrera, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Semestre y carrera seleccionados");
             } else if (idSemestre != null) {
-                tutores = this.tutorService.buscarTutoresPorSemestre(idSemestre);
+                paginaTutores = this.tutorService.buscarTutoresPorSemestrePaginado(idSemestre, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Semestre seleccionado");
             } else {
-                tutores = this.tutorService.obtenerTodosTutores();
+                paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            tutores = this.tutorService.obtenerTodosTutores();
+            paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(0, pageSize, "id", "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("tutores", tutores);
+        HashMap<String, String> mapSort = new LinkedHashMap<>();
+        mapSort.put("id", "ID");
+        mapSort.put("nombre", "Nombre");
+        mapSort.put("numeroControl", "No. Control");
+        mapSort.put("carrera.clave", "Carrera");
+
+        model.addAttribute("paginaActual", paginaTutores.getNumber());
+        model.addAttribute("tutores", paginaTutores.getContent());
+        model.addAttribute("totalElementos", paginaTutores.getTotalElements());
+        model.addAttribute("totalPaginas", paginaTutores.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
+
         model.addAttribute("semestres", semestres);
         model.addAttribute("carreras", carreras);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
+
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sort", sort);
+        model.addAttribute("mapSort", mapSort);
+
         return "tutor/viewListaTutor";
     }
 

@@ -7,8 +7,13 @@ import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.repository.ITutoradoRepository;
 import com.bumh3r.service.TutoradoService;
+import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +29,8 @@ public class TutoradoServiceImpl implements TutoradoService {
     private ICarreraRepository iCarreraRepository;
     @Autowired
     private ISemestreRepository iSemestreRepository;
+    @Autowired
+    private PaginationUtil paginationUtil;
 
     @Override
     public List<Tutorado> obtenerTodosTutorados() {
@@ -51,7 +58,6 @@ public class TutoradoServiceImpl implements TutoradoService {
         tutoradoDB.setFoto(tutorado.getFoto());
         tutoradoDB.setCarrera(tutorado.getCarrera());
         tutoradoDB.setSemestre(tutorado.getSemestre());
-        tutoradoDB.setActivo(tutorado.getActivo());
 
         this.iTutoradoRepository.save(tutoradoDB);
     }
@@ -70,12 +76,20 @@ public class TutoradoServiceImpl implements TutoradoService {
     }
 
     @Override
-    public List<Tutorado> buscarTutoradosPorSemestreYCarrera(Integer idSemestre, Integer idCarrera) {
+    public Page<Tutorado> obtenerTodosTutoradosPaginado(int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public Page<Tutorado> buscarTutoradosPorSemestreYCarreraPaginado(Integer idSemestre, Integer idCarrera, int page, int pageSize, String sortBy, String sort) {
         Semestre semestre = this.iSemestreRepository.findById(idSemestre)
                 .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         Carrera carrera = this.iCarreraRepository.findById(idCarrera)
                 .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
-        return this.iTutoradoRepository.findByActivoAndSemestreAndCarrera(1, semestre, carrera);
+
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.findByActivoAndSemestreAndCarrera(1, semestre, carrera, pageable);
     }
 
     private void resolverRelaciones(Tutorado tutorado) {

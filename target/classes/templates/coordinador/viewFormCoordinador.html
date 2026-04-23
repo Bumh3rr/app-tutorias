@@ -101,14 +101,6 @@
                             </select>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="activo" class="form-label">Estado</label>
-                            <select class="form-select" id="activo" th:field="*{activo}">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-
                         <div class="d-flex gap-2 justify-content-end">
                             <a th:href="@{/coordinador}" class="btn btn-secondary">Cancelar</a>
                             <button type="submit" class="btn btn-primary">Guardar</button>

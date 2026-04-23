@@ -35,7 +35,6 @@ public class SemestreServiceImpl implements SemestreService {
 
         semestreDB.setPeriodo(semestre.getPeriodo());
         semestreDB.setAnio(semestre.getAnio());
-        semestreDB.setActivo(semestre.getActivo());
 
         this.iSemestreRepository.save(semestreDB);
     }

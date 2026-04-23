@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
@@ -41,9 +44,13 @@ public class ActividadController {
             @RequestParam(value = "fechaFin", required = false) String fechaFin,
             @RequestParam(value = "idPat", required = false) Integer idPat,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
             Model model) {
 
-        List<Actividad> actividades;
+        Page<Actividad> actividades;
         List<PAT> pats = this.patService.obtenerTodosPAT();
 
         try {
@@ -51,32 +58,52 @@ public class ActividadController {
 
             if ("fecha".equals(tipoBusqueda) && fecha != null && !fecha.isEmpty()) {
                 Date fechaDate = sdf.parse(fecha);
-                actividades = this.actividadService.buscarActividadesPorFecha(fechaDate);
+                actividades = this.actividadService.buscarActividadesPorFechaPaginado(fechaDate, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Fecha: " + fecha);
 
             } else if ("rango".equals(tipoBusqueda) && fechaInicio != null && fechaFin != null
                     && !fechaInicio.isEmpty() && !fechaFin.isEmpty()) {
                 Date fInicio = sdf.parse(fechaInicio);
                 Date fFin = sdf.parse(fechaFin);
-                actividades = this.actividadService.buscarActividadesPorRangoFechas(fInicio, fFin);
+                actividades = this.actividadService.buscarActividadesPorRangoFechasPaginado(fInicio, fFin, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Rango: " + fechaInicio + " a " + fechaFin);
 
             } else if ("pat".equals(tipoBusqueda) && idPat != null) {
-                actividades = this.actividadService.buscarActividadesPorPAT(idPat);
+                actividades = this.actividadService.buscarActividadesPorPATPaginado(idPat, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Por PAT seleccionado");
 
             } else {
-                actividades = this.actividadService.obtenerTodasActividades();
+                actividades = this.actividadService.obtenerTodasActividadesPaginado(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            actividades = this.actividadService.obtenerTodasActividades();
+            actividades = this.actividadService.obtenerTodasActividadesPaginado(0, pageSize, "id", "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("actividades", actividades);
+        HashMap<String, String> mapSort = new LinkedHashMap<>();
+        mapSort.put("id", "ID");
+        mapSort.put("nombre", "Nombre");
+        mapSort.put("semana", "Semana");
+        mapSort.put("fecha", "Fecha");
+
+        model.addAttribute("actividades", actividades.getContent());
+        model.addAttribute("paginaActual", actividades.getNumber());
+        model.addAttribute("totalElementos", actividades.getTotalElements());
+        model.addAttribute("totalPaginas", actividades.getTotalPages());
+        model.addAttribute("pageSize", pageSize);
+
         model.addAttribute("pats", pats);
         model.addAttribute("idPatSeleccionado", idPat);
+        model.addAttribute("fechaSeleccionada", fecha);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sort", sort);
+        model.addAttribute("mapSort", mapSort);
+
         return "actividad/viewListaActividad";
     }
 

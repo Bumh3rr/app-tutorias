@@ -52,7 +52,6 @@ public class SesionServiceImpl implements SesionService {
         sesionDB.setSemana(sesion.getSemana());
         sesionDB.setFechaImparticion(sesion.getFechaImparticion());
         sesionDB.setEstatusRegistro(sesion.getEstatusRegistro());
-        sesionDB.setActivo(sesion.getActivo());
 
         this.iSesionRepository.save(sesionDB);
     }

@@ -11,13 +11,17 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "tutorado")
@@ -38,30 +42,47 @@ public class TutoradoController {
     public String obtenerVistaListaTutorados(
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
             Model model) {
 
-        List<Tutorado> tutorados;
+        Page<Tutorado> paginaTutorados;
         List<Semestre> semestres = this.semestreService.obtenerTodosSemestres();
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
 
         try {
             if (idSemestre != null && idCarrera != null) {
-                tutorados = this.tutoradoService.buscarTutoradosPorSemestreYCarrera(idSemestre, idCarrera);
+                paginaTutorados = this.tutoradoService.buscarTutoradosPorSemestreYCarreraPaginado(idSemestre, idCarrera, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Semestre y carrera seleccionados");
             } else {
-                tutorados = this.tutoradoService.obtenerTodosTutorados();
+                paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            tutorados = this.tutoradoService.obtenerTodosTutorados();
+            paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(0, pageSize, "id", "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("tutorados", tutorados);
+        HashMap<String, String> mapSort = new LinkedHashMap<>();
+        mapSort.put("id", "ID");
+        mapSort.put("nombre", "Nombre");
+        mapSort.put("numeroControl", "No. Control");
+
+        model.addAttribute("tutorados", paginaTutorados.getContent());
+        model.addAttribute("paginaActual", paginaTutorados.getNumber());
+        model.addAttribute("totalPaginas", paginaTutorados.getTotalPages());
+        model.addAttribute("totalElementos", paginaTutorados.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
         model.addAttribute("semestres", semestres);
         model.addAttribute("carreras", carreras);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sort", sort);
+        model.addAttribute("mapSort", mapSort);
+
         return "tutorado/viewListaTutorado";
     }
 
