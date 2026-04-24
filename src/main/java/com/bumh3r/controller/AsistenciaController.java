@@ -169,6 +169,37 @@ public class AsistenciaController {
         return "redirect:/asistencia";
     }
 
+    @PostMapping(value = "recuperar/{id}")
+    public String marcarAsistenciaRecuperada(
+            @PathVariable Integer id,
+            @RequestParam(value = "idTutorado") Integer idTutorado,
+            RedirectAttributes attributes) {
+        try {
+            Asistencia asistencia = this.asistenciaService.obtenerAsistencia(id);
+
+            if (asistencia == null) {
+                attributes.addFlashAttribute("msg_error", "Asistencia no encontrada.");
+                return "redirect:/asistencia/resumen/" + idTutorado;
+            }
+
+            if (asistencia.getPresente() == 1) {
+                attributes.addFlashAttribute("msg_error",
+                        "No se puede recuperar una asistencia que ya está presente.");
+                return "redirect:/asistencia/resumen/" + idTutorado;
+            }
+
+            asistencia.setRecuperada(1);
+            this.asistenciaService.actualizarAsistencia(id, asistencia);
+            attributes.addFlashAttribute("msg_success",
+                    "Asistencia marcada como recuperada correctamente.");
+
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error",
+                    "Error al recuperar asistencia: " + e.getMessage());
+        }
+        return "redirect:/asistencia/resumen/" + idTutorado;
+    }
+
     @GetMapping(value = "delete/{id}")
     public String obtenerVistaConfirmarEliminarAsistencia(@PathVariable Integer id, Model model) {
         Asistencia asistencia = this.asistenciaService.obtenerAsistencia(id);

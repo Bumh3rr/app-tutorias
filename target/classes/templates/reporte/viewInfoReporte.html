@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Reporte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center">
+            <div class="card bg-body-secondary w-100" style="max-width: 580px;">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-1">Reporte de Sesión</h4>
+                    <p class="text-secondary-emphasis small mb-4">Registro de actividades del tutor</p>
+
+                    <!-- Info sesión y tutor -->
+                    <div class="p-3 rounded-3 mb-4"
+                         style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-body-secondary d-block">Sesión</small>
+                                <span class="fw-semibold"
+                                      th:text="${reporte.sesion != null} ? 'Semana ' + ${reporte.sesion.semana} : '---'"></span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-body-secondary d-block">Fecha</small>
+                                <span class="fw-semibold"
+                                      th:text="${reporte.sesion != null and reporte.sesion.fechaImparticion != null} ? ${#dates.format(reporte.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
+                                </span>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <small class="text-body-secondary d-block">Tutor</small>
+                                <span class="fw-semibold"
+                                      th:text="${reporte.sesion != null and reporte.sesion.tutor != null} ? ${reporte.sesion.tutor.nombre} + ' ' + ${reporte.sesion.tutor.apellido} : '---'">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del reporte -->
+                    <div class="vstack gap-3">
+
+                        <div>
+                            <span class="text-body-secondary small d-block mb-1">Descripción de la actividad</span>
+                            <div class="p-3 rounded-3"
+                                 style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                                <p class="mb-0" th:text="${reporte.descripcionActividad}"></p>
+                            </div>
+                        </div>
+
+                        <hr class="my-0">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Alumnos presentes</span>
+                            <span class="badge bg-secondary fs-6"
+                                  th:text="${reporte.alumnosPresentes != null} ? ${reporte.alumnosPresentes} : '---'">
+                            </span>
+                        </div>
+
+                        <hr class="my-0">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Fecha de entrega</span>
+                            <span class="fw-semibold"
+                                  th:text="${reporte.fechaEntrega != null} ? ${#dates.format(reporte.fechaEntrega, 'dd/MM/yyyy')} : '---'">
+                            </span>
+                        </div>
+
+                        <hr class="my-0">
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-body-secondary">Estatus de revisión</span>
+                            <span class="badge rounded-pill"
+                                  th:text="${reporte.estatusRevision}"
+                                  th:classappend="${reporte.estatusRevision == 'REVISADO'} ? 'badge-active' :
+                                                  (${reporte.estatusRevision == 'OBSERVADO'} ? 'bg-warning text-dark' : 'badge-inactive')">
+                            </span>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div th:if="${reporte.observaciones != null and !reporte.observaciones.isEmpty()}">
+                            <hr class="my-0">
+                            <div>
+                                <span class="text-body-secondary small d-block mb-1">Observaciones</span>
+                                <div class="p-3 rounded-3"
+                                     style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                                    <p class="mb-0 text-body-secondary small"
+                                       th:text="${reporte.observaciones}"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex gap-2 mt-4">
+                        <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}"
+                           class="btn btn-primary w-100">Editar</a>
+                        <a th:if="${reporte.sesion != null}"
+                           th:href="@{/sesion/ver/{id}(id=${reporte.sesion.id})}"
+                           class="btn btn-outline-secondary w-100">Ver sesión</a>
+                        <a th:unless="${reporte.sesion != null}"
+                           th:href="@{/reporte}"
+                           class="btn btn-secondary w-100">Volver</a>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

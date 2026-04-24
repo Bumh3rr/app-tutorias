@@ -96,6 +96,7 @@
                                 <th>No. Control</th>
                                 <th>Carrera</th>
                                 <th>Estado</th>
+                                <th>Detección</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -113,7 +114,7 @@
                                              alt="Foto"
                                              style="width:32px; height:32px; object-fit:cover; border-radius:50%;">
                                         <img th:unless="${tutorado.foto != null}"
-                                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                                             th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
                                              alt="Sin foto"
                                              style="width:32px; height:32px; object-fit:cover; border-radius:50%;">
                                         <span th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido}"></span>
@@ -122,10 +123,16 @@
                                 <td class="text-body-secondary" th:text="${tutorado.numeroControl}"></td>
                                 <td th:text="${tutorado.carrera != null} ? ${tutorado.carrera.nombre} : 'Sin carrera'"></td>
                                 <td>
-                                        <span class="badge rounded-pill"
-                                              th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
-                                              th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                        </span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/deteccion/agregar(idTutorado=${tutorado.id}, idSesion=${sesion.id})}"
+                                       class="btn btn-sm btn-outline-info">
+                                        Registrar
+                                    </a>
                                 </td>
                             </tr>
                             </tbody>
@@ -158,10 +165,12 @@
     function toggleTodos(checkbox) {
         document.querySelectorAll('.check-tutorado').forEach(c => c.checked = checkbox.checked);
     }
+
     function marcarTodos() {
         document.querySelectorAll('.check-tutorado').forEach(c => c.checked = true);
         document.getElementById('checkAll').checked = true;
     }
+
     function desmarcarTodos() {
         document.querySelectorAll('.check-tutorado').forEach(c => c.checked = false);
         document.getElementById('checkAll').checked = false;

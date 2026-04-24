@@ -89,6 +89,14 @@
                                class="btn btn-outline-secondary btn-sm">
                                 Subir Evidencia
                             </a>
+                            <a th:href="@{/deteccion/agregar(idSesion=${sesion.id})}"
+                               class="btn btn-outline-info btn-sm">
+                                Registrar Detección de Necesidades
+                            </a>
+                            <a th:href="@{/reporte/sesion/{id}(id=${sesion.id})}"
+                               class="btn btn-outline-warning btn-sm">
+                                Reporte de Sesión
+                            </a>
                         </div>
                     </div>
 

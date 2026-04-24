@@ -125,30 +125,52 @@
                                 <th>Fecha</th>
                                 <th>Presente</th>
                                 <th>Recuperada</th>
+                                <th>Acciones</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="asistencia : ${historial}">
                                 <td th:text="${asistencia.sesion != null} ? 'Sesión #' + ${asistencia.sesion.id} : '---'"></td>
                                 <td>
-                                        <span class="badge bg-secondary"
-                                              th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : '---'">
-                                        </span>
+                        <span class="badge bg-secondary"
+                              th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : '---'">
+                        </span>
                                 </td>
                                 <td th:text="${asistencia.sesion != null and asistencia.sesion.fechaImparticion != null} ?
-                                                 ${#dates.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
+                                 ${#dates.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
                                 </td>
                                 <td>
-                                        <span class="badge rounded-pill"
-                                              th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'"
-                                              th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'">
-                                        </span>
+                        <span class="badge rounded-pill"
+                              th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'"
+                              th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'">
+                        </span>
                                 </td>
                                 <td>
-                                        <span class="badge rounded-pill"
-                                              th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'"
-                                              th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'">
-                                        </span>
+                        <span class="badge rounded-pill"
+                              th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'"
+                              th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'">
+                        </span>
+                                </td>
+                                <td>
+                                    <!-- Solo mostrar botón si está ausente y no recuperada -->
+                                    <form th:if="${asistencia.presente == 0 and asistencia.recuperada == 0}"
+                                          th:action="@{/asistencia/recuperar/{id}(id=${asistencia.id})}"
+                                          method="post" style="display:inline;">
+                                        <input type="hidden" name="idTutorado"
+                                               th:value="${resumen.idTutorado}">
+                                        <button type="submit" class="btn btn-sm btn-warning"
+                                                onclick="return confirm('¿Marcar esta asistencia como recuperada?')">
+                                            Recuperar
+                                        </button>
+                                    </form>
+                                    <!-- Si ya está recuperada mostrar badge -->
+                                    <span th:if="${asistencia.recuperada == 1}"
+                                          class="badge bg-warning text-dark">
+                            Recuperada
+                        </span>
+                                    <!-- Si está presente no mostrar nada -->
+                                    <span th:if="${asistencia.presente == 1}"
+                                          class="text-body-secondary small">—</span>
                                 </td>
                             </tr>
                             </tbody>
