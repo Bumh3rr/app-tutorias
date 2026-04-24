@@ -94,24 +94,24 @@ INSERT INTO actividad (nombre, descripcion, fecha, semana, foto, id_pat, activo)
 
 -- ── Asignaciones Tutorado-Tutor ─────────────────
 INSERT INTO asignacion_tutorado (id_tutor, id_tutorado, id_semestre, activo) VALUES
-(1, 1,  3, NULL, 1),
-(1, 2,  3, NULL, 1),
-(1, 3,  3, NULL, 1),
-(1, 4,  3, NULL, 1),
-(1, 15, 3, NULL, 1),
-(2, 5,  3, NULL, 1),
-(2, 6,  3, NULL, 1),
-(2, 7,  3, NULL, 1),
-(3, 8,  3, NULL, 1),
-(3, 9,  3, NULL, 1),
-(3, 10, 3, NULL, 1),
-(5, 11, 3, NULL, 1),
-(5, 12, 3, NULL, 1),
-(6, 13, 3, NULL, 1),
-(6, 14, 3, NULL, 1),
-(7, 16, 2, NULL, 1),
-(7, 17, 2, NULL, 1),
-(8, 18, 2, NULL, 1);
+(1, 1,  3, 1),
+(1, 2,  3, 1),
+(1, 3,  3, 1),
+(1, 4,  3, 1),
+(1, 15, 3, 1),
+(2, 5,  3, 1),
+(2, 6,  3, 1),
+(2, 7,  3, 1),
+(3, 8,  3, 1),
+(3, 9,  3, 1),
+(3, 10, 3, 1),
+(5, 11, 3, 1),
+(5, 12, 3, 1),
+(6, 13, 3, 1),
+(6, 14, 3, 1),
+(7, 16, 2, 1),
+(7, 17, 2, 1),
+(8, 18, 2, 1);
 
 -- ── Sesiones ───────────────────────────────────
 INSERT INTO sesion (id_tutor, id_actividad, semana, fecha_imparticion, estatus_registro, activo) VALUES
