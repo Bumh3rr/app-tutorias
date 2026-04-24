@@ -27,6 +27,5 @@ public class AsignacionTutorado {
     @JoinColumn(name = "id_semestre")
     private Semestre semestre;
 
-    private String foto;
     private Integer activo;
 }

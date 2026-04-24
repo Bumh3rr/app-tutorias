@@ -24,15 +24,15 @@ INSERT INTO coordinador_carrera (nombre, apellido, numero_control, email, foto, 
 ('Roberto',  'Castillo Fuentes','COORD-005', 'roberto.coord@tecnm.mx',  NULL, 'Coordinador de Tutoría IGE',                2, 2, 1);
 
 -- ── Tutores ────────────────────────────────────
-INSERT INTO tutor (nombre, apellido, numero_control, email, foto, aula, horario, id_carrera, id_semestre, activo) VALUES
-('Carlos',   'Mendoza Rivas',    '22520434', 'carlos.mendoza@tecnm.mx',    NULL, 'R-101', 'Viernes 08:00-09:00', 1, 3, 1),
-('Patricia', 'Juárez López',     '22520826', 'patricia.juarez@tecnm.mx',   NULL, 'R-203', 'Viernes 09:00-10:00', 2, 3, 1),
-('Roberto',  'Castillo Fuentes', '22520827', 'roberto.castillo@tecnm.mx',  NULL, 'R-105', 'Viernes 10:00-11:00', 3, 3, 1),
-('Lorena',   'Pacheco Soto',     '22520927', 'lorena.pacheco@tecnm.mx',    NULL, 'R-202', 'Viernes 08:00-09:00', 1, 3, 1),
-('Miguel',   'Torres García',    '22520534', 'miguel.torres@tecnm.mx',     NULL, 'R-301', 'Viernes 11:00-12:00', 4, 3, 1),
-('Rosario',  'Vega Herrera',     '22520425', 'rosario.vega@tecnm.mx',      NULL, 'R-104', 'Viernes 09:00-10:00', 5, 3, 1),
-('Fernando', 'Alvarado Cruz',    '22520878', 'fernando.alvarado@tecnm.mx', NULL, 'R-201', 'Viernes 10:00-11:00', 2, 2, 1),
-('Claudia',  'Ramírez Peña',     '22520911', 'claudia.ramirez@tecnm.mx',   NULL, 'V-103', 'Viernes 08:00-09:00', 3, 2, 1);
+INSERT INTO tutor (nombre, apellido, numero_control, email, foto, aula, dia_semana, horario, id_carrera, id_semestre, activo) VALUES
+('Carlos',   'Mendoza Rivas',    '22520434', 'carlos.mendoza@tecnm.mx',    NULL, 'R-101', 'Viernes', '08:00-09:00', 1, 3, 1),
+('Patricia', 'Juárez López',     '22520826', 'patricia.juarez@tecnm.mx',   NULL, 'R-203', 'Viernes', '09:00-10:00', 2, 3, 1),
+('Roberto',  'Castillo Fuentes', '22520827', 'roberto.castillo@tecnm.mx',  NULL, 'R-105', 'Viernes', '10:00-11:00', 3, 3, 1),
+('Lorena',   'Pacheco Soto',     '22520927', 'lorena.pacheco@tecnm.mx',    NULL, 'R-202', 'Viernes', '08:00-09:00', 1, 3, 1),
+('Miguel',   'Torres García',    '22520534', 'miguel.torres@tecnm.mx',     NULL, 'R-301', 'Viernes', '11:00-12:00', 4, 3, 1),
+('Rosario',  'Vega Herrera',     '22520425', 'rosario.vega@tecnm.mx',      NULL, 'R-104', 'Viernes', '09:00-10:00', 5, 3, 1),
+('Fernando', 'Alvarado Cruz',    '22520878', 'fernando.alvarado@tecnm.mx', NULL, 'R-201', 'Viernes', '10:00-11:00', 2, 2, 1),
+('Claudia',  'Ramírez Peña',     '22520911', 'claudia.ramirez@tecnm.mx',   NULL, 'V-103', 'Viernes', '08:00-09:00', 3, 2, 1);
 
 -- ── Tutorados ──────────────────────────────────
 INSERT INTO tutorado (nombre, apellido, numero_control, email, foto, id_carrera, id_semestre, activo) VALUES
@@ -93,7 +93,7 @@ INSERT INTO actividad (nombre, descripcion, fecha, semana, foto, id_pat, activo)
 ('Detección de Necesidades Ago-Dic 2025','Aplicación del instrumento de detección de necesidades semestre Agosto-Diciembre 2025.',              '2025-08-29', 2,  NULL, 5, 1);
 
 -- ── Asignaciones Tutorado-Tutor ─────────────────
-INSERT INTO asignacion_tutorado (id_tutor, id_tutorado, id_semestre, foto, activo) VALUES
+INSERT INTO asignacion_tutorado (id_tutor, id_tutorado, id_semestre, activo) VALUES
 (1, 1,  3, NULL, 1),
 (1, 2,  3, NULL, 1),
 (1, 3,  3, NULL, 1),

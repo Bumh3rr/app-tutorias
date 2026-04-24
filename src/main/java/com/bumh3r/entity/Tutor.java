@@ -25,6 +25,10 @@ public class Tutor {
     private String aula;
     private String horario;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dia_semana")
+    private DiaSemana diaSemana;
+
     @ManyToOne
     @JoinColumn(name = "id_carrera")
     private Carrera carrera;
@@ -34,4 +38,27 @@ public class Tutor {
     private Semestre semestre;
 
     private Integer activo;
+
+    public enum DiaSemana {
+        LUNES("Lunes"),
+        MARTES("Martes"),
+        MIERCOLES("Miércoles"),
+        JUEVES("Jueves"),
+        VIERNES("Viernes");
+
+        private String nombre;
+
+        DiaSemana(String nombre) {
+            this.nombre = nombre;
+        }
+        public String getNombre() {
+            return nombre;
+        }
+
+        @Override
+        public String toString() {
+            return this.nombre;
+        }
+    }
+
 }

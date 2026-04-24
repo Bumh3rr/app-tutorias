@@ -93,6 +93,7 @@ public class TutorController {
 
     @GetMapping(value = "agregar")
     public String obtenerVistaAgregarTutor(Model model) {
+        model.addAttribute("listDias", Tutor.DiaSemana.values());
         model.addAttribute("tutor", new Tutor());
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
         model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
@@ -131,6 +132,7 @@ public class TutorController {
     public String obtenerVistaActualizarTutor(@PathVariable Integer id, Model model) {
         Tutor tutor = this.tutorService.obtenerTutor(id);
         log.info("Tutor a actualizar: {}", tutor);
+        model.addAttribute("listDias", Tutor.DiaSemana.values());
         model.addAttribute("tutor", tutor);
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
         model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());

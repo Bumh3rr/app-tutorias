@@ -89,6 +89,11 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         Sesion sesion = this.iSesionRepository.findById(idSesion)
                 .orElseThrow(() -> new NoSuchElementException("Sesión no encontrada"));
 
+        if ("CANCELADA".equals(sesion.getEstatusRegistro())) {
+            throw new IllegalStateException(
+                    "No se puede registrar asistencia en una sesión cancelada.");
+        }
+
         // Obtener todos los tutorados asignados al tutor de la sesión
         List<Tutorado> todosTutorados = this.iTutoradoRepository.findByActivo(1);
 

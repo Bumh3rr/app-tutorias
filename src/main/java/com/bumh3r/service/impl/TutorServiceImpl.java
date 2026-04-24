@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Primary
 @Service
@@ -36,6 +37,17 @@ public class TutorServiceImpl implements TutorService {
     @Override
     public void guardarTutor(Tutor tutor) {
         resolverRelaciones(tutor);
+
+        if (tutor.getAula() != null && tutor.getDiaSemana() != null && tutor.getHorario() != null) {
+            boolean ocupado = this.iTutorRepository
+                    .existsByAulaAndDiaSemanaAndHorarioAndActivo(
+                            tutor.getAula(), tutor.getDiaSemana(), tutor.getHorario(), 1);
+            if (ocupado) {
+                throw new IllegalStateException(
+                        "El aula " + tutor.getAula() + " ya está ocupada en ese día y horario.");
+            }
+        }
+
         tutor.setActivo(1);
         this.iTutorRepository.save(tutor);
     }
@@ -47,12 +59,23 @@ public class TutorServiceImpl implements TutorService {
 
         resolverRelaciones(tutor);
 
+        if (tutor.getAula() != null && tutor.getDiaSemana() != null && tutor.getHorario() != null) {
+            boolean ocupado = this.iTutorRepository
+                    .existsByAulaAndDiaSemanaAndHorarioAndActivoAndIdNot(
+                            tutor.getAula(), tutor.getDiaSemana(), tutor.getHorario(), 1, id);
+            if (ocupado) {
+                throw new IllegalStateException(
+                        "El aula " + tutor.getAula() + " ya está ocupada en ese día y horario.");
+            }
+        }
+
         tutorDB.setNombre(tutor.getNombre());
         tutorDB.setApellido(tutor.getApellido());
         tutorDB.setNumeroControl(tutor.getNumeroControl());
         tutorDB.setEmail(tutor.getEmail());
         tutorDB.setFoto(tutor.getFoto());
         tutorDB.setAula(tutor.getAula());
+        tutorDB.setDiaSemana(tutor.getDiaSemana());
         tutorDB.setHorario(tutor.getHorario());
         tutorDB.setCarrera(tutor.getCarrera());
         tutorDB.setSemestre(tutor.getSemestre());

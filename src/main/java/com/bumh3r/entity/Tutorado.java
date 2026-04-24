@@ -31,5 +31,8 @@ public class Tutorado {
     @JoinColumn(name = "id_semestre")
     private Semestre semestre;
 
+    @Column(name = "grado")
+    private Integer grado; // 1 = primer semestre de carrera, 2 = segundo semestre
+
     private Integer activo;
 }

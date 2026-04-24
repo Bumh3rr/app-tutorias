@@ -21,4 +21,12 @@ public interface ITutorRepository extends JpaRepository<Tutor, Integer> {
 
     // Extra útil: tutores por carrera y semestre
     Page<Tutor> findByActivoAndSemestreAndCarrera(Integer activo, Semestre semestre, Carrera carrera, Pageable pageable);
+
+    // En ITutorRepository agregar:
+    boolean existsByAulaAndDiaSemanaAndHorarioAndActivo(
+            String aula, Tutor.DiaSemana diaSemana, String horario, Integer activo);
+
+    boolean existsByAulaAndDiaSemanaAndHorarioAndActivoAndIdNot(
+            String aula, Tutor.DiaSemana diaSemana, String horario, Integer activo, Integer id);
+
 }

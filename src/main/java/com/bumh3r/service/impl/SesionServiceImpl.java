@@ -33,6 +33,14 @@ public class SesionServiceImpl implements SesionService {
     @Override
     public void guardarSesion(Sesion sesion) {
         resolverRelaciones(sesion);
+
+        boolean duplicada = this.iSesionRepository
+                .existsByTutorAndSemanaAndActivo(sesion.getTutor(), sesion.getSemana(), 1);
+        if (duplicada) {
+            throw new IllegalStateException(
+                    "El tutor ya tiene una sesión registrada en la semana " + sesion.getSemana() + ".");
+        }
+
         sesion.setActivo(1);
         if (sesion.getEstatusRegistro() == null) {
             sesion.setEstatusRegistro("PENDIENTE");

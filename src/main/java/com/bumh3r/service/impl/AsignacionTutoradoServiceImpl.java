@@ -37,21 +37,36 @@ public class AsignacionTutoradoServiceImpl implements AsignacionTutoradoService 
     @Override
     public void guardarAsignacion(AsignacionTutorado asignacion) {
         resolverRelaciones(asignacion);
+
+        // Verificar que el tutorado no tenga más de 2 asignaciones activas
+        long totalAsignaciones = this.iAsignacionTutoradoRepository
+                .countByTutoradoAndActivo(asignacion.getTutorado(), 1);
+
+        if (totalAsignaciones >= 2) {
+            throw new IllegalStateException("El tutorado ya completó sus dos créditos de tutoría (1° y 2° semestre).");
+        }
+
+        // Verificar que no haya duplicado en el mismo semestre
+        boolean yaAsignado = this.iAsignacionTutoradoRepository
+                .existsByTutoradoAndSemestreAndActivo(asignacion.getTutorado(), asignacion.getSemestre(), 1);
+
+        if (yaAsignado) {
+            throw new IllegalStateException("El tutorado ya tiene una asignación activa en este semestre.");
+        }
+
         asignacion.setActivo(1);
         this.iAsignacionTutoradoRepository.save(asignacion);
     }
 
     @Override
     public void actualizarAsignacion(Integer id, AsignacionTutorado asignacion) {
-        AsignacionTutorado asignacionDB = this.iAsignacionTutoradoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Asignación no encontrada"));
+        AsignacionTutorado asignacionDB = this.iAsignacionTutoradoRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Asignación no encontrada"));
 
         resolverRelaciones(asignacion);
 
         asignacionDB.setTutor(asignacion.getTutor());
         asignacionDB.setTutorado(asignacion.getTutorado());
         asignacionDB.setSemestre(asignacion.getSemestre());
-        asignacionDB.setFoto(asignacion.getFoto());
 
         this.iAsignacionTutoradoRepository.save(asignacionDB);
     }
@@ -63,55 +78,47 @@ public class AsignacionTutoradoServiceImpl implements AsignacionTutoradoService 
 
     @Override
     public void eliminarAsignacion(Integer id) {
-        AsignacionTutorado asignacion = this.iAsignacionTutoradoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Asignación no encontrada"));
+        AsignacionTutorado asignacion = this.iAsignacionTutoradoRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Asignación no encontrada"));
         asignacion.setActivo(0);
         this.iAsignacionTutoradoRepository.save(asignacion);
     }
 
     @Override
     public List<AsignacionTutorado> buscarTutoriasPorTutorado(Integer idTutorado) {
-        Tutorado tutorado = this.iTutoradoRepository.findById(idTutorado)
-                .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
+        Tutorado tutorado = this.iTutoradoRepository.findById(idTutorado).orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
         return this.iAsignacionTutoradoRepository.findByActivoAndTutorado(1, tutorado);
     }
 
     @Override
     public List<AsignacionTutorado> buscarAsignacionesPorTutorYSemestre(Integer idTutor, Integer idSemestre) {
-        Tutor tutor = this.iTutorRepository.findById(idTutor)
-                .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
-        Semestre semestre = this.iSemestreRepository.findById(idSemestre)
-                .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+        Tutor tutor = this.iTutorRepository.findById(idTutor).orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
+        Semestre semestre = this.iSemestreRepository.findById(idSemestre).orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         return this.iAsignacionTutoradoRepository.findByActivoAndTutorAndSemestre(1, tutor, semestre);
     }
 
     @Override
     public List<AsignacionTutorado> buscarAsignacionesPorSemestre(Integer idSemestre) {
-        Semestre semestre = this.iSemestreRepository.findById(idSemestre)
-                .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+        Semestre semestre = this.iSemestreRepository.findById(idSemestre).orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         return this.iAsignacionTutoradoRepository.findByActivoAndSemestre(1, semestre);
     }
 
     private void resolverRelaciones(AsignacionTutorado asignacion) {
         if (asignacion.getTutor() != null && asignacion.getTutor().getId() != null) {
-            Tutor tutor = this.iTutorRepository.findById(asignacion.getTutor().getId())
-                    .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
+            Tutor tutor = this.iTutorRepository.findById(asignacion.getTutor().getId()).orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
             asignacion.setTutor(tutor);
         } else {
             asignacion.setTutor(null);
         }
 
         if (asignacion.getTutorado() != null && asignacion.getTutorado().getId() != null) {
-            Tutorado tutorado = this.iTutoradoRepository.findById(asignacion.getTutorado().getId())
-                    .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
+            Tutorado tutorado = this.iTutoradoRepository.findById(asignacion.getTutorado().getId()).orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
             asignacion.setTutorado(tutorado);
         } else {
             asignacion.setTutorado(null);
         }
 
         if (asignacion.getSemestre() != null && asignacion.getSemestre().getId() != null) {
-            Semestre semestre = this.iSemestreRepository.findById(asignacion.getSemestre().getId())
-                    .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+            Semestre semestre = this.iSemestreRepository.findById(asignacion.getSemestre().getId()).orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
             asignacion.setSemestre(semestre);
         } else {
             asignacion.setSemestre(null);

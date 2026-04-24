@@ -29,8 +29,6 @@ public class AsignacionTutoradoController {
     private TutoradoService tutoradoService;
     @Autowired
     private SemestreService semestreService;
-    @Autowired
-    private FileStoreService fileStoreService;
 
     private final Logger log = LoggerFactory.getLogger(AsignacionTutoradoController.class);
 
@@ -95,13 +93,8 @@ public class AsignacionTutoradoController {
     @PostMapping(value = "guardar")
     public String guardarAsignacion(
             AsignacionTutorado asignacion,
-            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
             RedirectAttributes attributes) {
         try {
-            if (fotoFile != null && !fotoFile.isEmpty()) {
-                String foto = this.fileStoreService.save(fotoFile, FileType.ASIGNACION);
-                asignacion.setFoto(foto);
-            }
             log.info("Guardar asignacion: {}", asignacion);
             this.asignacionTutoradoService.guardarAsignacion(asignacion);
             attributes.addFlashAttribute("msg_success", "Asignación guardada correctamente");
@@ -135,14 +128,8 @@ public class AsignacionTutoradoController {
     public String actualizarAsignacion(
             @PathVariable Integer id,
             AsignacionTutorado asignacion,
-            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
             RedirectAttributes attributes) {
         try {
-            if (fotoFile != null && !fotoFile.isEmpty()) {
-                this.fileStoreService.delete(asignacion.getFoto(), FileType.ASIGNACION);
-                String foto = this.fileStoreService.save(fotoFile, FileType.ASIGNACION);
-                asignacion.setFoto(foto);
-            }
             log.info("Actualizar asignacion {}: {}", id, asignacion);
             this.asignacionTutoradoService.actualizarAsignacion(id, asignacion);
             attributes.addFlashAttribute("msg_success", "Asignación actualizada correctamente");

@@ -29,6 +29,14 @@ public class EvidenciaSesionServiceImpl implements EvidenciaSesionService {
     @Override
     public void guardarEvidencia(EvidenciaSesion evidencia) {
         resolverRelaciones(evidencia);
+
+        boolean evidenciaExiste = this.iEvidenciaSesionRepository
+                .existsBySesionAndActivo(evidencia.getSesion(), 1);
+        if (evidenciaExiste) {
+            throw new IllegalStateException(
+                    "Esta sesión ya tiene una evidencia registrada.");
+        }
+
         evidencia.setActivo(1);
         if (evidencia.getEstatusValidacion() == null) {
             evidencia.setEstatusValidacion("PENDIENTE");

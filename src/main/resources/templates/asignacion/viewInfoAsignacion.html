@@ -66,14 +66,6 @@
                     <div class="p-3 rounded-3 mb-3"
                          style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
                         <div class="d-flex align-items-center gap-3">
-                            <img th:if="${asignacion.tutorado != null and asignacion.tutorado.foto != null}"
-                                 th:src="@{/tutorado/{foto}(foto=${asignacion.tutorado.foto})}"
-                                 alt="Foto tutorado"
-                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
-                            <img th:unless="${asignacion.tutorado != null and asignacion.tutorado.foto != null}"
-                                 th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${asignacion.tutorado.nombre}+${asignacion.tutorado.apellido}|}"
-                                 alt="Sin foto"
-                                 style="width:48px; height:48px; object-fit:cover; border-radius:50%;">
                             <div>
                                 <p class="mb-0 fw-semibold"
                                    th:text="${asignacion.tutorado != null} ? ${asignacion.tutorado.nombre} + ' ' + ${asignacion.tutorado.apellido} : 'Sin tutorado'"></p>

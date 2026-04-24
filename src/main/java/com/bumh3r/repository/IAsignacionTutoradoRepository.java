@@ -22,4 +22,9 @@ public interface IAsignacionTutoradoRepository extends JpaRepository<AsignacionT
 
     // Asignaciones por semestre
     List<AsignacionTutorado> findByActivoAndSemestre(Integer activo, Semestre semestre);
+
+    boolean existsByTutoradoAndSemestreAndActivo(
+            Tutorado tutorado, Semestre semestre, Integer activo);
+
+    long countByTutoradoAndActivo(Tutorado tutorado, Integer activo);
 }

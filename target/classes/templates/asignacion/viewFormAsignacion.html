@@ -21,7 +21,6 @@
                         th:text="${isEdit} ? 'Editar Asignación' : 'Agregar Asignación'"></h3>
 
                     <form method="post"
-                          enctype="multipart/form-data"
                           th:object="${asignacion}"
                           th:action="${isEdit} ? @{/asignacion/actualizar/{id}(id=${asignacion.id})} : @{/asignacion/guardar}">
 
@@ -68,25 +67,6 @@
                                         th:text="${s.periodo} + ' ' + ${s.anio}">
                                 </option>
                             </select>
-                        </div>
-
-                        <!-- Oficio de asignación (foto) -->
-                        <div class="mb-3">
-                            <label for="fotoFile" class="form-label">Oficio de Asignación</label>
-                            <input type="file" class="form-control" id="fotoFile"
-                                   name="fotoFile" accept="image/*">
-                            <small class="text-secondary-emphasis">Escaneo del oficio. Acepta: JPG, PNG. Máximo 10MB</small>
-                        </div>
-
-                        <!-- Vista previa oficio -->
-                        <div class="mb-3" th:if="${asignacion.foto != null}">
-                            <label class="form-label">Oficio actual</label>
-                            <div>
-                                <img th:src="@{/asignacion/{foto}(foto=${asignacion.foto})}"
-                                     alt="Oficio actual"
-                                     style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
-                            </div>
-                            <input type="hidden" th:field="*{foto}">
                         </div>
 
                         <!-- Botones -->

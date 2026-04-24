@@ -23,4 +23,7 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
 
     // Sesiones por estatus
     List<Sesion> findByActivoAndEstatusRegistro(Integer activo, String estatusRegistro);
+
+    boolean existsByTutorAndSemanaAndActivo(Tutor tutor, Integer semana, Integer activo);
+
 }

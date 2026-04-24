@@ -17,4 +17,6 @@ public interface IEvidenciaSesionRepository extends JpaRepository<EvidenciaSesio
 
     // Evidencias por estatus de validación
     List<EvidenciaSesion> findByActivoAndEstatusValidacion(Integer activo, String estatusValidacion);
+
+    boolean existsBySesionAndActivo(Sesion sesion, int i);
 }
