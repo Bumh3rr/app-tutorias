@@ -14,7 +14,7 @@
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main d-flex justify-content-center">
-            <div class="card bg-body-secondary w-100" style="max-width: 500px;" th:if="${reporte.id} != null">
+            <div class="card danger-card w-100" style="max-width: 500px;" th:if="${reporte.id} != null">
                 <div class="card-body p-4">
                     <h3 class="text-center mb-2">Confirmar Eliminación</h3>
                     <p class="text-center text-muted mb-4">¿Está seguro de que desea eliminar este reporte?</p>
@@ -26,8 +26,8 @@
                                 <span th:text="${reporte.id}"></span></p>
                             <p class="mb-1"><strong>Sesión:</strong>
                                 <span th:text="${reporte.sesion != null} ? 'Semana ' + ${reporte.sesion.semana} : '---'"></span></p>
-                            <p class="mb-1"><strong>Tutor:</strong>
-                                <span th:text="${reporte.sesion != null and reporte.sesion.tutor != null} ? ${reporte.sesion.tutor.nombre} + ' ' + ${reporte.sesion.tutor.apellido} : '---'"></span></p>
+                            <p class="mb-1"><strong>Grupo:</strong>
+                                <span th:text="${reporte.sesion != null and reporte.sesion.grupo != null} ? ${reporte.sesion.grupo.nombre} : '---'"></span></p>
                             <p class="mb-0"><strong>Fecha entrega:</strong>
                                 <span th:text="${reporte.fechaEntrega != null} ? ${#dates.format(reporte.fechaEntrega, 'dd/MM/yyyy')} : '---'"></span></p>
                         </div>

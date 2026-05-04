@@ -9,6 +9,8 @@ import com.bumh3r.repository.ITutoradoRepository;
 import com.bumh3r.service.DeteccionNecesidadesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -29,6 +31,11 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
     @Override
     public List<DeteccionNecesidades> obtenerTodasDetecciones() {
         return this.iDeteccionNecesidadesRepository.findByActivo(1);
+    }
+
+    @Override
+    public Page<DeteccionNecesidades> obtenerTodasDeteccionesPage(Pageable pageable) {
+        return this.iDeteccionNecesidadesRepository.findByActivo(1, pageable);
     }
 
     @Override

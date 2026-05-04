@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,44 +40,70 @@ public class DeteccionNecesidadesController {
             @RequestParam(value = "idSesion", required = false) Integer idSesion,
             @RequestParam(value = "necesidad", required = false) String necesidad,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             Model model) {
 
-        List<DeteccionNecesidades> detecciones;
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
+        if (!"id".equals(sortBy)) sortBy = "id";
+
+        Sort.Direction direction = "desc".equals(sort) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
         List<Tutorado> tutorados = this.tutoradoService.obtenerTodosTutorados();
         List<Sesion> sesiones = this.sesionService.obtenerTodasSesiones();
 
+        Page<DeteccionNecesidades> pageResult;
         try {
             if ("tutorado".equals(tipoBusqueda) && idTutorado != null) {
-                detecciones = this.deteccionNecesidadesService.buscarPorTutorado(idTutorado);
+                List<DeteccionNecesidades> lista = this.deteccionNecesidadesService.buscarPorTutorado(idTutorado);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Tutorado seleccionado");
-
             } else if ("sesion".equals(tipoBusqueda) && idSesion != null) {
-                detecciones = this.deteccionNecesidadesService.buscarPorSesion(idSesion);
+                List<DeteccionNecesidades> lista = this.deteccionNecesidadesService.buscarPorSesion(idSesion);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Sesión seleccionada");
-
             } else if ("necesidad".equals(tipoBusqueda) && necesidad != null) {
+                List<DeteccionNecesidades> lista;
+                String filtroMsg;
                 switch (necesidad) {
-                    case "algebra"      -> { detecciones = this.deteccionNecesidadesService.buscarPorNecesidadAlgebra();      model.addAttribute("filtro", "Necesidad: Álgebra"); }
-                    case "calculo"      -> { detecciones = this.deteccionNecesidadesService.buscarPorNecesidadCalculo();      model.addAttribute("filtro", "Necesidad: Cálculo"); }
-                    case "economica"    -> { detecciones = this.deteccionNecesidadesService.buscarPorNecesidadEconomica();    model.addAttribute("filtro", "Necesidad: Económica"); }
-                    case "psicologica"  -> { detecciones = this.deteccionNecesidadesService.buscarPorNecesidadPsicologica();  model.addAttribute("filtro", "Necesidad: Psicológica"); }
-                    default             -> { detecciones = this.deteccionNecesidadesService.obtenerTodasDetecciones();        model.addAttribute("filtro", null); }
+                    case "algebra"     -> { lista = this.deteccionNecesidadesService.buscarPorNecesidadAlgebra();     filtroMsg = "Necesidad: Álgebra"; }
+                    case "calculo"     -> { lista = this.deteccionNecesidadesService.buscarPorNecesidadCalculo();     filtroMsg = "Necesidad: Cálculo"; }
+                    case "economica"   -> { lista = this.deteccionNecesidadesService.buscarPorNecesidadEconomica();   filtroMsg = "Necesidad: Económica"; }
+                    case "psicologica" -> { lista = this.deteccionNecesidadesService.buscarPorNecesidadPsicologica(); filtroMsg = "Necesidad: Psicológica"; }
+                    default            -> { lista = this.deteccionNecesidadesService.obtenerTodasDetecciones();       filtroMsg = null; }
                 }
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
+                model.addAttribute("filtro", filtroMsg);
             } else {
-                detecciones = this.deteccionNecesidadesService.obtenerTodasDetecciones();
+                pageResult = this.deteccionNecesidadesService.obtenerTodasDeteccionesPage(pageable);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            detecciones = this.deteccionNecesidadesService.obtenerTodasDetecciones();
+            pageResult = this.deteccionNecesidadesService.obtenerTodasDeteccionesPage(pageable);
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("detecciones", detecciones);
+        model.addAttribute("detecciones", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("tutorados", tutorados);
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("idTutoradoSeleccionado", idTutorado);
         model.addAttribute("idSesionSeleccionada", idSesion);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         return "deteccion/viewListaDeteccion";
+    }
+
+    private <T> List<T> paginate(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return start >= list.size() ? List.of() : list.subList(start, end);
     }
 
     @GetMapping(value = "agregar")

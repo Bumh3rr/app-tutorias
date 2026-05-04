@@ -40,6 +40,13 @@ public class TutoradoServiceImpl implements TutoradoService {
     @Override
     public void guardarTutorado(Tutorado tutorado) {
         resolverRelaciones(tutorado);
+        if (this.iTutoradoRepository.existsByNumeroControlAndActivo(tutorado.getNumeroControl(), 1)) {
+            throw new IllegalArgumentException("Ya existe un tutorado activo con el número de control " + tutorado.getNumeroControl());
+        }
+        if (this.iTutoradoRepository.existsByEmailAndActivo(tutorado.getEmail(), 1)) {
+            throw new IllegalArgumentException("Ya existe un tutorado activo con el email " + tutorado.getEmail());
+        }
+        tutorado.setFoto(tutorado.getFoto() != null && !tutorado.getFoto().isEmpty() ? tutorado.getFoto() : null);
         tutorado.setActivo(1);
         this.iTutoradoRepository.save(tutorado);
     }
@@ -50,6 +57,13 @@ public class TutoradoServiceImpl implements TutoradoService {
                 .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
 
         resolverRelaciones(tutorado);
+
+        if (this.iTutoradoRepository.existsByNumeroControlAndActivoAndIdNot(tutorado.getNumeroControl(), 1, id)) {
+            throw new IllegalArgumentException("Ya existe un tutorado activo con el número de control " + tutorado.getNumeroControl());
+        }
+        if (this.iTutoradoRepository.existsByEmailAndActivoAndIdNot(tutorado.getEmail(), 1, id)) {
+            throw new IllegalArgumentException("Ya existe un tutorado activo con el email " + tutorado.getEmail());
+        }
 
         tutoradoDB.setNombre(tutorado.getNombre());
         tutoradoDB.setApellido(tutorado.getApellido());

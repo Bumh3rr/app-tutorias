@@ -7,6 +7,8 @@ import com.bumh3r.repository.ISesionRepository;
 import com.bumh3r.service.EvidenciaSesionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,11 @@ public class EvidenciaSesionServiceImpl implements EvidenciaSesionService {
     @Override
     public List<EvidenciaSesion> obtenerTodasEvidencias() {
         return this.iEvidenciaSesionRepository.findByActivo(1);
+    }
+
+    @Override
+    public Page<EvidenciaSesion> obtenerTodasEvidenciasPage(Pageable pageable) {
+        return this.iEvidenciaSesionRepository.findByActivo(1, pageable);
     }
 
     @Override
@@ -50,6 +57,11 @@ public class EvidenciaSesionServiceImpl implements EvidenciaSesionService {
                 .orElseThrow(() -> new NoSuchElementException("Evidencia no encontrada"));
 
         resolverRelaciones(evidencia);
+
+        if (this.iEvidenciaSesionRepository.existsBySesionAndActivoExcludingId(evidencia.getSesion(), id)) {
+            throw new IllegalStateException("Esta sesión ya tiene una evidencia registrada.");
+        }
+
         evidenciaDB.setSesion(evidencia.getSesion());
         evidenciaDB.setArchivoUrl(evidencia.getArchivoUrl());
         evidenciaDB.setNotasCoordinador(evidencia.getNotasCoordinador());

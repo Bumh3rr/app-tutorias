@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Actividad</title>
+    <title th:text="${isEdit} ? 'Editar Actividad' : 'Agregar Actividad'">Formulario Actividad</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 </head>
 <body>
 
@@ -15,107 +16,127 @@
     <div class="app-content">
         <main class="app-main d-flex justify-content-center align-items-start">
 
-            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4"
-                        th:text="${isEdit} ? 'Editar Actividad' : 'Agregar Actividad'"></h3>
+            <div class="form-card w-100 mx-auto" style="max-width: 560px;">
 
-                    <form method="post"
-                          enctype="multipart/form-data"
-                          th:object="${actividad}"
-                          th:action="${isEdit} ? @{/actividad/actualizar/{id}(id=${actividad.id})} : @{/actividad/guardar}">
+                <!-- Encabezado -->
+                <div class="mb-4">
+                    <h3 class="mb-1" th:text="${isEdit} ? 'Editar Actividad' : 'Agregar Actividad'"></h3>
+                    <p class="text-body-secondary fs-6 mb-0">
+                        Define una actividad del Plan de Acción Tutorial (PAT) especificando la semana y fecha de realización.
+                    </p>
+                </div>
+                <p class="text-body-secondary small mb-4">
+                    Los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios.
+                </p>
 
-                        <!-- ID -->
-                        <div class="mb-3" th:if="${actividad.id != null}">
-                            <label class="form-label">ID</label>
-                            <input type="number" class="form-control" th:field="*{id}" readonly>
+                <!-- Alertas -->
+                <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <span th:text="${msg_error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form method="post"
+                      enctype="multipart/form-data"
+                      th:object="${actividad}"
+                      th:action="${isEdit} ? @{/actividad/actualizar/{id}(id=${actividad.id})} : @{/actividad/guardar}">
+
+                    <div class="mb-3" th:if="${actividad.id != null}">
+                        <label class="form-label">ID</label>
+                        <input type="number" class="form-control" th:field="*{id}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="nombre"
+                               class="form-control"
+                               th:field="*{nombre}"
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9 .,;:()\-]+"
+                               title="Solo letras, números y puntuación básica"
+                               placeholder="ej. Detección de necesidades">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" rows="3"
+                                  placeholder="Describe brevemente la actividad..."
+                                  th:field="*{descripcion}"></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="semana" class="form-label">
+                                Semana <span class="text-danger">*</span>
+                            </label>
+                            <select id="semana"
+                                    class="form-select"
+                                    th:field="*{semana}"
+                                    th:classappend="${#fields.hasErrors('semana')} ? 'is-invalid'">
+                                <option value="">Selecciona...</option>
+                                <option value="1">Semana 1</option>
+                                <option value="2">Semana 2</option>
+                                <option value="3">Semana 3</option>
+                                <option value="4">Semana 4</option>
+                                <option value="5">Semana 5</option>
+                                <option value="6">Semana 6</option>
+                                <option value="7">Semana 7</option>
+                                <option value="8">Semana 8</option>
+                                <option value="9">Semana 9</option>
+                                <option value="10">Semana 10</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('semana')}" th:errors="*{semana}"></div>
                         </div>
-
-                        <!-- Nombre -->
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre"
-                                   placeholder="ej. Detección de necesidades"
-                                   required th:field="*{nombre}">
+                        <div class="col-md-6">
+                            <label for="fecha" class="form-label">
+                                Fecha <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="fecha"
+                                   class="form-control"
+                                   data-datepicker
+                                   placeholder="aaaa-mm-dd"
+                                   th:field="*{fecha}"
+                                   th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></div>
                         </div>
+                    </div>
 
-                        <!-- Descripción -->
-                        <div class="mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion" rows="3"
-                                      placeholder="Describe la actividad..."
-                                      th:field="*{descripcion}"></textarea>
+                    <div class="mb-3">
+                        <label class="form-label">Plan de Acción Tutorial</label>
+                        <div class="entity-picker"
+                             data-entity="pat"
+                             data-placeholder="Sin PAT asignado"
+                             data-clearable="true"
+                             th:data-current-id="${actividad.pat != null ? actividad.pat.id : ''}"
+                             th:data-current-text="${actividad.pat != null ? actividad.pat.nombre : ''}"
+                             th:data-current-sub="${actividad.pat != null ? actividad.pat.descripcion : ''}"
+                             th:data-current-foto="${actividad.pat != null and actividad.pat.foto != null ? actividad.pat.foto : ''}">
+                            <input type="hidden" name="pat.id"
+                                   th:value="${actividad.pat != null ? actividad.pat.id : ''}">
                         </div>
+                        <div class="form-text">Opcional: asocia esta actividad a un PAT existente.</div>
+                    </div>
 
-                        <!-- Foto -->
-                        <div class="mb-3">
-                            <label for="fotoFile" class="form-label">Evidencia / Imagen</label>
-                            <input type="file" class="form-control" id="fotoFile"
-                                   name="fotoFile" accept="image/*">
-                            <small class="text-secondary-emphasis">Acepta: JPG, PNG. Máximo 10MB</small>
-                        </div>
-
-                        <!-- Vista previa foto -->
-                        <div class="mb-3" th:if="${actividad.foto != null}">
-                            <label class="form-label">Imagen actual</label>
-                            <div>
-                                <img th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
-                                     alt="Imagen actual"
-                                     style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
-                            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Evidencia / Imagen</label>
+                        <div class="fp-wrapper"
+                             th:attr="data-current-url=${actividad.foto != null} ? @{/actividad/{f}(f=${actividad.foto})} : ''"
+                             th:data-current-name="${actividad.foto}">
+                            <input type="file" class="fp-file-input" name="fotoFile" accept="image/*">
                             <input type="hidden" th:field="*{foto}">
                         </div>
+                    </div>
 
-                        <!-- PAT -->
-                        <div class="mb-3">
-                            <label for="pat.id" class="form-label">Plan de Acción Tutorial</label>
-                            <select class="form-select" id="pat.id" name="pat.id"
-                                    th:field="*{pat.id}">
-                                <option value="">Sin PAT asignado</option>
-                                <option th:each="p : ${pats}"
-                                        th:value="${p.id}"
-                                        th:text="${p.nombre}">
-                                </option>
-                            </select>
-                        </div>
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <a th:href="@{/actividad}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
+                        </button>
+                    </div>
 
-                        <!-- Semana y Fecha -->
-                        <div class="row g-3 mb-3">
-
-                            <div class="col-md-6">
-                                <label for="semana" class="form-label">Semana</label>
-                                <select class="form-select" id="semana" name="semana"
-                                        required
-                                        th:field="*{semana}">
-                                    <option value="">Sin asignar</option>
-                                    <option value="1">Semana 1</option>
-                                    <option value="2">Semana 2</option>
-                                    <option value="3">Semana 3</option>
-                                    <option value="4">Semana 4</option>
-                                    <option value="5">Semana 5</option>
-                                    <option value="6">Semana 6</option>
-                                    <option value="7">Semana 7</option>
-                                    <option value="8">Semana 8</option>
-                                    <option value="9">Semana 9</option>
-                                    <option value="10">Semana 10</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="fecha" class="form-label">Fecha</label>
-                                <input type="date" class="form-control" id="fecha"
-                                       required th:field="*{fecha}">
-                            </div>
-                        </div>
-
-                        <!-- Botones -->
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a th:href="@{/actividad}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                        </div>
-
-                    </form>
-                </div>
+                </form>
             </div>
 
         </main>
@@ -124,6 +145,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/entity-picker.js}"></script>
+<script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/file-picker.js}"></script>
+<script th:src="@{/js/date-picker.js}"></script>
 </body>
 </html>

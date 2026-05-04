@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -117,9 +119,16 @@ public class ActividadController {
 
     @PostMapping(value = "guardar")
     public String guardarActividad(
-            Actividad actividad,
+            @Valid Actividad actividad,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("pats", this.patService.obtenerTodosPAT());
+            model.addAttribute("isEdit", false);
+            return "actividad/viewFormActividad";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 String foto = this.fileStoreService.save(fotoFile, FileType.ACTIVIDAD);
@@ -129,7 +138,10 @@ public class ActividadController {
             this.actividadService.guardarActividad(actividad);
             attributes.addFlashAttribute("msg_success", "Actividad guardada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar la actividad: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar la actividad: " + e.getMessage());
+            model.addAttribute("pats", this.patService.obtenerTodosPAT());
+            model.addAttribute("isEdit", false);
+            return "actividad/viewFormActividad";
         }
         return "redirect:/actividad";
     }
@@ -155,9 +167,16 @@ public class ActividadController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarActividad(
             @PathVariable Integer id,
-            Actividad actividad,
+            @Valid Actividad actividad,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("pats", this.patService.obtenerTodosPAT());
+            model.addAttribute("isEdit", true);
+            return "actividad/viewFormActividad";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 this.fileStoreService.delete(actividad.getFoto(), FileType.ACTIVIDAD);
@@ -168,7 +187,10 @@ public class ActividadController {
             this.actividadService.actualizarActividad(id, actividad);
             attributes.addFlashAttribute("msg_success", "Actividad actualizada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar la actividad: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar la actividad: " + e.getMessage());
+            model.addAttribute("pats", this.patService.obtenerTodosPAT());
+            model.addAttribute("isEdit", true);
+            return "actividad/viewFormActividad";
         }
         return "redirect:/actividad";
     }

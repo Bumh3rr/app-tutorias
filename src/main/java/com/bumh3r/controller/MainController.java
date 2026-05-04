@@ -1,7 +1,7 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Actividad;
-import com.bumh3r.entity.AsignacionTutorado;
+import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Tutor;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.*;
@@ -26,7 +26,7 @@ public class MainController {
     @Autowired
     private ActividadService actividadService;
     @Autowired
-    private AsignacionTutoradoService asignacionTutoradoService;
+    private GrupoService grupoService;
     @Autowired
     private PATService patService;
 
@@ -36,22 +36,21 @@ public class MainController {
             List<Tutor> tutores = tutorService.obtenerTodosTutores();
             List<Tutorado> tutorados = tutoradoService.obtenerTodosTutorados();
             List<Actividad> actividades = actividadService.obtenerTodasActividades();
-            List<AsignacionTutorado> asignaciones = asignacionTutoradoService.obtenerTodasAsignaciones();
+            List<Grupo> grupos = grupoService.obtenerTodosGrupos();
 
-            // Próximas 5 actividades (ya vienen ordenadas por fecha desde el repo)
             List<Actividad> proximasActividades = actividades.stream()
                     .filter(a -> a.getFecha() != null)
                     .sorted((a, b) -> a.getFecha().compareTo(b.getFecha()))
                     .limit(5)
                     .toList();
 
-            log.info("Dashboard — tutores: {}, tutorados: {}, actividades: {}, asignaciones: {}",
-                    tutores.size(), tutorados.size(), actividades.size(), asignaciones.size());
+            log.info("Dashboard — tutores: {}, tutorados: {}, actividades: {}, grupos: {}",
+                    tutores.size(), tutorados.size(), actividades.size(), grupos.size());
 
             model.addAttribute("totalTutores", tutores.size());
             model.addAttribute("totalTutorados", tutorados.size());
             model.addAttribute("totalActividades", actividades.size());
-            model.addAttribute("totalAsignaciones", asignaciones.size());
+            model.addAttribute("totalGrupos", grupos.size());
             model.addAttribute("proximasActividades", proximasActividades);
 
         } catch (Exception e) {
@@ -59,7 +58,7 @@ public class MainController {
             model.addAttribute("totalTutores", 0);
             model.addAttribute("totalTutorados", 0);
             model.addAttribute("totalActividades", 0);
-            model.addAttribute("totalAsignaciones", 0);
+            model.addAttribute("totalGrupos", 0);
             model.addAttribute("proximasActividades", List.of());
             model.addAttribute("msg_error", "Error al cargar el dashboard: " + e.getMessage());
         }

@@ -14,7 +14,7 @@
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main d-flex justify-content-center align-items-start">
-            <div class="card bg-body-secondary w-100" style="max-width: 500px;" th:if="${sesion.id} != null">
+            <div class="card danger-card w-100" style="max-width: 500px;" th:if="${sesion.id} != null">
                 <div class="card-body p-4">
                     <h3 class="text-center mb-2">Confirmar Eliminación</h3>
                     <p class="text-center text-muted mb-4">¿Está seguro de que desea eliminar esta sesión?</p>
@@ -23,8 +23,8 @@
                         <strong>Sesión a eliminar:</strong>
                         <div class="mt-2">
                             <p class="mb-1"><strong>ID:</strong> <span th:text="${sesion.id}"></span></p>
-                            <p class="mb-1"><strong>Tutor:</strong>
-                                <span th:text="${sesion.tutor != null} ? ${sesion.tutor.nombre} + ' ' + ${sesion.tutor.apellido} : 'Sin tutor'"></span></p>
+                            <p class="mb-1"><strong>Grupo:</strong>
+                                <span th:text="${sesion.grupo != null} ? ${sesion.grupo.nombre} : 'Sin grupo'"></span></p>
                             <p class="mb-1"><strong>Semana:</strong>
                                 <span th:text="'Semana ' + ${sesion.semana}"></span></p>
                             <p class="mb-0"><strong>Fecha:</strong>

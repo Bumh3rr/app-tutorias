@@ -1,14 +1,17 @@
 package com.bumh3r.controller;
 
+import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Sesion;
-import com.bumh3r.entity.Tutor;
 import com.bumh3r.service.ActividadService;
+import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.SesionService;
-import com.bumh3r.service.TutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -26,7 +29,7 @@ public class SesionController {
     @Autowired
     private SesionService sesionService;
     @Autowired
-    private TutorService tutorService;
+    private GrupoService grupoService;
     @Autowired
     private ActividadService actividadService;
 
@@ -34,44 +37,56 @@ public class SesionController {
 
     @GetMapping()
     public String obtenerVistaListaSesiones(
-            @RequestParam(value = "idTutor", required = false) Integer idTutor,
+            @RequestParam(value = "idGrupo", required = false) Integer idGrupo,
             @RequestParam(value = "semana", required = false) Integer semana,
             @RequestParam(value = "estatus", required = false) String estatus,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "semana") String sortBy,
             Model model) {
 
-        List<Sesion> sesiones;
-        List<Tutor> tutores = this.tutorService.obtenerTodosTutores();
+        List<String> validSortFields = List.of("id", "semana");
+        if (!validSortFields.contains(sortBy)) sortBy = "semana";
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "asc";
 
+        Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+        List<Grupo> grupos = this.grupoService.obtenerTodosGrupos();
+
+        org.springframework.data.domain.Page<Sesion> pageResult;
         try {
-            if ("tutor".equals(tipoBusqueda) && idTutor != null) {
-                sesiones = this.sesionService.buscarSesionesPorTutor(idTutor);
-                model.addAttribute("filtro", "Tutor seleccionado");
-
+            if ("grupo".equals(tipoBusqueda) && idGrupo != null) {
+                pageResult = this.sesionService.buscarSesionesPorGrupoPage(idGrupo, pageable);
+                model.addAttribute("filtro", "Grupo seleccionado");
             } else if ("semana".equals(tipoBusqueda) && semana != null) {
-                sesiones = this.sesionService.buscarSesionesPorSemana(semana);
+                pageResult = this.sesionService.buscarSesionesPorSemanaPage(semana, pageable);
                 model.addAttribute("filtro", "Semana " + semana);
-
-            } else if ("tutorSemana".equals(tipoBusqueda) && idTutor != null && semana != null) {
-                sesiones = this.sesionService.buscarSesionesPorTutorYSemana(idTutor, semana);
-                model.addAttribute("filtro", "Tutor y semana seleccionados");
-
+            } else if ("grupoSemana".equals(tipoBusqueda) && idGrupo != null && semana != null) {
+                pageResult = this.sesionService.buscarSesionesPorGrupoYSemanaPage(idGrupo, semana, pageable);
+                model.addAttribute("filtro", "Grupo y semana seleccionados");
             } else if ("estatus".equals(tipoBusqueda) && estatus != null && !estatus.isEmpty()) {
-                sesiones = this.sesionService.buscarSesionesPorEstatus(estatus);
+                pageResult = this.sesionService.buscarSesionesPorEstatusPage(estatus, pageable);
                 model.addAttribute("filtro", "Estatus: " + estatus);
-
             } else {
-                sesiones = this.sesionService.obtenerTodasSesiones();
+                pageResult = this.sesionService.obtenerTodasSesionesPage(pageable);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            sesiones = this.sesionService.obtenerTodasSesiones();
+            pageResult = this.sesionService.obtenerTodasSesionesPage(pageable);
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("sesiones", sesiones);
-        model.addAttribute("tutores", tutores);
-        model.addAttribute("idTutorSeleccionado", idTutor);
+        model.addAttribute("sesiones", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("grupos", grupos);
+        model.addAttribute("idGrupoSeleccionado", idGrupo);
         model.addAttribute("semanaSeleccionada", semana);
         model.addAttribute("estatusSeleccionado", estatus);
         return "sesion/viewListaSesion";
@@ -80,20 +95,33 @@ public class SesionController {
     @GetMapping(value = "agregar")
     public String obtenerVistaAgregarSesion(Model model) {
         model.addAttribute("sesion", new Sesion());
-        model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
+        model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
         model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
         model.addAttribute("isEdit", false);
         return "sesion/viewFormSesion";
     }
 
     @PostMapping(value = "guardar")
-    public String guardarSesion(Sesion sesion, RedirectAttributes attributes) {
+    public String guardarSesion(@Valid Sesion sesion, BindingResult result, Model model, RedirectAttributes attributes) {
+        if (sesion.getGrupo() == null || sesion.getGrupo().getId() == null) {
+            result.rejectValue("grupo", "required", "El grupo es obligatorio");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
+            model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
+            model.addAttribute("isEdit", false);
+            return "sesion/viewFormSesion";
+        }
         try {
             log.info("Guardar sesion: {}", sesion);
             this.sesionService.guardarSesion(sesion);
             attributes.addFlashAttribute("msg_success", "Sesión guardada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar la sesión: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar la sesión: " + e.getMessage());
+            model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
+            model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
+            model.addAttribute("isEdit", false);
+            return "sesion/viewFormSesion";
         }
         return "redirect:/sesion";
     }
@@ -111,7 +139,7 @@ public class SesionController {
         Sesion sesion = this.sesionService.obtenerSesion(id);
         log.info("Sesion a actualizar: {}", sesion);
         model.addAttribute("sesion", sesion);
-        model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
+        model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
         model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
         model.addAttribute("isEdit", true);
         return "sesion/viewFormSesion";
@@ -120,14 +148,29 @@ public class SesionController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarSesion(
             @PathVariable Integer id,
-            Sesion sesion,
+            @Valid Sesion sesion,
+            BindingResult result,
+            Model model,
             RedirectAttributes attributes) {
+        if (sesion.getGrupo() == null || sesion.getGrupo().getId() == null) {
+            result.rejectValue("grupo", "required", "El grupo es obligatorio");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
+            model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
+            model.addAttribute("isEdit", true);
+            return "sesion/viewFormSesion";
+        }
         try {
             log.info("Actualizar sesion {}: {}", id, sesion);
             this.sesionService.actualizarSesion(id, sesion);
             attributes.addFlashAttribute("msg_success", "Sesión actualizada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar la sesión: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar la sesión: " + e.getMessage());
+            model.addAttribute("grupos", this.grupoService.obtenerTodosGrupos());
+            model.addAttribute("actividades", this.actividadService.obtenerTodasActividades());
+            model.addAttribute("isEdit", true);
+            return "sesion/viewFormSesion";
         }
         return "redirect:/sesion";
     }

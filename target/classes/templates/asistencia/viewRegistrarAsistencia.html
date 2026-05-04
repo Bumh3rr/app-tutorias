@@ -16,11 +16,11 @@
         <main class="app-main">
 
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="page-header">
                 <div>
                     <h3 class="mb-1">Registrar Asistencia</h3>
                     <p class="text-body-secondary fs-6 mb-0"
-                       th:text="'Sesión — Semana ' + ${sesion.semana} + ' | ' + (${sesion.tutor != null} ? ${sesion.tutor.nombre} + ' ' + ${sesion.tutor.apellido} : '')">
+                       th:text="'Sesión — Semana ' + ${sesion.semana} + ' | ' + (${sesion.grupo != null} ? ${sesion.grupo.nombre} : '')">
                     </p>
                 </div>
                 <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-outline-secondary">
@@ -34,7 +34,7 @@
             </div>
 
             <!-- Info de la sesión -->
-            <div class="card bg-body-secondary border-0 mb-4 p-3">
+            <div class="glass-surface mb-4 p-3">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <small class="text-body-secondary d-block">Semana</small>
@@ -84,8 +84,8 @@
                 </div>
 
                 <div th:if="${tutorados != null and !#lists.isEmpty(tutorados)}">
-                    <div class="border rounded-3 p-1 mb-4">
-                        <table class="table table-hover mb-0">
+                    <div class="table-wrapper mb-4">
+                        <table class="table">
                             <thead>
                             <tr>
                                 <th style="width:50px">

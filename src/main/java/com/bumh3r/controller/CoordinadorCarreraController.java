@@ -9,6 +9,7 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -37,38 +38,60 @@ public class CoordinadorCarreraController {
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "nombre") String sortBy,
             Model model) {
 
-        List<CoordinadorCarrera> coordinadores;
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
+        if (!"nombre".equals(sortBy) && !"id".equals(sortBy)) sortBy = "nombre";
 
+        Sort.Direction direction = "desc".equals(sort) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+
+        Page<CoordinadorCarrera> pageResult;
         try {
             if ("carrera".equals(tipoBusqueda) && idCarrera != null) {
-                coordinadores = this.coordinadorCarreraService.buscarPorCarrera(idCarrera);
+                List<CoordinadorCarrera> lista = this.coordinadorCarreraService.buscarPorCarrera(idCarrera);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Carrera seleccionada");
-
             } else if ("semestre".equals(tipoBusqueda) && idSemestre != null) {
-                coordinadores = this.coordinadorCarreraService.buscarPorSemestre(idSemestre);
+                List<CoordinadorCarrera> lista = this.coordinadorCarreraService.buscarPorSemestre(idSemestre);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Semestre seleccionado");
-
             } else if ("carreraSemestre".equals(tipoBusqueda) && idCarrera != null && idSemestre != null) {
-                coordinadores = this.coordinadorCarreraService.buscarPorCarreraYSemestre(idCarrera, idSemestre);
+                List<CoordinadorCarrera> lista = this.coordinadorCarreraService.buscarPorCarreraYSemestre(idCarrera, idSemestre);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Carrera y semestre seleccionados");
-
             } else {
-                coordinadores = this.coordinadorCarreraService.obtenerTodosCoordinadores();
+                pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            coordinadores = this.coordinadorCarreraService.obtenerTodosCoordinadores();
+            pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable);
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("coordinadores", coordinadores);
+        model.addAttribute("coordinadores", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
         model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         return "coordinador/viewListaCoordinador";
+    }
+
+    private <T> List<T> paginate(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return start >= list.size() ? List.of() : list.subList(start, end);
     }
 
     @GetMapping(value = "agregar")

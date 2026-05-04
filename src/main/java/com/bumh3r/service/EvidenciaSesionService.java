@@ -1,10 +1,13 @@
 package com.bumh3r.service;
 
 import com.bumh3r.entity.EvidenciaSesion;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface EvidenciaSesionService {
     List<EvidenciaSesion> obtenerTodasEvidencias();
+    Page<EvidenciaSesion> obtenerTodasEvidenciasPage(Pageable pageable);
     void guardarEvidencia(EvidenciaSesion evidencia);
     void actualizarEvidencia(Integer id, EvidenciaSesion evidencia);
     EvidenciaSesion obtenerEvidencia(Integer id);

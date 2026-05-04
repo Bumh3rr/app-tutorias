@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Sesión</title>
+    <title th:text="${isEdit} ? 'Editar Sesión' : 'Agregar Sesión'">Formulario Sesión</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 </head>
 <body>
 
@@ -14,85 +15,128 @@
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main d-flex justify-content-center align-items-start">
-            <div class="card bg-body-secondary w-100" style="max-width: 560px;">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4"
-                        th:text="${isEdit} ? 'Editar Sesión' : 'Agregar Sesión'"></h3>
 
-                    <form method="post"
-                          th:object="${sesion}"
-                          th:action="${isEdit} ? @{/sesion/actualizar/{id}(id=${sesion.id})} : @{/sesion/guardar}">
+            <div class="form-card w-100 mx-auto" style="max-width: 560px;">
 
-                        <div class="mb-3" th:if="${sesion.id != null}">
-                            <label class="form-label">ID</label>
-                            <input type="number" class="form-control" th:field="*{id}" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="tutor.id" class="form-label">Tutor</label>
-                            <select class="form-select" id="tutor.id" name="tutor.id"
-                                    th:field="*{tutor.id}" required>
-                                <option value="">Selecciona un tutor...</option>
-                                <option th:each="t : ${tutores}"
-                                        th:value="${t.id}"
-                                        th:text="${t.nombre} + ' ' + ${t.apellido}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="actividad.id" class="form-label">Actividad del PAT</label>
-                            <select class="form-select" id="actividad.id" name="actividad.id"
-                                    th:field="*{actividad.id}">
-                                <option value="">Sin actividad asignada</option>
-                                <option th:each="a : ${actividades}"
-                                        th:value="${a.id}"
-                                        th:text="${a.nombre} + ' — Semana ' + ${a.semana}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label for="semana" class="form-label">Semana</label>
-                                <select class="form-select" id="semana" th:field="*{semana}" required>
-                                    <option value="">Semana...</option>
-                                    <option th:each="i : ${#numbers.sequence(1, 10)}"
-                                            th:value="${i}"
-                                            th:text="'Semana ' + ${i}">
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-8">
-                                <label for="fechaImparticion" class="form-label">Fecha de impartición</label>
-                                <input type="date" class="form-control" id="fechaImparticion"
-                                       required th:field="*{fechaImparticion}">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="estatusRegistro" class="form-label">Estatus</label>
-                            <select class="form-select" id="estatusRegistro" th:field="*{estatusRegistro}">
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="REALIZADA">Realizada</option>
-                                <option value="CANCELADA">Cancelada</option>
-                            </select>
-                        </div>
-
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a th:href="@{/sesion}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                        </div>
-
-                    </form>
+                <!-- Encabezado -->
+                <div class="mb-4">
+                    <h3 class="mb-1" th:text="${isEdit} ? 'Editar Sesión' : 'Agregar Sesión'"></h3>
+                    <p class="text-body-secondary fs-6 mb-0">
+                        Registra una sesión de tutoría indicando el grupo, semana, fecha de impartición y actividad correspondiente.
+                    </p>
                 </div>
+                <p class="text-body-secondary small mb-4">
+                    Los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios.
+                </p>
+
+                <!-- Alertas -->
+                <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <span th:text="${msg_error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form method="post"
+                      th:object="${sesion}"
+                      th:action="${isEdit} ? @{/sesion/actualizar/{id}(id=${sesion.id})} : @{/sesion/guardar}">
+
+                    <div class="mb-3" th:if="${sesion.id != null}">
+                        <label class="form-label">ID</label>
+                        <input type="number" class="form-control" th:field="*{id}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Grupo <span class="text-danger">*</span>
+                        </label>
+                        <div class="entity-picker"
+                             data-entity="grupo"
+                             data-placeholder="Selecciona un grupo..."
+                             th:data-current-id="${sesion.grupo != null ? sesion.grupo.id : ''}"
+                             th:data-current-text="${sesion.grupo != null ? sesion.grupo.nombre : ''}"
+                             th:data-current-sub="${sesion.grupo != null and sesion.grupo.tutor != null ? sesion.grupo.tutor.nombre + ' ' + sesion.grupo.tutor.apellido : ''}">
+                            <input type="hidden" name="grupo.id"
+                                   th:value="${sesion.grupo != null ? sesion.grupo.id : ''}">
+                        </div>
+                        <div class="text-danger small mt-1"
+                             th:if="${#fields.hasErrors('grupo')}"
+                             th:errors="*{grupo}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Actividad del PAT</label>
+                        <div class="entity-picker"
+                             data-entity="actividad"
+                             data-placeholder="Sin actividad asignada"
+                             data-clearable="true"
+                             th:data-current-id="${sesion.actividad != null ? sesion.actividad.id : ''}"
+                             th:data-current-text="${sesion.actividad != null ? sesion.actividad.nombre : ''}"
+                             th:data-current-sub="${sesion.actividad != null ? 'Semana ' + sesion.actividad.semana : ''}">
+                            <input type="hidden" name="actividad.id"
+                                   th:value="${sesion.actividad != null ? sesion.actividad.id : ''}">
+                        </div>
+                        <div class="form-text">Opcional: vincula esta sesión con una actividad del PAT.</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="semana" class="form-label">
+                                Semana <span class="text-danger">*</span>
+                            </label>
+                            <select id="semana"
+                                    class="form-select"
+                                    th:field="*{semana}"
+                                    th:classappend="${#fields.hasErrors('semana')} ? 'is-invalid'">
+                                <option value="">Semana...</option>
+                                <option th:each="i : ${#numbers.sequence(1, 10)}"
+                                        th:value="${i}"
+                                        th:text="'Semana ' + ${i}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('semana')}" th:errors="*{semana}"></div>
+                        </div>
+                        <div class="col-md-8">
+                            <label for="fechaImparticion" class="form-label">
+                                Fecha de impartición <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="fechaImparticion"
+                                   class="form-control"
+                                   data-datepicker
+                                   placeholder="aaaa-mm-dd"
+                                   th:field="*{fechaImparticion}"
+                                   th:classappend="${#fields.hasErrors('fechaImparticion')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaImparticion')}" th:errors="*{fechaImparticion}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="estatusRegistro" class="form-label">Estatus</label>
+                        <select class="form-select" id="estatusRegistro" th:field="*{estatusRegistro}">
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="REALIZADA">Realizada</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <a th:href="@{/sesion}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
+                        </button>
+                    </div>
+
+                </form>
             </div>
+
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/entity-picker.js}"></script>
+<script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/date-picker.js}"></script>
 </body>
 </html>

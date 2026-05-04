@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -97,9 +99,17 @@ public class TutoradoController {
 
     @PostMapping(value = "guardar")
     public String guardarTutorado(
-            Tutorado tutorado,
+            @Valid Tutorado tutorado,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", false);
+            return "tutorado/viewFormTutorado";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 String foto = this.fileStoreService.save(fotoFile, FileType.TUTORADO);
@@ -109,7 +119,11 @@ public class TutoradoController {
             this.tutoradoService.guardarTutorado(tutorado);
             attributes.addFlashAttribute("msg_success", "Tutorado guardado correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar el tutorado: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar el tutorado: " + e.getMessage());
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", false);
+            return "tutorado/viewFormTutorado";
         }
         return "redirect:/tutorado";
     }
@@ -136,9 +150,17 @@ public class TutoradoController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarTutorado(
             @PathVariable Integer id,
-            Tutorado tutorado,
+            @Valid Tutorado tutorado,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", true);
+            return "tutorado/viewFormTutorado";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 this.fileStoreService.delete(tutorado.getFoto(), FileType.TUTORADO);
@@ -149,7 +171,11 @@ public class TutoradoController {
             this.tutoradoService.actualizarTutorado(id, tutorado);
             attributes.addFlashAttribute("msg_success", "Tutorado actualizado correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar el tutorado: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar el tutorado: " + e.getMessage());
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", true);
+            return "tutorado/viewFormTutorado";
         }
         return "redirect:/tutorado";
     }

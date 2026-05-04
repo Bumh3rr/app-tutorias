@@ -3,6 +3,8 @@ package com.bumh3r.repository;
 import com.bumh3r.entity.DeteccionNecesidades;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,8 @@ import java.util.List;
 public interface IDeteccionNecesidadesRepository extends JpaRepository<DeteccionNecesidades, Integer> {
 
     List<DeteccionNecesidades> findByActivo(Integer activo);
+
+    Page<DeteccionNecesidades> findByActivo(Integer activo, Pageable pageable);
 
     // Por tutorado
     List<DeteccionNecesidades> findByActivoAndTutorado(Integer activo, Tutorado tutorado);

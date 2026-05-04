@@ -9,6 +9,9 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.*;
+import org.springframework.validation.BindingResult;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,29 +42,51 @@ public class EvidenciaSesionController {
             @RequestParam(value = "idSesion", required = false) Integer idSesion,
             @RequestParam(value = "estatus", required = false) String estatus,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             Model model) {
 
-        List<EvidenciaSesion> evidencias;
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
+        if (!"id".equals(sortBy)) sortBy = "id";
+
+        Sort.Direction direction = "desc".equals(sort) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
         List<Sesion> sesiones = this.sesionService.obtenerTodasSesiones();
 
+        Page<EvidenciaSesion> pageResult;
         try {
             if ("sesion".equals(tipoBusqueda) && idSesion != null) {
-                evidencias = this.evidenciaSesionService.buscarEvidenciasPorSesion(idSesion);
+                List<EvidenciaSesion> lista = this.evidenciaSesionService.buscarEvidenciasPorSesion(idSesion);
+                pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Sesión seleccionada");
-
             } else {
-                evidencias = this.evidenciaSesionService.obtenerTodasEvidencias();
+                pageResult = this.evidenciaSesionService.obtenerTodasEvidenciasPage(pageable);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            evidencias = this.evidenciaSesionService.obtenerTodasEvidencias();
+            pageResult = this.evidenciaSesionService.obtenerTodasEvidenciasPage(pageable);
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("evidencias", evidencias);
+        model.addAttribute("evidencias", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("idSesionSeleccionada", idSesion);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         return "evidencia/viewListaEvidencia";
+    }
+
+    private <T> List<T> paginate(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return start >= list.size() ? List.of() : list.subList(start, end);
     }
 
     @GetMapping(value = "agregar")
@@ -82,9 +107,19 @@ public class EvidenciaSesionController {
 
     @PostMapping(value = "guardar")
     public String guardarEvidencia(
-            EvidenciaSesion evidencia,
+            @Valid EvidenciaSesion evidencia,
+            BindingResult result,
             @RequestParam(value = "archivoFile", required = false) MultipartFile archivoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (evidencia.getSesion() == null || evidencia.getSesion().getId() == null) {
+            result.rejectValue("sesion", "required", "La sesión es obligatoria");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("sesiones", this.sesionService.obtenerTodasSesiones());
+            model.addAttribute("isEdit", false);
+            return "evidencia/viewFormEvidencia";
+        }
         try {
             if (archivoFile != null && !archivoFile.isEmpty()) {
                 String archivo = this.fileStoreService.save(archivoFile, FileType.EVIDENCIA);
@@ -95,7 +130,10 @@ public class EvidenciaSesionController {
             this.evidenciaSesionService.guardarEvidencia(evidencia);
             attributes.addFlashAttribute("msg_success", "Evidencia guardada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar la evidencia: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar la evidencia: " + e.getMessage());
+            model.addAttribute("sesiones", this.sesionService.obtenerTodasSesiones());
+            model.addAttribute("isEdit", false);
+            return "evidencia/viewFormEvidencia";
         }
         return "redirect:/evidencia";
     }
@@ -121,9 +159,19 @@ public class EvidenciaSesionController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarEvidencia(
             @PathVariable Integer id,
-            EvidenciaSesion evidencia,
+            @Valid EvidenciaSesion evidencia,
+            BindingResult result,
             @RequestParam(value = "archivoFile", required = false) MultipartFile archivoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (evidencia.getSesion() == null || evidencia.getSesion().getId() == null) {
+            result.rejectValue("sesion", "required", "La sesión es obligatoria");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("sesiones", this.sesionService.obtenerTodasSesiones());
+            model.addAttribute("isEdit", true);
+            return "evidencia/viewFormEvidencia";
+        }
         try {
             if (archivoFile != null && !archivoFile.isEmpty()) {
                 this.fileStoreService.delete(evidencia.getArchivoUrl(), FileType.EVIDENCIA);
@@ -134,7 +182,10 @@ public class EvidenciaSesionController {
             this.evidenciaSesionService.actualizarEvidencia(id, evidencia);
             attributes.addFlashAttribute("msg_success", "Evidencia actualizada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar la evidencia: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar la evidencia: " + e.getMessage());
+            model.addAttribute("sesiones", this.sesionService.obtenerTodasSesiones());
+            model.addAttribute("isEdit", true);
+            return "evidencia/viewFormEvidencia";
         }
         return "redirect:/evidencia";
     }

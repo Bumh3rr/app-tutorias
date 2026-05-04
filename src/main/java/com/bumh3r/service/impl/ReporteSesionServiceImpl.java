@@ -7,6 +7,8 @@ import com.bumh3r.repository.ISesionRepository;
 import com.bumh3r.service.ReporteSesionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -25,6 +27,16 @@ public class ReporteSesionServiceImpl implements ReporteSesionService {
     @Override
     public List<ReporteSesion> obtenerTodosReportes() {
         return this.iReporteSesionRepository.findByActivo(1);
+    }
+
+    @Override
+    public Page<ReporteSesion> obtenerTodosReportesPage(Pageable pageable) {
+        return this.iReporteSesionRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public Page<ReporteSesion> buscarPorEstatusPage(String estatus, Pageable pageable) {
+        return this.iReporteSesionRepository.findByActivoAndEstatusRevision(1, estatus, pageable);
     }
 
     @Override

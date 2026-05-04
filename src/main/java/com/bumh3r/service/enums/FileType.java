@@ -5,7 +5,7 @@ public enum FileType {
     TUTORADO("tutorado"),
     PAT("pat"),
     ACTIVIDAD("actividad"),
-    ASIGNACION("asignacion"),
+    GRUPO("grupo"),
     EVIDENCIA("evidencia"),
     COORDINADOR("coordinador");
 

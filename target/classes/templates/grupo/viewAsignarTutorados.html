@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Tutorados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h3 class="mb-1" th:text="'Asignar Tutorados — ' + ${grupo.nombre}">Asignar Tutorados</h3>
+                    <p class="text-body-secondary fs-6 mb-0"
+                       th:text="(${grupo.carrera != null} ? ${grupo.carrera.nombre} : '') + ' | ' + (${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : '')">
+                    </p>
+                </div>
+                <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-outline-secondary">
+                    Volver al grupo
+                </a>
+            </div>
+
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <form th:action="@{/grupo/asignar/{id}(id=${grupo.id})}" method="post">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Tutorados disponibles</h5>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="marcarTodos()">
+                            Marcar todos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="desmarcarTodos()">
+                            Desmarcar todos
+                        </button>
+                    </div>
+                </div>
+
+                <div th:if="${tutoradosDisponibles != null and !#lists.isEmpty(tutoradosDisponibles)}">
+                    <div class="table-wrapper mb-4">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th style="width:50px">
+                                    <input type="checkbox" id="checkAll" class="form-check-input"
+                                           onchange="toggleTodos(this)">
+                                </th>
+                                <th>Tutorado</th>
+                                <th>No. Control</th>
+                                <th>Carrera</th>
+                                <th>Estado</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="tutorado : ${tutoradosDisponibles}">
+                                <td>
+                                    <input type="checkbox"
+                                           class="form-check-input check-tutorado"
+                                           name="idsTutorados"
+                                           th:value="${tutorado.id}">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img th:if="${tutorado.foto != null}"
+                                             th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
+                                             alt="Foto"
+                                             class="avatar avatar-sm">
+                                        <img th:unless="${tutorado.foto != null}"
+                                             th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
+                                             alt="Sin foto"
+                                             class="avatar avatar-sm">
+                                        <span th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido}"></span>
+                                    </div>
+                                </td>
+                                <td class="text-body-secondary" th:text="${tutorado.numeroControl}"></td>
+                                <td th:text="${tutorado.carrera != null} ? ${tutorado.carrera.nombre} : 'Sin carrera'"></td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:unless="${tutoradosDisponibles != null and !#lists.isEmpty(tutoradosDisponibles)}"
+                     class="alert alert-info mb-4">
+                    No hay tutorados disponibles para este grupo. Los tutorados deben pertenecer a la misma carrera y semestre del grupo, y no tener ya 2 grupos activos asignados.
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-success"
+                            th:disabled="${tutoradosDisponibles == null or #lists.isEmpty(tutoradosDisponibles)}">
+                        Asignar Tutorados
+                    </button>
+                </div>
+
+            </form>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+<script>
+    function toggleTodos(checkbox) {
+        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = checkbox.checked);
+    }
+
+    function marcarTodos() {
+        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = true);
+        document.getElementById('checkAll').checked = true;
+    }
+
+    function desmarcarTodos() {
+        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = false);
+        document.getElementById('checkAll').checked = false;
+    }
+</script>
+</body>
+</html>

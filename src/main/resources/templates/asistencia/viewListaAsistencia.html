@@ -15,7 +15,7 @@
     <div class="app-content">
         <main class="app-main">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="page-header">
                 <div>
                     <h3 class="mb-1">Asistencias</h3>
                     <p class="text-body-secondary fs-6 mb-0">Control de asistencia semanal de tutorados.</p>
@@ -65,7 +65,7 @@
                                         <option value="">Selecciona una sesión...</option>
                                         <option th:each="s : ${sesiones}"
                                                 th:value="${s.id}"
-                                                th:text="'Semana ' + ${s.semana} + ' — ' + ${s.tutor != null ? s.tutor.nombre + ' ' + s.tutor.apellido : 'Sin tutor'}"
+                                                th:text="'Semana ' + ${s.semana} + ' — ' + ${s.grupo != null ? s.grupo.nombre : 'Sin grupo'}"
                                                 th:selected="${s.id == idSesionSeleccionada}">
                                         </option>
                                     </select>
@@ -103,24 +103,47 @@
 
             <!-- Tabla -->
             <div th:if="${asistencias != null and !#lists.isEmpty(asistencias)}">
-                <div class="border rounded-3 p-1">
-                    <table class="table table-striped table-hover mb-0">
+                <!-- Contador -->
+                <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
+                    <small class="text-body-secondary"
+                           th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' asistencias'">
+                    </small>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
                         <thead>
                         <tr>
-                            <th>ID</th>
+                            <th class="sort-th">
+                                <a th:href="@{/asistencia(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">
+                                    ID
+                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
+                                </a>
+                            </th>
                             <th>Sesión</th>
                             <th>Tutorado</th>
                             <th>No. Control</th>
                             <th>Presente</th>
                             <th>Recuperada</th>
+                            <th>Registrado</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="asistencia : ${asistencias}">
                             <td th:text="${asistencia.id}"></td>
-                            <td th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : '---'"></td>
-                            <td th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.nombre} + ' ' + ${asistencia.tutorado.apellido} : 'Sin tutorado'"></td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : 'Sin sesión'"
+                                      th:classappend="${asistencia.sesion != null} ? '' : 'badge-sin-asignar'">
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.nombre} + ' ' + ${asistencia.tutorado.apellido} : 'Sin tutorado'"
+                                      th:classappend="${asistencia.tutorado != null} ? '' : 'badge-sin-asignar'">
+                                </span>
+                            </td>
                             <td th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.numeroControl} : '---'"></td>
                             <td>
                                     <span class="badge rounded-pill"
@@ -133,6 +156,15 @@
                                           th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'"
                                           th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'">
                                     </span>
+                            </td>
+                            <td th:if="${asistencia.fechaRegistro != null}"
+                                th:data-ts="${asistencia.fechaRegistro.time}">
+                                <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
+                                <small class="d-block text-body-secondary mt-1 text-nowrap"
+                                       th:text="${#dates.format(asistencia.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                            </td>
+                            <td th:unless="${asistencia.fechaRegistro != null}">
+                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
@@ -148,20 +180,45 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Paginación -->
+                <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
+                    <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                                <a class="page-link" th:href="@{/asistencia(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&laquo;</a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
+                                <a class="page-link" th:text="${i + 1}" th:href="@{/asistencia(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}"></a>
+                            </li>
+                            <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                                <a class="page-link" th:href="@{/asistencia(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-body-secondary">Mostrar</small>
+                        <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
+                            <option value="5"  th:selected="${pageSize == 5}">5</option>
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="50" th:selected="${pageSize == 50}">50</option>
+                        </select>
+                        <small class="text-body-secondary">por página</small>
+                    </div>
+                </div>
             </div>
 
             <!-- Empty state -->
             <div th:unless="${asistencias != null and !#lists.isEmpty(asistencias)}"
-                 class="text-center py-5 position-relative">
-                <img th:src="@{/images/utils/img.png}" alt="No hay asistencias" class="mb-4"
-                     style="max-width: 300px; width: 100%;">
-                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
-                    <h4 class="mb-3">No hay asistencias registradas</h4>
-                    <p class="mb-4 text-muted">Registra la asistencia desde la vista de sesiones.</p>
-                    <div class="d-flex justify-content-center gap-2">
-                        <a th:href="@{/asistencia}" class="btn btn-outline-secondary">Refrescar</a>
-                        <a th:href="@{/sesion}" class="btn btn-primary">Ir a Sesiones</a>
-                    </div>
+                 class="empty-state">
+                <img th:src="@{/images/utils/img.png}" alt="Sin registros">
+                <h5>No hay asistencias registradas</h5>
+                <p>Registra la asistencia desde la vista de sesiones.</p>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/asistencia}" class="btn btn-outline-secondary">Refrescar</a>
+                    <a th:href="@{/sesion}" class="btn btn-primary">Ir a Sesiones</a>
                 </div>
             </div>
 
@@ -172,5 +229,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/rel-time.js}"></script>
+<script th:src="@{/js/fn_pagination.js}"></script>
+<script th:src="@{/js/custom-select.js}"></script>
 </body>
 </html>

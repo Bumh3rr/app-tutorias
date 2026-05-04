@@ -5,6 +5,8 @@ import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.service.CarreraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,9 @@ public class CarreraServiceImpl implements CarreraService {
 
     @Override
     public void guardarCarrera(Carrera carrera) {
+        if (this.iCarreraRepository.existsByClaveAndActivo(carrera.getClave(), 1)) {
+            throw new IllegalArgumentException("Ya existe una carrera activa con la clave \"" + carrera.getClave() + "\"");
+        }
         carrera.setActivo(1);
         this.iCarreraRepository.save(carrera);
     }
@@ -32,6 +37,10 @@ public class CarreraServiceImpl implements CarreraService {
     public void actualizarCarrera(Integer id, Carrera carrera) {
         Carrera carreraDB = this.iCarreraRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
+
+        if (this.iCarreraRepository.existsByClaveAndActivoAndIdNot(carrera.getClave(), 1, id)) {
+            throw new IllegalArgumentException("Ya existe una carrera activa con la clave \"" + carrera.getClave() + "\"");
+        }
 
         carreraDB.setNombre(carrera.getNombre());
         carreraDB.setClave(carrera.getClave());
@@ -50,5 +59,10 @@ public class CarreraServiceImpl implements CarreraService {
                 .orElseThrow(() -> new NoSuchElementException("Carrera no encontrada"));
         carrera.setActivo(0);
         this.iCarreraRepository.save(carrera);
+    }
+
+    @Override
+    public Page<Carrera> obtenerTodasCarrerasPage(Pageable pageable) {
+        return this.iCarreraRepository.findByActivo(1, pageable);
     }
 }

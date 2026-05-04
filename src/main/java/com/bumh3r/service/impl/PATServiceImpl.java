@@ -33,6 +33,9 @@ public class PATServiceImpl implements PATService {
     @Override
     public void guardarPAT(PAT pat) {
         resolverRelaciones(pat);
+        if (this.iPATRepository.existsByNombreAndActivo(pat.getNombre(), 1)) {
+            throw new IllegalArgumentException("Ya existe un PAT activo con el nombre \"" + pat.getNombre() + "\"");
+        }
         pat.setActivo(1);
         this.iPATRepository.save(pat);
     }
@@ -43,6 +46,10 @@ public class PATServiceImpl implements PATService {
                 .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
 
         resolverRelaciones(pat);
+
+        if (this.iPATRepository.existsByNombreAndActivoAndIdNot(pat.getNombre(), 1, id)) {
+            throw new IllegalArgumentException("Ya existe un PAT activo con el nombre \"" + pat.getNombre() + "\"");
+        }
 
         patDB.setNombre(pat.getNombre());
         patDB.setDescripcion(pat.getDescripcion());

@@ -2,6 +2,7 @@ package com.bumh3r.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -48,4 +49,9 @@ public class DeteccionNecesidades {
     private Date fechaAplicacion;
 
     private Integer activo;
+
+    @CreationTimestamp
+    @Column(name = "fecha_registro", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
 }

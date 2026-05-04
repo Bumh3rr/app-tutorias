@@ -5,6 +5,8 @@ import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.service.SemestreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,10 @@ public class SemestreServiceImpl implements SemestreService {
 
     @Override
     public void guardarSemestre(Semestre semestre) {
+        if (this.iSemestreRepository.existsByPeriodoAndAnioAndActivo(semestre.getPeriodo(), semestre.getAnio(), 1)) {
+            throw new IllegalArgumentException(
+                "Ya existe un semestre activo con el periodo \"" + semestre.getPeriodo() + "\" y el año " + semestre.getAnio());
+        }
         semestre.setActivo(1);
         this.iSemestreRepository.save(semestre);
     }
@@ -32,6 +38,11 @@ public class SemestreServiceImpl implements SemestreService {
     public void actualizarSemestre(Integer id, Semestre semestre) {
         Semestre semestreDB = this.iSemestreRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
+
+        if (this.iSemestreRepository.existsByPeriodoAndAnioAndActivoExcludingId(semestre.getPeriodo(), semestre.getAnio(), id)) {
+            throw new IllegalArgumentException(
+                "Ya existe un semestre activo con el periodo \"" + semestre.getPeriodo() + "\" y el año " + semestre.getAnio());
+        }
 
         semestreDB.setPeriodo(semestre.getPeriodo());
         semestreDB.setAnio(semestre.getAnio());
@@ -50,5 +61,10 @@ public class SemestreServiceImpl implements SemestreService {
                 .orElseThrow(() -> new NoSuchElementException("Semestre no encontrado"));
         semestre.setActivo(0);
         this.iSemestreRepository.save(semestre);
+    }
+
+    @Override
+    public Page<Semestre> obtenerTodosSemestresPage(Pageable pageable) {
+        return this.iSemestreRepository.findByActivo(1, pageable);
     }
 }

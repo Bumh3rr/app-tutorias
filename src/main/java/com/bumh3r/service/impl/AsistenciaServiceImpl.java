@@ -2,18 +2,23 @@ package com.bumh3r.service.impl;
 
 import com.bumh3r.dto.ResumenAsistenciaDTO;
 import com.bumh3r.entity.Asistencia;
+import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.repository.IAsistenciaRepository;
+import com.bumh3r.repository.IGrupoTutoradoRepository;
 import com.bumh3r.repository.ISesionRepository;
 import com.bumh3r.repository.ITutoradoRepository;
 import com.bumh3r.service.AsistenciaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Primary
 @Service
@@ -28,10 +33,17 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     private ISesionRepository iSesionRepository;
     @Autowired
     private ITutoradoRepository iTutoradoRepository;
+    @Autowired
+    private IGrupoTutoradoRepository iGrupoTutoradoRepository;
 
     @Override
     public List<Asistencia> obtenerTodasAsistencias() {
         return this.iAsistenciaRepository.findByActivo(1);
+    }
+
+    @Override
+    public Page<Asistencia> obtenerTodasAsistenciasPage(Pageable pageable) {
+        return this.iAsistenciaRepository.findByActivo(1, pageable);
     }
 
     @Override
@@ -94,11 +106,13 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                     "No se puede registrar asistencia en una sesión cancelada.");
         }
 
-        // Obtener todos los tutorados asignados al tutor de la sesión
-        List<Tutorado> todosTutorados = this.iTutoradoRepository.findByActivo(1);
+        List<GrupoTutorado> grupoTutorados = this.iGrupoTutoradoRepository
+                .findByActivoAndGrupo(1, sesion.getGrupo());
+        List<Tutorado> todosTutorados = grupoTutorados.stream()
+                .map(GrupoTutorado::getTutorado)
+                .collect(Collectors.toList());
 
         for (Tutorado tutorado : todosTutorados) {
-            // Evitar duplicados
             if (this.iAsistenciaRepository.existsBySesionAndTutoradoAndActivo(sesion, tutorado, 1)) {
                 continue;
             }
@@ -124,7 +138,6 @@ public class AsistenciaServiceImpl implements AsistenciaService {
             this.iAsistenciaRepository.save(asistencia);
         }
 
-        // Marcar sesión como REALIZADA
         sesion.setEstatusRegistro("REALIZADA");
         this.iSesionRepository.save(sesion);
     }

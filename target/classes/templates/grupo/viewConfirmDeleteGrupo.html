@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Grupo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+            <div class="card danger-card w-100" style="max-width: 520px;">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-1 text-danger">Eliminar Grupo</h4>
+                    <p class="text-body-secondary small mb-4">Esta acción desactivará el grupo y ya no aparecerá en el sistema.</p>
+
+                    <div class="alert alert-warning">
+                        <strong>¿Estás seguro de eliminar este grupo?</strong>
+                        <div class="mt-2 vstack gap-1 small">
+                            <span><strong>ID:</strong> <span th:text="${grupo.id}"></span></span>
+                            <span><strong>Nombre:</strong> <span th:text="${grupo.nombre}"></span></span>
+                            <span><strong>Tutor:</strong>
+                                <span th:text="${grupo.tutor != null} ? ${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido} : 'Sin tutor'"></span>
+                            </span>
+                            <span><strong>Semestre:</strong>
+                                <span th:text="${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : 'Sin semestre'"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a th:href="@{/grupo}" class="btn btn-secondary">Cancelar</a>
+                        <form th:action="@{/grupo/confirm/delete/{id}(id=${grupo.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

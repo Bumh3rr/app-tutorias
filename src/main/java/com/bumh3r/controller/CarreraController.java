@@ -5,6 +5,9 @@ import com.bumh3r.service.CarreraService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +25,29 @@ public class CarreraController {
     private final Logger log = LoggerFactory.getLogger(CarreraController.class);
 
     @GetMapping()
-    public String obtenerVistaListaCarreras(Model model) {
-        List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
-        log.info("carreras: {}", carreras);
-        model.addAttribute("carreras", carreras);
+    public String obtenerVistaListaCarreras(
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "nombre") String sortBy,
+            Model model) {
+
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "asc";
+        List<String> validSortFields = List.of("id", "nombre", "clave");
+        if (!validSortFields.contains(sortBy)) sortBy = "nombre";
+
+        Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+        Page<Carrera> pageResult = this.carreraService.obtenerTodasCarrerasPage(pageable);
+
+        log.info("carreras page: {}", pageResult.getContent());
+        model.addAttribute("carreras", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
         return "carrera/viewListaCarrera";
     }
 
@@ -37,13 +59,19 @@ public class CarreraController {
     }
 
     @PostMapping(value = "guardar")
-    public String guardarCarrera(Carrera carrera, RedirectAttributes attributes) {
+    public String guardarCarrera(@Valid Carrera carrera, BindingResult result, Model model, RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", false);
+            return "carrera/viewFormCarrera";
+        }
         try {
             log.info("Guardar carrera: {}", carrera);
             this.carreraService.guardarCarrera(carrera);
             attributes.addFlashAttribute("msg_success", "Carrera guardada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar la carrera: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar la carrera: " + e.getMessage());
+            model.addAttribute("isEdit", false);
+            return "carrera/viewFormCarrera";
         }
         return "redirect:/carrera";
     }
@@ -66,13 +94,19 @@ public class CarreraController {
     }
 
     @PostMapping(value = "actualizar/{id}")
-    public String actualizarCarrera(@PathVariable Integer id, Carrera carrera, RedirectAttributes attributes) {
+    public String actualizarCarrera(@PathVariable Integer id, @Valid Carrera carrera, BindingResult result, Model model, RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", true);
+            return "carrera/viewFormCarrera";
+        }
         try {
             log.info("Actualizar carrera {}: {}", id, carrera);
             this.carreraService.actualizarCarrera(id, carrera);
             attributes.addFlashAttribute("msg_success", "Carrera actualizada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar la carrera: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar la carrera: " + e.getMessage());
+            model.addAttribute("isEdit", true);
+            return "carrera/viewFormCarrera";
         }
         return "redirect:/carrera";
     }

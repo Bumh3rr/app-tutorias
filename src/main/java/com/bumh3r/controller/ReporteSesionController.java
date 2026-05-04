@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -35,26 +36,46 @@ public class ReporteSesionController {
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             Model model) {
 
-        List<ReporteSesion> reportes;
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
+        if (!"id".equals(sortBy)) sortBy = "id";
 
+        Sort.Direction direction = "desc".equals(sort) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+
+        Page<ReporteSesion> pageResult;
         try {
             if ("estatus".equals(tipoBusqueda) && estatus != null && !estatus.isEmpty()) {
-                reportes = this.reporteSesionService.buscarPorEstatus(estatus);
+                pageResult = this.reporteSesionService.buscarPorEstatusPage(estatus, pageable);
                 model.addAttribute("filtro", "Estatus: " + estatus);
             } else {
-                reportes = this.reporteSesionService.obtenerTodosReportes();
+                pageResult = this.reporteSesionService.obtenerTodosReportesPage(pageable);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
-            reportes = this.reporteSesionService.obtenerTodosReportes();
+            pageResult = this.reporteSesionService.obtenerTodosReportesPage(pageable);
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
-        model.addAttribute("reportes", reportes);
+        model.addAttribute("reportes", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("estatusSeleccionado", estatus);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
         return "reporte/viewListaReporte";
+    }
+
+    private <T> List<T> paginate(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        return start >= list.size() ? List.of() : list.subList(start, end);
     }
 
     // Agregar reporte desde la vista de sesión

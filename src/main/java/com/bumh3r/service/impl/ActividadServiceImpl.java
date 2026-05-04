@@ -35,6 +35,10 @@ public class ActividadServiceImpl implements ActividadService {
     @Override
     public void guardarActividad(Actividad actividad) {
         resolverRelaciones(actividad);
+        if (this.iActividadRepository.existsByNombreAndSemanaAndActivo(actividad.getNombre(), actividad.getSemana(), 1)) {
+            throw new IllegalArgumentException(
+                "Ya existe una actividad activa con el nombre \"" + actividad.getNombre() + "\" en la semana " + actividad.getSemana());
+        }
         actividad.setActivo(1);
         this.iActividadRepository.save(actividad);
     }
@@ -45,6 +49,11 @@ public class ActividadServiceImpl implements ActividadService {
                 .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
 
         resolverRelaciones(actividad);
+
+        if (this.iActividadRepository.existsByNombreAndSemanaAndActivoExcludingId(actividad.getNombre(), actividad.getSemana(), id)) {
+            throw new IllegalArgumentException(
+                "Ya existe una actividad activa con el nombre \"" + actividad.getNombre() + "\" en la semana " + actividad.getSemana());
+        }
 
         actividadDB.setNombre(actividad.getNombre());
         actividadDB.setDescripcion(actividad.getDescripcion());

@@ -16,7 +16,7 @@
         <main class="app-main">
 
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="page-header mb-4">
                 <div>
                     <h3 class="mb-1">Carreras</h3>
                     <p class="text-body-secondary fs-6 mb-0">Gestiona las carreras del tecnológico.</p>
@@ -39,16 +39,42 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Contador -->
+            <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
+                <small class="text-body-secondary"
+                       th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' carreras'">
+                </small>
+            </div>
+
             <!-- Tabla -->
             <div th:if="${carreras != null and !#lists.isEmpty(carreras)}">
-                <div class="border rounded-3 p-1">
-                    <table class="table table-striped table-hover mb-0">
+                <div class="table-wrapper">
+                    <table class="table">
                         <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Clave</th>
+                            <th class="sort-th">
+                                <a th:href="@{/carrera(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                    ID
+                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
+                                </a>
+                            </th>
+                            <th class="sort-th">
+                                <a th:href="@{/carrera(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                    Nombre
+                                    <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                    <span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span>
+                                </a>
+                            </th>
+                            <th class="sort-th">
+                                <a th:href="@{/carrera(sortBy='clave',sort=${sortBy == 'clave' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                    Clave
+                                    <span th:if="${sortBy == 'clave'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                    <span th:unless="${sortBy == 'clave'}" class="sort-arrow-idle">↕</span>
+                                </a>
+                            </th>
                             <th>Estado</th>
+                            <th>Registrado</th>
                             <th>Acciones</th>
                         </tr>
                         </thead>
@@ -64,6 +90,15 @@
                                           th:text="${carrera.activo == 1} ? 'Activo' : 'Inactivo'"
                                           th:classappend="${carrera.activo == 1} ? 'badge-active' : 'badge-inactive'">
                                     </span>
+                            </td>
+                            <td th:if="${carrera.fechaRegistro != null}"
+                                th:data-ts="${carrera.fechaRegistro.time}">
+                                <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
+                                <small class="d-block text-body-secondary mt-1 text-nowrap"
+                                       th:text="${#dates.format(carrera.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                            </td>
+                            <td th:unless="${carrera.fechaRegistro != null}">
+                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
@@ -81,37 +116,50 @@
                 </div>
             </div>
 
+            <!-- Paginación -->
+            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
+                <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/carrera(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/carrera(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy})}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                            <a class="page-link" th:href="@{/carrera(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-body-secondary">Mostrar</small>
+                    <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
+                        <option value="5"  th:selected="${pageSize == 5}">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                    <small class="text-body-secondary">por página</small>
+                </div>
+            </div>
+
             <!-- Empty state -->
             <div th:unless="${carreras != null and !#lists.isEmpty(carreras)}"
-                 class="text-center py-5 position-relative">
-                <img th:src="@{/images/utils/img.png}" alt="No hay carreras" class="mb-4"
-                     style="max-width: 300px; width: 100%;">
-
-                <!-- Botones flotantes para agregar nuevo departamento -->
-                <div class="flex-box column-gap-1 position-absolute bottom-30 start-50 translate-middle">
-                    <!-- titulo -->
-                    <h4 class="mb-3">No hay carreras registrados</h4>
-
-                    <!-- subtitulo -->
-                    <p class="mb-4 text-muted">Agrega una nueva carrera para comenzar a gestionar tu equipo.</p>
-
-                    <div class="d-flex justify-content-center gap-2">
-                        <a th:href="@{/carrera}"
-                           class="btn btn-outline-secondary">
-                            Refrescar
-                        </a>
-
-                        <a th:href="@{/carrera/agregar}"
-                           class="btn btn-primary">
-                            Agregar Carrera
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="#FFFFFF"
-                                      d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                            </svg>
-                        </a>
-                    </div>
+                 class="empty-state">
+                <img th:src="@{/images/utils/img.png}" alt="Sin registros">
+                <h5>No hay carreras registradas</h5>
+                <p>Agrega una nueva carrera para comenzar a gestionar tu equipo.</p>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/carrera}" class="btn btn-outline-secondary">Refrescar</a>
+                    <a th:href="@{/carrera/agregar}" class="btn btn-primary">
+                        Agregar Carrera
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#FFFFFF"
+                                  d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                        </svg>
+                    </a>
                 </div>
-
             </div>
 
         </main>
@@ -121,5 +169,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/fn_pagination.js}"></script>
+<script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/rel-time.js}"></script>
 </body>
 </html>

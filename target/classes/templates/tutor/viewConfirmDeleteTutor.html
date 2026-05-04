@@ -15,31 +15,27 @@
     <div class="app-content">
         <main class="app-main d-flex justify-content-center align-items-center">
 
-            <div class="card bg-body-secondary w-100" style="max-width: 500px;" th:if="${tutor.id} != null">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-2">Confirmar Eliminación</h3>
-                    <p class="text-center text-muted mb-4">¿Está seguro de que desea eliminar este tutor?</p>
+            <div class="card danger-card w-100" style="max-width: 500px; padding: 32px;" th:if="${tutor.id} != null">
+                <h3 class="text-center mb-2">Confirmar Eliminación</h3>
+                <p class="text-center text-muted mb-4">¿Está seguro de que desea eliminar este tutor?</p>
 
-                    <div class="alert alert-warning">
-                        <strong>Tutor a eliminar:</strong>
-                        <div class="mt-2">
-                            <p class="mb-1"><strong>ID:</strong> <span th:text="${tutor.id}"></span></p>
-                            <p class="mb-1"><strong>Nombre:</strong>
-                                <span th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></span></p>
-                            <p class="mb-1"><strong>No. Control:</strong>
-                                <span th:text="${tutor.numeroControl}"></span></p>
-                            <p class="mb-0"><strong>Carrera:</strong>
-                                <span th:text="${tutor.carrera != null} ? ${tutor.carrera.nombre} : 'Sin asignar'"></span></p>
-                        </div>
+                <div class="alert alert-warning">
+                    <strong>Tutor a eliminar:</strong>
+                    <div class="mt-2">
+                        <p class="mb-1"><strong>ID:</strong> <span th:text="${tutor.id}"></span></p>
+                        <p class="mb-1"><strong>Nombre:</strong>
+                            <span th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></span></p>
+                        <p class="mb-1"><strong>No. Control:</strong>
+                            <span th:text="${tutor.numeroControl}"></span></p>
                     </div>
+                </div>
 
-                    <div class="d-flex gap-2 mt-3">
-                        <button type="button" class="btn btn-danger flex-grow-1"
-                                data-bs-toggle="modal" data-bs-target="#confirmModal">
-                            Eliminar
-                        </button>
-                        <a th:href="@{/tutor}" class="btn btn-secondary flex-grow-1">Cancelar</a>
-                    </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="btn btn-danger flex-grow-1"
+                            data-bs-toggle="modal" data-bs-target="#confirmModal">
+                        Eliminar
+                    </button>
+                    <a th:href="@{/tutor}" class="btn btn-secondary flex-grow-1">Cancelar</a>
                 </div>
             </div>
 

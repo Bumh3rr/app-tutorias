@@ -3,6 +3,8 @@ package com.bumh3r.repository;
 import com.bumh3r.entity.Asistencia;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,8 @@ import java.util.List;
 public interface IAsistenciaRepository extends JpaRepository<Asistencia, Integer> {
 
     List<Asistencia> findByActivo(Integer activo);
+
+    Page<Asistencia> findByActivo(Integer activo, Pageable pageable);
 
     // Asistencias de una sesión
     List<Asistencia> findByActivoAndSesion(Integer activo, Sesion sesion);

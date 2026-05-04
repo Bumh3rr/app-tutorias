@@ -5,6 +5,8 @@ import com.bumh3r.entity.PAT;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -31,4 +33,12 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
 
     // Actividades por semana
     List<Actividad> findByActivoAndSemana(Integer activo, Integer semana);
+
+    boolean existsByNombreAndSemanaAndActivo(String nombre, Integer semana, Integer activo);
+
+    @Query("SELECT COUNT(a) > 0 FROM Actividad a WHERE a.nombre = :nombre AND a.semana = :semana AND a.activo = 1 AND a.id <> :id")
+    boolean existsByNombreAndSemanaAndActivoExcludingId(@Param("nombre") String nombre, @Param("semana") Integer semana, @Param("id") Integer id);
+
+    @Query("SELECT a FROM Actividad a WHERE (:q IS NULL OR :q = '' OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
+    Page<Actividad> searchByName(@Param("q") String q, Pageable pageable);
 }

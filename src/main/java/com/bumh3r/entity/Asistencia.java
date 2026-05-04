@@ -2,6 +2,8 @@ package com.bumh3r.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,4 +28,9 @@ public class Asistencia {
     private Integer presente;
     private Integer recuperada;
     private Integer activo;
+
+    @CreationTimestamp
+    @Column(name = "fecha_registro", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
 }

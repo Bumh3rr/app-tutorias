@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit} ? 'Editar Grupo' : 'Agregar Grupo'">Formulario Grupo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main d-flex justify-content-center align-items-start">
+
+            <div class="form-card w-100 mx-auto" style="max-width: 620px;">
+
+                <!-- Encabezado -->
+                <div class="mb-4">
+                    <h3 class="mb-1" th:text="${isEdit} ? 'Editar Grupo' : 'Agregar Grupo'"></h3>
+                    <p class="text-body-secondary fs-6 mb-0">
+                        Configura un grupo de tutoría asignando su nombre, semestre, carrera y tutor responsable.
+                    </p>
+                </div>
+                <p class="text-body-secondary small mb-4">
+                    Los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios.
+                </p>
+
+                <!-- Alertas -->
+                <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <span th:text="${msg_error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <form method="post"
+                      th:object="${grupo}"
+                      th:action="${isEdit} ? @{/grupo/actualizar/{id}(id=${grupo.id})} : @{/grupo/guardar}">
+
+                    <div class="mb-3" th:if="${grupo.id != null}">
+                        <label class="form-label">ID</label>
+                        <input type="number" class="form-control" th:field="*{id}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">
+                            Nombre del Grupo <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="nombre"
+                               class="form-control"
+                               th:field="*{nombre}"
+                               th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                               pattern="[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9 .,;:()\-]+"
+                               title="Solo letras, números y puntuación básica"
+                               placeholder="ej. Grupo A — ISC 1er Semestre">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                    </div>
+
+                    <!-- Tutor bloqueado: viene pre-seleccionado desde la vista del tutor -->
+                    <div class="mb-3" th:if="${tutorLocked}">
+                        <label class="form-label">Tutor</label>
+                        <input type="text" class="form-control" readonly
+                               th:value="${tutorFijo != null} ? ${tutorFijo.nombre} + ' ' + ${tutorFijo.apellido} : ''">
+                        <input type="hidden" name="tutor.id" th:value="${tutorFijo != null} ? ${tutorFijo.id} : ''">
+                    </div>
+
+                    <!-- Tutor seleccionable con picker -->
+                    <div class="mb-3" th:unless="${tutorLocked}">
+                        <label class="form-label">Tutor</label>
+                        <div class="entity-picker"
+                             data-entity="tutor"
+                             data-placeholder="Sin tutor asignado"
+                             data-clearable="true"
+                             th:data-current-id="${grupo.tutor != null ? grupo.tutor.id : ''}"
+                             th:data-current-text="${grupo.tutor != null ? grupo.tutor.nombre + ' ' + grupo.tutor.apellido : ''}"
+                             th:data-current-sub="${grupo.tutor != null ? grupo.tutor.numeroControl : ''}"
+                             th:data-current-foto="${grupo.tutor != null and grupo.tutor.foto != null ? grupo.tutor.foto : ''}">
+                            <input type="hidden" name="tutor.id"
+                                   th:value="${grupo.tutor != null ? grupo.tutor.id : ''}">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Semestre <span class="text-danger">*</span>
+                            </label>
+                            <div class="entity-picker"
+                                 data-entity="semestre"
+                                 data-placeholder="Selecciona un semestre..."
+                                 th:data-current-id="${grupo.semestre != null ? grupo.semestre.id : ''}"
+                                 th:data-current-text="${grupo.semestre != null ? grupo.semestre.periodo + ' ' + grupo.semestre.anio : ''}">
+                                <input type="hidden" name="semestre.id"
+                                       th:value="${grupo.semestre != null ? grupo.semestre.id : ''}">
+                            </div>
+                            <div class="text-danger small mt-1"
+                                 th:if="${#fields.hasErrors('semestre')}"
+                                 th:errors="*{semestre}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Carrera <span class="text-danger">*</span>
+                            </label>
+                            <div class="entity-picker"
+                                 data-entity="carrera"
+                                 data-placeholder="Selecciona una carrera..."
+                                 th:data-current-id="${grupo.carrera != null ? grupo.carrera.id : ''}"
+                                 th:data-current-text="${grupo.carrera != null ? grupo.carrera.nombre : ''}"
+                                 th:data-current-sub="${grupo.carrera != null ? grupo.carrera.clave : ''}">
+                                <input type="hidden" name="carrera.id"
+                                       th:value="${grupo.carrera != null ? grupo.carrera.id : ''}">
+                            </div>
+                            <div class="text-danger small mt-1"
+                                 th:if="${#fields.hasErrors('carrera')}"
+                                 th:errors="*{carrera}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="aula" class="form-label">Aula</label>
+                        <input type="text" id="aula"
+                               class="form-control"
+                               th:field="*{aula}"
+                               placeholder="ej. A-101">
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="diaSemana" class="form-label">Día de la semana</label>
+                            <select class="form-select" id="diaSemana" th:field="*{diaSemana}">
+                                <option value="">Sin asignar</option>
+                                <option value="Lunes">Lunes</option>
+                                <option value="Martes">Martes</option>
+                                <option value="Miércoles">Miércoles</option>
+                                <option value="Jueves">Jueves</option>
+                                <option value="Viernes">Viernes</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="horario" class="form-label">Horario</label>
+                            <select class="form-select" id="horario" th:field="*{horario}">
+                                <option value="">Sin asignar</option>
+                                <option value="07:00-08:00">07:00 - 08:00</option>
+                                <option value="08:00-09:00">08:00 - 09:00</option>
+                                <option value="09:00-10:00">09:00 - 10:00</option>
+                                <option value="10:00-11:00">10:00 - 11:00</option>
+                                <option value="11:00-12:00">11:00 - 12:00</option>
+                                <option value="12:00-13:00">12:00 - 13:00</option>
+                                <option value="13:00-14:00">13:00 - 14:00</option>
+                                <option value="14:00-15:00">14:00 - 15:00</option>
+                                <option value="15:00-16:00">15:00 - 16:00</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <a th:href="@{/grupo}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/entity-picker.js}"></script>
+<script th:src="@{/js/custom-select.js}"></script>
+</body>
+</html>

@@ -1,14 +1,16 @@
 package com.bumh3r.service.impl;
 
 import com.bumh3r.entity.Actividad;
+import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Sesion;
-import com.bumh3r.entity.Tutor;
 import com.bumh3r.repository.IActividadRepository;
+import com.bumh3r.repository.IGrupoRepository;
 import com.bumh3r.repository.ISesionRepository;
-import com.bumh3r.repository.ITutorRepository;
 import com.bumh3r.service.SesionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class SesionServiceImpl implements SesionService {
     @Autowired
     private ISesionRepository iSesionRepository;
     @Autowired
-    private ITutorRepository iTutorRepository;
+    private IGrupoRepository iGrupoRepository;
     @Autowired
     private IActividadRepository iActividadRepository;
 
@@ -35,10 +37,10 @@ public class SesionServiceImpl implements SesionService {
         resolverRelaciones(sesion);
 
         boolean duplicada = this.iSesionRepository
-                .existsByTutorAndSemanaAndActivo(sesion.getTutor(), sesion.getSemana(), 1);
+                .existsByGrupoAndSemanaAndActivo(sesion.getGrupo(), sesion.getSemana(), 1);
         if (duplicada) {
             throw new IllegalStateException(
-                    "El tutor ya tiene una sesión registrada en la semana " + sesion.getSemana() + ".");
+                    "El grupo ya tiene una sesión registrada en la semana " + sesion.getSemana() + ".");
         }
 
         sesion.setActivo(1);
@@ -55,7 +57,12 @@ public class SesionServiceImpl implements SesionService {
 
         resolverRelaciones(sesion);
 
-        sesionDB.setTutor(sesion.getTutor());
+        if (this.iSesionRepository.existsByGrupoAndSemanaAndActivoExcludingId(sesion.getGrupo(), sesion.getSemana(), id)) {
+            throw new IllegalStateException(
+                "El grupo ya tiene una sesión registrada en la semana " + sesion.getSemana() + ".");
+        }
+
+        sesionDB.setGrupo(sesion.getGrupo());
         sesionDB.setActividad(sesion.getActividad());
         sesionDB.setSemana(sesion.getSemana());
         sesionDB.setFechaImparticion(sesion.getFechaImparticion());
@@ -78,10 +85,10 @@ public class SesionServiceImpl implements SesionService {
     }
 
     @Override
-    public List<Sesion> buscarSesionesPorTutor(Integer idTutor) {
-        Tutor tutor = this.iTutorRepository.findById(idTutor)
-                .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
-        return this.iSesionRepository.findByActivoAndTutor(1, tutor);
+    public List<Sesion> buscarSesionesPorGrupo(Integer idGrupo) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        return this.iSesionRepository.findByActivoAndGrupo(1, grupo);
     }
 
     @Override
@@ -90,10 +97,10 @@ public class SesionServiceImpl implements SesionService {
     }
 
     @Override
-    public List<Sesion> buscarSesionesPorTutorYSemana(Integer idTutor, Integer semana) {
-        Tutor tutor = this.iTutorRepository.findById(idTutor)
-                .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
-        return this.iSesionRepository.findByActivoAndTutorAndSemana(1, tutor, semana);
+    public List<Sesion> buscarSesionesPorGrupoYSemana(Integer idGrupo, Integer semana) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        return this.iSesionRepository.findByActivoAndGrupoAndSemana(1, grupo, semana);
     }
 
     @Override
@@ -101,13 +108,42 @@ public class SesionServiceImpl implements SesionService {
         return this.iSesionRepository.findByActivoAndEstatusRegistro(1, estatus);
     }
 
+    @Override
+    public Page<Sesion> obtenerTodasSesionesPage(Pageable pageable) {
+        return this.iSesionRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public Page<Sesion> buscarSesionesPorGrupoPage(Integer idGrupo, Pageable pageable) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        return this.iSesionRepository.findByActivoAndGrupo(1, grupo, pageable);
+    }
+
+    @Override
+    public Page<Sesion> buscarSesionesPorSemanaPage(Integer semana, Pageable pageable) {
+        return this.iSesionRepository.findByActivoAndSemana(1, semana, pageable);
+    }
+
+    @Override
+    public Page<Sesion> buscarSesionesPorGrupoYSemanaPage(Integer idGrupo, Integer semana, Pageable pageable) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        return this.iSesionRepository.findByActivoAndGrupoAndSemana(1, grupo, semana, pageable);
+    }
+
+    @Override
+    public Page<Sesion> buscarSesionesPorEstatusPage(String estatus, Pageable pageable) {
+        return this.iSesionRepository.findByActivoAndEstatusRegistro(1, estatus, pageable);
+    }
+
     private void resolverRelaciones(Sesion sesion) {
-        if (sesion.getTutor() != null && sesion.getTutor().getId() != null) {
-            Tutor tutor = this.iTutorRepository.findById(sesion.getTutor().getId())
-                    .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
-            sesion.setTutor(tutor);
+        if (sesion.getGrupo() != null && sesion.getGrupo().getId() != null) {
+            Grupo grupo = this.iGrupoRepository.findById(sesion.getGrupo().getId())
+                    .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+            sesion.setGrupo(grupo);
         } else {
-            sesion.setTutor(null);
+            sesion.setGrupo(null);
         }
 
         if (sesion.getActividad() != null && sesion.getActividad().getId() != null) {

@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <style>
         .necesidad-card {
             background: rgba(255,255,255,0.03);
@@ -30,8 +31,7 @@
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main d-flex justify-content-center">
-            <div class="card bg-body-secondary w-100" style="max-width: 620px;">
-                <div class="card-body p-4">
+            <div class="form-card w-100 mx-auto" style="max-width: 620px;">
                     <h3 class="text-center mb-1"
                         th:text="${isEdit} ? 'Editar Detección' : 'Registrar Detección de Necesidades'"></h3>
                     <p class="text-center text-body-secondary small mb-4">
@@ -50,34 +50,40 @@
 
                         <!-- Tutorado -->
                         <div class="mb-3">
-                            <label for="tutorado.id" class="form-label">Tutorado</label>
-                            <select class="form-select" id="tutorado.id" name="tutorado.id"
-                                    th:field="*{tutorado.id}" required>
-                                <option value="">Selecciona un tutorado...</option>
-                                <option th:each="t : ${tutorados}"
-                                        th:value="${t.id}"
-                                        th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}">
-                                </option>
-                            </select>
+                            <label class="form-label">Tutorado</label>
+                            <div class="entity-picker"
+                                 data-entity="tutorado"
+                                 data-placeholder="Selecciona un tutorado..."
+                                 th:data-current-id="${deteccion.tutorado != null ? deteccion.tutorado.id : ''}"
+                                 th:data-current-text="${deteccion.tutorado != null ? deteccion.tutorado.nombre + ' ' + deteccion.tutorado.apellido : ''}"
+                                 th:data-current-sub="${deteccion.tutorado != null ? deteccion.tutorado.numeroControl : ''}"
+                                 th:data-current-foto="${deteccion.tutorado != null and deteccion.tutorado.foto != null ? deteccion.tutorado.foto : ''}">
+                                <input type="hidden" name="tutorado.id"
+                                       th:value="${deteccion.tutorado != null ? deteccion.tutorado.id : ''}">
+                            </div>
                         </div>
 
                         <!-- Sesión -->
                         <div class="mb-3">
-                            <label for="sesion.id" class="form-label">Sesión donde se aplicó</label>
-                            <select class="form-select" id="sesion.id" name="sesion.id"
-                                    th:field="*{sesion.id}">
-                                <option value="">Sin sesión asignada</option>
-                                <option th:each="s : ${sesiones}"
-                                        th:value="${s.id}"
-                                        th:text="'Semana ' + ${s.semana} + ' — ' + ${s.tutor != null ? s.tutor.nombre + ' ' + s.tutor.apellido : 'Sin tutor'}">
-                                </option>
-                            </select>
+                            <label class="form-label">Sesión donde se aplicó</label>
+                            <div class="entity-picker"
+                                 data-entity="sesion"
+                                 data-placeholder="Sin sesión asignada"
+                                 data-clearable="true"
+                                 th:data-current-id="${deteccion.sesion != null ? deteccion.sesion.id : ''}"
+                                 th:data-current-text="${deteccion.sesion != null ? 'Semana ' + deteccion.sesion.semana + (deteccion.sesion.grupo != null ? ' — ' + deteccion.sesion.grupo.nombre : '') : ''}"
+                                 th:data-current-sub="${deteccion.sesion != null ? deteccion.sesion.estatusRegistro : ''}">
+                                <input type="hidden" name="sesion.id"
+                                       th:value="${deteccion.sesion != null ? deteccion.sesion.id : ''}">
+                            </div>
                         </div>
 
                         <!-- Fecha de aplicación -->
                         <div class="mb-4">
                             <label for="fechaAplicacion" class="form-label">Fecha de aplicación</label>
-                            <input type="date" class="form-control" id="fechaAplicacion"
+                            <input type="text" class="form-control" id="fechaAplicacion"
+                                   data-datepicker
+                                   placeholder="aaaa-mm-dd"
                                    th:field="*{fechaAplicacion}">
                         </div>
 
@@ -211,7 +217,6 @@
                         </div>
 
                     </form>
-                </div>
             </div>
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
@@ -219,7 +224,10 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/entity-picker.js}"></script>
+<script th:src="@{/js/date-picker.js}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const checks = document.querySelectorAll('.necesidad-check');
