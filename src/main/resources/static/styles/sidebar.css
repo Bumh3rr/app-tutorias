@@ -2,6 +2,60 @@
    Sistema de Tutorías — Design System & Global Styles
    ═══════════════════════════════════════════════════ */
 
+/* ── Bootstrap theme overrides ── */
+[data-bs-theme="dark"] {
+    --bs-body-bg:          #0d0f14;
+    --bs-body-bg-rgb:      13, 15, 20;
+    --bs-primary:          #6366f1;
+    --bs-primary-rgb:      99, 102, 241;
+    --bs-link-color:       #a5b4fc;
+    --bs-link-hover-color: #c7d2fe;
+    --bs-border-color:     rgba(255,255,255,0.1);
+}
+
+/* ── .btn-primary component variables (Bootstrap 5 needs these overridden at component level) ── */
+.btn-primary {
+    --bs-btn-color:              #fff;
+    --bs-btn-bg:                 #6366f1;
+    --bs-btn-border-color:       #6366f1;
+    --bs-btn-hover-color:        #fff;
+    --bs-btn-hover-bg:           #4f46e5;
+    --bs-btn-hover-border-color: #4f46e5;
+    --bs-btn-active-color:       #fff;
+    --bs-btn-active-bg:          #4338ca;
+    --bs-btn-active-border-color:#4338ca;
+    --bs-btn-disabled-bg:        #6366f1;
+    --bs-btn-disabled-border-color: #6366f1;
+    --bs-btn-focus-shadow-rgb:   99, 102, 241;
+}
+
+.btn-outline-primary {
+    --bs-btn-color:              #a5b4fc;
+    --bs-btn-border-color:       #6366f1;
+    --bs-btn-hover-color:        #fff;
+    --bs-btn-hover-bg:           #6366f1;
+    --bs-btn-hover-border-color: #6366f1;
+    --bs-btn-active-color:       #fff;
+    --bs-btn-active-bg:          #6366f1;
+    --bs-btn-active-border-color:#6366f1;
+    --bs-btn-focus-shadow-rgb:   99, 102, 241;
+}
+
+/* ── Badge bg-primary ── */
+.badge.bg-primary,
+.text-bg-primary {
+    background-color: #6366f1 !important;
+}
+.text-primary { color: #a5b4fc !important; }
+.border-primary { border-color: #6366f1 !important; }
+
+/* ── Form focus ring ── */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    --bs-focus-ring-color: rgba(99,102,241,0.25);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 /* ── Scrollbar ── */
@@ -182,7 +236,7 @@ body {
     left: 0; top: 4px; bottom: 4px;
     width: 3px;
     border-radius: 0 3px 3px 0;
-    background: #6ea8fe;
+    background: #a5b4fc;
     opacity: 0;
     transition: opacity 0.2s;
 }
@@ -195,8 +249,8 @@ body {
 }
 
 .nav-item.active-route {
-    background: rgba(13,110,253,0.12);
-    color: #6ea8fe;
+    background: rgba(99,102,241,0.12);
+    color: #a5b4fc;
     opacity: 1;
 }
 
@@ -255,11 +309,11 @@ body {
 .nav-child:hover::before { opacity: 0.7; transform: scale(1.3); }
 
 .nav-child.active-route {
-    color: #6ea8fe;
+    color: #a5b4fc;
     opacity: 1;
 }
 
-.nav-child.active-route::before { opacity: 1; background: #6ea8fe; }
+.nav-child.active-route::before { opacity: 1; background: #a5b4fc; }
 
 /* Chevron */
 .chevron {
@@ -459,8 +513,8 @@ body {
 
 .form-control:focus,
 .form-select:focus {
-    border-color: rgba(110,168,254,0.6);
-    box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+    border-color: rgba(165,180,252,0.6);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
     background-color: rgba(255,255,255,0.06);
     outline: none;
 }
@@ -526,8 +580,8 @@ body {
     font-size: 15px;
 }
 
-.btn-primary { box-shadow: 0 2px 8px rgba(13,110,253,0.25); }
-.btn-primary:hover { box-shadow: 0 4px 14px rgba(13,110,253,0.35); }
+.btn-primary       { box-shadow: 0 2px 8px  rgba(99,102,241,0.30); }
+.btn-primary:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.45); }
 
 .btn-danger  { box-shadow: 0 2px 8px rgba(220,53,69,0.2); }
 .btn-danger:hover { box-shadow: 0 4px 14px rgba(220,53,69,0.3); }
@@ -685,8 +739,8 @@ tr.row-new > td:first-child {
 }
 
 .nav-tabs .nav-link.active {
-    color: #6ea8fe;
-    border-bottom-color: #6ea8fe;
+    color: #a5b4fc;
+    border-bottom-color: #a5b4fc;
     background: transparent;
 }
 
@@ -987,8 +1041,8 @@ tr.row-new > td:first-child {
 
 .ep-trigger:focus {
     outline: none;
-    border-color: rgba(110,168,254,0.6);
-    box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+    border-color: rgba(165,180,252,0.6);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
 .ep-trigger-inner {
@@ -1087,8 +1141,8 @@ tr.row-new > td:first-child {
 }
 
 .ep-card:hover {
-    background: rgba(13,110,253,0.1);
-    border-color: rgba(110,168,254,0.3);
+    background: rgba(99,102,241,0.1);
+    border-color: rgba(165,180,252,0.3);
     transform: translateY(-1px);
 }
 
@@ -1182,7 +1236,7 @@ tr.row-new > td:first-child {
 
 .cs-trigger.cs-open {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25);
+    box-shadow: 0 0 0 0.25rem rgba(99,102,241,0.25);
     outline: 0;
 }
 
@@ -1237,8 +1291,8 @@ tr.row-new > td:first-child {
 }
 
 .cs-item:hover           { background: rgba(255,255,255,0.06); }
-.cs-item-selected        { background: rgba(13,110,253,0.12); color: #6ea8fe; }
-.cs-item-selected:hover  { background: rgba(13,110,253,0.18); }
+.cs-item-selected        { background: rgba(99,102,241,0.12); color: #a5b4fc; }
+.cs-item-selected:hover  { background: rgba(99,102,241,0.18); }
 
 .cs-item-placeholder {
     color: var(--bs-secondary-color);
@@ -1259,7 +1313,7 @@ tr.row-new > td:first-child {
 
 .cs-item-check {
     font-size: 0.8rem;
-    color: #6ea8fe;
+    color: #a5b4fc;
     opacity: 0;
     flex-shrink: 0;
 }
@@ -1299,7 +1353,7 @@ tr.row-new > td:first-child {
    ═══════════════════════════════════════ */
 th.sort-th { cursor: pointer; }
 th.sort-th a {
-    color: inherit;
+    color: #a5b4fc;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -1307,11 +1361,11 @@ th.sort-th a {
     white-space: nowrap;
     font-weight: 600;
 }
-th.sort-th a:hover { color: #6ea8fe; }
+th.sort-th a:hover { color: #c7d2fe; }
 .sort-arrow {
     font-size: 0.7em;
     line-height: 1;
-    color: #6ea8fe;
+    color: #a5b4fc;
 }
 .sort-arrow-idle {
     font-size: 0.7em;
@@ -1335,8 +1389,8 @@ th.sort-th a:hover { color: #6ea8fe; }
 }
 .fp-zone:hover,
 .fp-zone.fp-drag-over {
-    border-color: rgba(13,110,253,0.5);
-    background: rgba(13,110,253,0.04);
+    border-color: rgba(99,102,241,0.5);
+    background: rgba(99,102,241,0.04);
 }
 .fp-drag-over { border-style: solid; }
 
@@ -1353,7 +1407,7 @@ th.sort-th a:hover { color: #6ea8fe; }
     font-size: 0.875rem;
     margin: 0 0 4px;
 }
-.fp-link { color: #6ea8fe; }
+.fp-link { color: #a5b4fc; }
 .fp-zone-hint {
     font-size: 0.78rem;
     color: var(--bs-secondary-color);

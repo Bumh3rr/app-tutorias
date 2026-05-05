@@ -7,6 +7,86 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .ses-card {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: box-shadow .2s, transform .2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .ses-card:hover { box-shadow: 0 8px 24px rgba(99,102,241,.18); transform: translateY(-2px); }
+        .ses-card.card-new { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,.25); }
+        .ses-card.card-new::after {
+            content: 'Nuevo'; position: absolute; top: 8px; right: 8px;
+            background: #6366f1; color: #fff; font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 99px; letter-spacing: .5px; z-index: 2;
+        }
+        .ses-card-header {
+            height: 80px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 3px; padding: 8px 16px; position: relative;
+        }
+        .ses-week-sub {
+            font-size: 10px; color: rgba(255,255,255,.65);
+            text-transform: uppercase; letter-spacing: .8px; line-height: 1;
+        }
+        .ses-week-num {
+            font-size: 26px; font-weight: 800; font-family: monospace; color: #fff; line-height: 1;
+        }
+        .ses-week-track {
+            display: flex; align-items: center; gap: 3px;
+        }
+        .ses-week-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,.2);
+            transition: background .2s;
+        }
+        .ses-week-dot-active {
+            background: #fff; width: 8px; height: 8px;
+            box-shadow: 0 0 5px rgba(255,255,255,.5);
+        }
+        .ses-grupo-pill {
+            position: absolute; top: 8px; right: 10px;
+            background: rgba(255,255,255,.15); color: #fff;
+            font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+            border: 1px solid rgba(255,255,255,.2);
+            max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .ses-card-body { padding: 14px 16px 10px; flex: 1; }
+        .ses-info-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; color: var(--bs-secondary-color);
+            background: var(--bs-tertiary-bg); border-radius: 6px;
+            padding: 3px 8px; margin-top: 4px;
+        }
+        .ses-card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--bs-border-color);
+            display: flex; align-items: center; justify-content: space-between; gap: 6px;
+        }
+        .ses-card-footer .badge-new-hot,
+        .ses-card-footer .badge-new-today {
+            background: transparent !important; color: var(--bs-secondary-color) !important;
+            box-shadow: none !important; border: none !important; animation: none !important;
+        }
+        .ses-card-footer .badge-sin-asignar { background: transparent; color: var(--bs-secondary-color); border: none; }
+    </style>
+    <script>
+        (function () {
+            var m = localStorage.getItem('sesion_view_mode') || 'cards';
+            var s = document.createElement('style');
+            s.id = 'view-init';
+            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
+            document.head.appendChild(s);
+        })();
+    </script>
 </head>
 <body>
 
@@ -15,17 +95,31 @@
     <div class="app-content">
         <main class="app-main">
 
-            <div class="page-header">
+            <div class="page-header mb-4">
                 <div>
                     <h3 class="mb-1">Sesiones</h3>
                     <p class="text-body-secondary fs-6 mb-0">Gestiona las sesiones semanales de tutoría.</p>
                 </div>
-                <a th:href="@{/sesion/agregar}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                    </svg>
-                    Agregar Sesión
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" id="btn-cards" class="btn btn-outline-secondary" onclick="setView('cards')" title="Vista tarjetas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z"/>
+                            </svg>
+                        </button>
+                        <button type="button" id="btn-list" class="btn btn-outline-secondary" onclick="setView('list')" title="Vista lista">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 5h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <a th:href="@{/sesion/agregar}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                        </svg>
+                        Agregar Sesión
+                    </a>
+                </div>
             </div>
 
             <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -68,11 +162,9 @@
                     </li>
                 </ul>
                 <div class="tab-content pt-3">
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos' or tipoBusqueda == null} ? 'show active'" id="tab-todos">
                         <a th:href="@{/sesion}" class="btn btn-primary btn-sm">Ver todas</a>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'grupo'} ? 'show active'" id="tab-grupo">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="grupo">
@@ -93,7 +185,6 @@
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semana'} ? 'show active'" id="tab-semana">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="semana">
@@ -114,7 +205,6 @@
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'grupoSemana'} ? 'show active'" id="tab-grupo-semana">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="grupoSemana">
@@ -145,7 +235,6 @@
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'estatus'} ? 'show active'" id="tab-estatus">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="estatus">
@@ -164,134 +253,200 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
 
-            <!-- Contador -->
-            <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
-                <small class="text-body-secondary"
-                       th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' sesiones'">
-                </small>
-            </div>
-
-            <!-- Tabla -->
             <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="sort-th">
-                                <a th:href="@{/sesion(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">
-                                    ID
-                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Grupo</th>
-                            <th>Actividad</th>
-                            <th class="sort-th">
-                                <a th:href="@{/sesion(sortBy='semana',sort=${sortBy == 'semana' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">
-                                    Semana
-                                    <span th:if="${sortBy == 'semana'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'semana'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Fecha</th>
-                            <th>Estatus</th>
-                            <th>Estado</th>
-                            <th>Registrado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="sesion : ${sesiones}">
-                            <td th:text="${sesion.id}"></td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${sesion.grupo != null} ? ${sesion.grupo.nombre} : 'Sin grupo'"
-                                      th:classappend="${sesion.grupo != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${sesion.actividad != null} ? ${sesion.actividad.nombre} : 'Sin actividad'"
-                                      th:classappend="${sesion.actividad != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td><span class="badge bg-secondary" th:text="'Semana ' + ${sesion.semana}"></span></td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${sesion.fechaImparticion != null} ? ${#dates.format(sesion.fechaImparticion, 'dd/MM/yyyy')} : 'Sin fecha'"
-                                      th:classappend="${sesion.fechaImparticion != null} ? 'bg-secondary' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${sesion.estatusRegistro}"
-                                      th:classappend="${sesion.estatusRegistro == 'REALIZADA' ? 'badge-active' : (sesion.estatusRegistro == 'CANCELADA' ? 'badge-inactive' : 'badge-pendiente')}">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${sesion.activo == 1} ? 'Activo' : 'Inactivo'"
-                                      th:classappend="${sesion.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                </span>
-                            </td>
-                            <td th:if="${sesion.fechaRegistro != null}"
-                                th:data-ts="${sesion.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      th:title="${#dates.format(sesion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                            </td>
-                            <td th:unless="${sesion.fechaRegistro != null}">
-                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1 flex-wrap">
-                                    <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                    <a th:href="@{/asistencia/registrar/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-success">Asistencia</a>
-                                    <a th:href="@{/sesion/actualizar/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                    <a th:href="@{/sesion/delete/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <!-- Counter + page size -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <small class="text-body-secondary"
+                           th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' sesiones'">
+                    </small>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-body-secondary">Mostrar</small>
+                        <select class="form-select form-select-sm" style="width:auto;" onchange="cambiarPageSize(this.value)">
+                            <option value="5"  th:selected="${pageSize == 5}">5</option>
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="50" th:selected="${pageSize == 50}">50</option>
+                        </select>
+                        <small class="text-body-secondary">por página</small>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Paginación -->
-            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
-                <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/sesion(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">&laquo;</a>
-                        </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/sesion(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}"></a>
-                        </li>
-                        <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/sesion(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">&raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="d-flex align-items-center gap-2">
-                    <small class="text-body-secondary">Mostrar</small>
-                    <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
-                        <option value="5"  th:selected="${pageSize == 5}">5</option>
-                        <option value="10" th:selected="${pageSize == 10}">10</option>
-                        <option value="20" th:selected="${pageSize == 20}">20</option>
-                        <option value="50" th:selected="${pageSize == 50}">50</option>
-                    </select>
-                    <small class="text-body-secondary">por página</small>
+                <!-- CARD VIEW -->
+                <div id="view-cards">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3">
+                        <div class="col" th:each="sesion : ${sesiones}">
+                            <div class="ses-card"
+                                 th:data-ts="${sesion.fechaRegistro != null ? sesion.fechaRegistro.time : 0}">
+                                <div class="ses-card-header">
+                                    <!-- Grupo pill top-right -->
+                                    <span class="ses-grupo-pill"
+                                          th:text="${sesion.grupo != null} ? ${sesion.grupo.nombre} : 'Sin grupo'"
+                                          th:if="${sesion.grupo != null}"></span>
+                                    <!-- Week number -->
+                                    <span class="ses-week-sub">Semana</span>
+                                    <span class="ses-week-num" th:text="${sesion.semana}"></span>
+                                    <!-- Progress dots -->
+                                    <div class="ses-week-track">
+                                        <span th:each="i : ${#numbers.sequence(1, 10)}"
+                                              class="ses-week-dot"
+                                              th:classappend="${i == sesion.semana} ? ' ses-week-dot-active'"></span>
+                                    </div>
+                                </div>
+                                <div class="ses-card-body">
+                                    <!-- Estatus registro -->
+                                    <span class="badge rounded-pill mb-2"
+                                          th:text="${sesion.estatusRegistro}"
+                                          th:classappend="${sesion.estatusRegistro == 'REALIZADA' ? 'badge-active' : (sesion.estatusRegistro == 'CANCELADA' ? 'badge-inactive' : 'badge-pendiente')}"></span>
+                                    <!-- Actividad -->
+                                    <div class="ses-info-chip" th:if="${sesion.actividad != null}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                        <span th:text="${sesion.actividad.nombre}"></span>
+                                    </div>
+                                    <!-- Fecha impartición -->
+                                    <div class="ses-info-chip" th:if="${sesion.fechaImparticion != null}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                            <line x1="8" y1="2" x2="8" y2="6" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                            <line x1="3" y1="10" x2="21" y2="10" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                        </svg>
+                                        <span th:text="${#dates.format(sesion.fechaImparticion, 'dd/MM/yyyy')}"></span>
+                                    </div>
+                                    <!-- Activo -->
+                                    <div class="mt-2">
+                                        <span class="badge rounded-pill"
+                                              th:text="${sesion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                              th:classappend="${sesion.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                    </div>
+                                </div>
+                                <div class="ses-card-footer">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" style="font-size:10px;"
+                                          th:if="${sesion.fechaRegistro != null}"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(sesion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    <span class="badge rounded-pill badge-sin-asignar" style="font-size:10px;"
+                                          th:unless="${sesion.fechaRegistro != null}">Sin fecha</span>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}"
+                                           class="btn btn-sm btn-outline-primary" style="font-size:11px;padding:2px 6px;">Ver</a>
+                                        <a th:href="@{/asistencia/registrar/{id}(id=${sesion.id})}"
+                                           class="btn btn-sm btn-outline-success" style="font-size:11px;padding:2px 6px;">Asistencia</a>
+                                        <a th:href="@{/sesion/actualizar/{id}(id=${sesion.id})}"
+                                           class="btn btn-sm btn-outline-secondary" style="font-size:11px;padding:2px 6px;">Editar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIST VIEW -->
+                <div id="view-list">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="sort-th">
+                                    <a th:href="@{/sesion(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">
+                                        ID
+                                        <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                        <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
+                                    </a>
+                                </th>
+                                <th>Grupo</th>
+                                <th>Actividad</th>
+                                <th class="sort-th">
+                                    <a th:href="@{/sesion(sortBy='semana',sort=${sortBy == 'semana' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">
+                                        Semana
+                                        <span th:if="${sortBy == 'semana'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                        <span th:unless="${sortBy == 'semana'}" class="sort-arrow-idle">↕</span>
+                                    </a>
+                                </th>
+                                <th>Fecha</th>
+                                <th>Estatus</th>
+                                <th>Estado</th>
+                                <th>Registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sesion : ${sesiones}" class="fade-in-up">
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${sesion.id}"></td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.grupo != null} ? ${sesion.grupo.nombre} : 'Sin grupo'"
+                                          th:classappend="${sesion.grupo != null} ? '' : 'badge-sin-asignar'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.actividad != null} ? ${sesion.actividad.nombre} : 'Sin actividad'"
+                                          th:classappend="${sesion.actividad != null} ? '' : 'badge-sin-asignar'"></span>
+                                </td>
+                                <td><span class="badge bg-secondary" th:text="'Semana ' + ${sesion.semana}"></span></td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.fechaImparticion != null} ? ${#dates.format(sesion.fechaImparticion, 'dd/MM/yyyy')} : 'Sin fecha'"
+                                          th:classappend="${sesion.fechaImparticion != null} ? 'bg-secondary' : 'badge-sin-asignar'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.estatusRegistro}"
+                                          th:classappend="${sesion.estatusRegistro == 'REALIZADA' ? 'badge-active' : (sesion.estatusRegistro == 'CANCELADA' ? 'badge-inactive' : 'badge-pendiente')}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${sesion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                          th:classappend="${sesion.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                </td>
+                                <td th:if="${sesion.fechaRegistro != null}"
+                                    th:data-ts="${sesion.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(sesion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                </td>
+                                <td th:unless="${sesion.fechaRegistro != null}">
+                                    <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/asistencia/registrar/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-success">Asistencia</a>
+                                        <a th:href="@{/sesion/actualizar/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/sesion/delete/{id}(id=${sesion.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
+                    <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                                <a class="page-link" th:href="@{/sesion(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">&laquo;</a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
+                                <a class="page-link" th:text="${i + 1}" th:href="@{/sesion(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}"></a>
+                            </li>
+                            <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                                <a class="page-link" th:href="@{/sesion(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idGrupo=${idGrupoSeleccionado},semana=${semanaSeleccionada},estatus=${estatusSeleccionado})}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
 
             <!-- Empty state -->
-            <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}"
-                 class="empty-state">
+            <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}" class="empty-state">
                 <img th:src="@{/images/utils/img.png}" alt="No hay sesiones">
                 <h5>No hay sesiones registradas</h5>
                 <p>Agrega una nueva sesión para comenzar el registro de asistencias.</p>
@@ -316,5 +471,31 @@
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script>
+    const STORAGE_KEY = 'sesion_view_mode';
+    function setView(mode) {
+        localStorage.setItem(STORAGE_KEY, mode);
+        document.getElementById('view-cards').style.display = mode === 'cards' ? '' : 'none';
+        document.getElementById('view-list').style.display  = mode === 'list'  ? '' : 'none';
+        document.getElementById('btn-cards').classList.toggle('active', mode === 'cards');
+        document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+        var init = document.getElementById('view-init');
+        if (init) init.remove();
+    }
+    function cambiarPageSize(size) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
+        document.querySelectorAll('.ses-card[data-ts]').forEach(function (card) {
+            var ms = parseInt(card.dataset.ts, 10);
+            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
+        });
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
+    });
+</script>
 </body>
 </html>

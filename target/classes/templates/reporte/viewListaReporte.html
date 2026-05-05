@@ -7,6 +7,74 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .rep-card {
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: box-shadow .2s, transform .2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .rep-card:hover { box-shadow: 0 8px 24px rgba(99,102,241,.18); transform: translateY(-2px); }
+        .rep-card.card-new { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,.25); }
+        .rep-card.card-new::after {
+            content: 'Nuevo'; position: absolute; top: 8px; right: 8px;
+            background: #6366f1; color: #fff; font-size: 9px; font-weight: 700;
+            padding: 2px 7px; border-radius: 99px; letter-spacing: .5px; z-index: 2;
+        }
+        .rep-card-header {
+            height: 80px;
+            background: linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 18px; position: relative;
+        }
+        .rep-icon {
+            width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,.12); border-radius: 10px;
+            border: 1px solid rgba(255,255,255,.18);
+        }
+        .rep-alumnos {
+            display: flex; flex-direction: column; align-items: flex-end;
+        }
+        .rep-alumnos-num {
+            font-size: 28px; font-weight: 800; font-family: monospace; color: #fff; line-height: 1;
+        }
+        .rep-alumnos-label {
+            font-size: 10px; color: rgba(255,255,255,.65);
+            text-transform: uppercase; letter-spacing: .5px;
+        }
+        .rep-card-body { padding: 14px 16px 10px; flex: 1; }
+        .rep-info-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; color: var(--bs-secondary-color);
+            background: var(--bs-tertiary-bg); border-radius: 6px;
+            padding: 3px 8px; margin-top: 4px;
+        }
+        .rep-card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--bs-border-color);
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .rep-card-footer .badge-new-hot,
+        .rep-card-footer .badge-new-today {
+            background: transparent !important; color: var(--bs-secondary-color) !important;
+            box-shadow: none !important; border: none !important; animation: none !important;
+        }
+        .rep-card-footer .badge-sin-asignar { background: transparent; color: var(--bs-secondary-color); border: none; }
+    </style>
+    <script>
+        (function () {
+            var m = localStorage.getItem('reporte_view_mode') || 'cards';
+            var s = document.createElement('style');
+            s.id = 'view-init';
+            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
+            document.head.appendChild(s);
+        })();
+    </script>
 </head>
 <body>
 
@@ -20,12 +88,26 @@
                     <h3 class="mb-1">Reportes de Sesión</h3>
                     <p class="text-body-secondary fs-6 mb-0">Reportes de actividades realizadas por los tutores en cada sesión.</p>
                 </div>
-                <a th:href="@{/reporte/agregar}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                    </svg>
-                    Agregar Reporte
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" id="btn-cards" class="btn btn-outline-secondary" onclick="setView('cards')" title="Vista tarjetas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z"/>
+                            </svg>
+                        </button>
+                        <button type="button" id="btn-list" class="btn btn-outline-secondary" onclick="setView('list')" title="Vista lista">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 5h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <a th:href="@{/reporte/agregar}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
+                        </svg>
+                        Agregar Reporte
+                    </a>
+                </div>
             </div>
 
             <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -54,11 +136,9 @@
                     </li>
                 </ul>
                 <div class="tab-content pt-3">
-
                     <div class="tab-pane fade show active" id="tab-todos">
                         <a th:href="@{/reporte}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
-
                     <div class="tab-pane fade" id="tab-estatus">
                         <form method="get" th:action="@{/reporte}">
                             <input type="hidden" name="tipoBusqueda" value="estatus">
@@ -77,96 +157,175 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
 
-            <!-- Tabla -->
             <div th:if="${reportes != null and !#lists.isEmpty(reportes)}">
-                <!-- Contador -->
-                <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
+                <!-- Counter + page size -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <small class="text-body-secondary"
                            th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' reportes'">
                     </small>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-body-secondary">Mostrar</small>
+                        <select class="form-select form-select-sm" style="width:auto;" onchange="cambiarPageSize(this.value)">
+                            <option value="5"  th:selected="${pageSize == 5}">5</option>
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="50" th:selected="${pageSize == 50}">50</option>
+                        </select>
+                        <small class="text-body-secondary">por página</small>
+                    </div>
                 </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="sort-th">
-                                <a th:href="@{/reporte(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},estatus=${estatusSeleccionado})}">
-                                    ID
-                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Sesión</th>
-                            <th>Grupo</th>
-                            <th>Alumnos presentes</th>
-                            <th>Fecha entrega</th>
-                            <th>Estatus revisión</th>
-                            <th>Registrado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="reporte : ${reportes}">
-                            <td th:text="${reporte.id}"></td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${reporte.sesion != null} ? 'Semana ' + ${reporte.sesion.semana} : 'Sin sesión'"
-                                      th:classappend="${reporte.sesion != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                                <br>
-                                <small class="text-body-secondary"
-                                       th:text="${reporte.sesion != null and reporte.sesion.fechaImparticion != null} ? ${#dates.format(reporte.sesion.fechaImparticion, 'dd/MM/yyyy')} : ''">
-                                </small>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${reporte.sesion != null and reporte.sesion.grupo != null} ? ${reporte.sesion.grupo.nombre} : 'Sin grupo'"
-                                      th:classappend="${reporte.sesion != null and reporte.sesion.grupo != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td class="text-center">
+
+                <!-- CARD VIEW -->
+                <div id="view-cards">
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-3">
+                        <div class="col" th:each="reporte : ${reportes}">
+                            <div class="rep-card"
+                                 th:data-ts="${reporte.fechaRegistro != null ? reporte.fechaRegistro.time : 0}">
+                                <div class="rep-card-header">
+                                    <div class="rep-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                                             stroke="rgba(255,255,255,0.75)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                                            <rect x="9" y="3" width="6" height="4" rx="2"/>
+                                            <line x1="9" y1="12" x2="15" y2="12"/>
+                                            <line x1="9" y1="16" x2="13" y2="16"/>
+                                        </svg>
+                                    </div>
+                                    <div class="rep-alumnos">
+                                        <span class="rep-alumnos-num"
+                                              th:text="${reporte.alumnosPresentes != null} ? ${reporte.alumnosPresentes} : '–'"></span>
+                                        <span class="rep-alumnos-label">alumnos</span>
+                                    </div>
+                                </div>
+                                <div class="rep-card-body">
+                                    <!-- Estatus revisión -->
+                                    <span class="badge rounded-pill mb-2"
+                                          th:text="${reporte.estatusRevision}"
+                                          th:classappend="${reporte.estatusRevision == 'APROBADO' ? 'badge-active' : (reporte.estatusRevision == 'OBSERVADO' ? 'bg-warning text-dark' : 'badge-pendiente')}"></span>
+                                    <!-- Sesión -->
+                                    <div class="rep-info-chip" th:if="${reporte.sesion != null}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                            <line x1="8" y1="2" x2="8" y2="6" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                            <line x1="3" y1="10" x2="21" y2="10" stroke="var(--bs-secondary-color)" stroke-width="2"/>
+                                        </svg>
+                                        <span th:text="'Semana ' + ${reporte.sesion.semana}"></span>
+                                    </div>
+                                    <!-- Grupo -->
+                                    <div class="rep-info-chip" th:if="${reporte.sesion != null and reporte.sesion.grupo != null}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="9" cy="7" r="4"/>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                                        </svg>
+                                        <span th:text="${reporte.sesion.grupo.nombre}"></span>
+                                    </div>
+                                    <!-- Fecha entrega -->
+                                    <div class="rep-info-chip" th:if="${reporte.fechaEntrega != null}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                        <span th:text="${#dates.format(reporte.fechaEntrega, 'dd/MM/yyyy')}"></span>
+                                    </div>
+                                </div>
+                                <div class="rep-card-footer">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" style="font-size:10px;"
+                                          th:if="${reporte.fechaRegistro != null}"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(reporte.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    <span class="badge rounded-pill badge-sin-asignar" style="font-size:10px;"
+                                          th:unless="${reporte.fechaRegistro != null}">Sin fecha</span>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/reporte/ver/{id}(id=${reporte.id})}"
+                                           class="btn btn-sm btn-outline-primary" style="font-size:11px;padding:2px 8px;">Ver</a>
+                                        <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}"
+                                           class="btn btn-sm btn-outline-secondary" style="font-size:11px;padding:2px 8px;">Editar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIST VIEW -->
+                <div id="view-list">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="sort-th">
+                                    <a th:href="@{/reporte(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},estatus=${estatusSeleccionado})}">
+                                        ID
+                                        <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                                        <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
+                                    </a>
+                                </th>
+                                <th>Sesión</th>
+                                <th>Grupo</th>
+                                <th>Alumnos presentes</th>
+                                <th>Fecha entrega</th>
+                                <th>Estatus revisión</th>
+                                <th>Registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="reporte : ${reportes}" class="fade-in-up">
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${reporte.id}"></td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${reporte.sesion != null} ? 'Semana ' + ${reporte.sesion.semana} : 'Sin sesión'"
+                                          th:classappend="${reporte.sesion != null} ? '' : 'badge-sin-asignar'"></span>
+                                    <br>
+                                    <small class="text-body-secondary"
+                                           th:text="${reporte.sesion != null and reporte.sesion.fechaImparticion != null} ? ${#dates.format(reporte.sesion.fechaImparticion, 'dd/MM/yyyy')} : ''"></small>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${reporte.sesion != null and reporte.sesion.grupo != null} ? ${reporte.sesion.grupo.nombre} : 'Sin grupo'"
+                                          th:classappend="${reporte.sesion != null and reporte.sesion.grupo != null} ? '' : 'badge-sin-asignar'"></span>
+                                </td>
+                                <td class="text-center">
                                     <span class="badge bg-secondary"
-                                          th:text="${reporte.alumnosPresentes != null} ? ${reporte.alumnosPresentes} : '---'">
-                                    </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${reporte.fechaEntrega != null} ? ${#dates.format(reporte.fechaEntrega, 'dd/MM/yyyy')} : 'Sin fecha'"
-                                      th:classappend="${reporte.fechaEntrega != null} ? 'bg-secondary' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
+                                          th:text="${reporte.alumnosPresentes != null} ? ${reporte.alumnosPresentes} : '---'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:text="${reporte.fechaEntrega != null} ? ${#dates.format(reporte.fechaEntrega, 'dd/MM/yyyy')} : 'Sin fecha'"
+                                          th:classappend="${reporte.fechaEntrega != null} ? 'bg-secondary' : 'badge-sin-asignar'"></span>
+                                </td>
+                                <td>
                                     <span class="badge rounded-pill"
                                           th:text="${reporte.estatusRevision}"
-                                          th:classappend="${reporte.estatusRevision == 'APROBADO' ? 'badge-active' : (reporte.estatusRevision == 'OBSERVADO' ? 'bg-warning text-dark' : 'badge-pendiente')}">
-                                    </span>
-                            </td>
-                            <td th:if="${reporte.fechaRegistro != null}"
-                                th:data-ts="${reporte.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      th:title="${#dates.format(reporte.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                            </td>
-                            <td th:unless="${reporte.fechaRegistro != null}">
-                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a th:href="@{/reporte/ver/{id}(id=${reporte.id})}"
-                                       class="btn btn-sm btn-outline-primary">Ver</a>
-                                    <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}"
-                                       class="btn btn-sm btn-outline-secondary">Editar</a>
-                                    <a th:href="@{/reporte/delete/{id}(id=${reporte.id})}"
-                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                          th:classappend="${reporte.estatusRevision == 'APROBADO' ? 'badge-active' : (reporte.estatusRevision == 'OBSERVADO' ? 'bg-warning text-dark' : 'badge-pendiente')}"></span>
+                                </td>
+                                <td th:if="${reporte.fechaRegistro != null}"
+                                    th:data-ts="${reporte.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(reporte.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                </td>
+                                <td th:unless="${reporte.fechaRegistro != null}">
+                                    <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a th:href="@{/reporte/ver/{id}(id=${reporte.id})}"
+                                           class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}"
+                                           class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/reporte/delete/{id}(id=${reporte.id})}"
+                                           class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Paginación -->
@@ -185,22 +344,11 @@
                             </li>
                         </ul>
                     </nav>
-                    <div class="d-flex align-items-center gap-2">
-                        <small class="text-body-secondary">Mostrar</small>
-                        <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
-                            <option value="5"  th:selected="${pageSize == 5}">5</option>
-                            <option value="10" th:selected="${pageSize == 10}">10</option>
-                            <option value="20" th:selected="${pageSize == 20}">20</option>
-                            <option value="50" th:selected="${pageSize == 50}">50</option>
-                        </select>
-                        <small class="text-body-secondary">por página</small>
-                    </div>
                 </div>
             </div>
 
             <!-- Empty state -->
-            <div th:unless="${reportes != null and !#lists.isEmpty(reportes)}"
-                 class="empty-state">
+            <div th:unless="${reportes != null and !#lists.isEmpty(reportes)}" class="empty-state">
                 <img th:src="@{/images/utils/img.png}" alt="Sin registros">
                 <h5>No hay reportes registrados</h5>
                 <p>Los tutores deben registrar el reporte de cada sesión realizada.</p>
@@ -225,5 +373,31 @@
 <script th:src="@{/js/rel-time.js}"></script>
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
+<script>
+    const STORAGE_KEY = 'reporte_view_mode';
+    function setView(mode) {
+        localStorage.setItem(STORAGE_KEY, mode);
+        document.getElementById('view-cards').style.display = mode === 'cards' ? '' : 'none';
+        document.getElementById('view-list').style.display  = mode === 'list'  ? '' : 'none';
+        document.getElementById('btn-cards').classList.toggle('active', mode === 'cards');
+        document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+        var init = document.getElementById('view-init');
+        if (init) init.remove();
+    }
+    function cambiarPageSize(size) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
+        document.querySelectorAll('.rep-card[data-ts]').forEach(function (card) {
+            var ms = parseInt(card.dataset.ts, 10);
+            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
+        });
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
+    });
+</script>
 </body>
 </html>

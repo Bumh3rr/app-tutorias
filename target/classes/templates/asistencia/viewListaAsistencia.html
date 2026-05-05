@@ -7,28 +7,77 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <script>
+        (function () {
+            var m = localStorage.getItem('asistencia_view_mode') || 'cards';
+            var s = document.createElement('style');
+            s.id = 'view-init';
+            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
+            document.head.appendChild(s);
+        })();
+    </script>
+    <style>
+        .view-toggle { display:flex; gap:4px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:3px; }
+        .view-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:rgba(255,255,255,0.35); cursor:pointer; transition:background 0.15s,color 0.15s; }
+        .view-btn.active { background:rgba(99,102,241,0.2); color:#a5b4fc; }
+        .view-btn:hover:not(.active) { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); }
+
+        .asist-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; animation:fadeSlide 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+        .asist-card:hover { transform:translateY(-4px); border-color:rgba(99,102,241,0.35); box-shadow:0 12px 32px rgba(0,0,0,0.35); }
+        .asist-card.card-new { border-color:rgba(99,102,241,0.5)!important; box-shadow:0 0 0 1px rgba(99,102,241,0.25),0 4px 20px rgba(99,102,241,0.15); }
+        .asist-card.card-new .asist-card-header::before { content:'Nuevo'; position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.85); color:#fff; letter-spacing:0.04em; }
+
+        .asist-card-header { height:70px; background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:space-between; padding:0 16px; position:relative; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+        .asist-avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.1); flex-shrink:0; }
+        .asist-semana { font-size:11px; font-weight:700; color:rgba(165,180,252,0.8); background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.25); padding:3px 10px; border-radius:20px; white-space:nowrap; }
+
+        .asist-card-body { padding:12px 16px; flex-grow:1; display:flex; flex-direction:column; gap:6px; }
+        .asist-card-name { font-size:13.5px; font-weight:700; margin:0; line-height:1.3; }
+        .asist-card-sub { font-size:11px; color:rgba(255,255,255,0.4); font-family:'SF Mono','Fira Code',monospace; }
+        .asist-card-badges { display:flex; flex-wrap:wrap; gap:6px; margin-top:2px; }
+
+        .asist-card-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid rgba(255,255,255,0.05); gap:6px; }
+        .a-rel-time { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:rgba(255,255,255,0.35); }
+        .a-rel-time .rel-badge,.a-rel-time .rel-badge.badge-new-hot,.a-rel-time .rel-badge.badge-new-today,.a-rel-time .rel-badge.badge-sin-asignar { background:transparent!important; border:none!important; color:inherit!important; animation:none!important; padding:0!important; font-size:inherit!important; font-weight:inherit!important; }
+
+        .asist-grid .col-card:nth-child(1) .asist-card { animation-delay:0.00s; }
+        .asist-grid .col-card:nth-child(2) .asist-card { animation-delay:0.05s; }
+        .asist-grid .col-card:nth-child(3) .asist-card { animation-delay:0.10s; }
+        .asist-grid .col-card:nth-child(4) .asist-card { animation-delay:0.15s; }
+        .asist-grid .col-card:nth-child(5) .asist-card { animation-delay:0.20s; }
+        .asist-grid .col-card:nth-child(6) .asist-card { animation-delay:0.25s; }
+        .asist-grid .col-card:nth-child(7) .asist-card { animation-delay:0.30s; }
+        .asist-grid .col-card:nth-child(8) .asist-card { animation-delay:0.35s; }
+    </style>
 </head>
 <body>
-
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main">
+
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
             <div class="page-header">
                 <div>
                     <h3 class="mb-1">Asistencias</h3>
                     <p class="text-body-secondary fs-6 mb-0">Control de asistencia semanal de tutorados.</p>
                 </div>
-            </div>
-
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${msg_success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${msg_error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="view-toggle">
+                    <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    </button>
+                    <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </button>
+                </div>
             </div>
 
             <div th:if="${filtro != null}" class="mb-3">
@@ -40,22 +89,14 @@
             <div class="search-filters mb-4">
                 <h6 class="mb-3">Buscar Asistencias</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sesion">Por Sesión</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutorado">Historial Tutorado</button>
-                    </li>
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sesion">Por Sesión</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tutorado">Historial Tutorado</button></li>
                 </ul>
                 <div class="tab-content pt-3">
-
                     <div class="tab-pane fade show active" id="tab-todos">
                         <a th:href="@{/asistencia}" class="btn btn-primary btn-sm">Ver todas</a>
                     </div>
-
                     <div class="tab-pane fade" id="tab-sesion">
                         <form method="get" th:action="@{/asistencia}">
                             <input type="hidden" name="tipoBusqueda" value="sesion">
@@ -63,20 +104,13 @@
                                 <div class="col-md-8">
                                     <select name="idSesion" class="form-select" required>
                                         <option value="">Selecciona una sesión...</option>
-                                        <option th:each="s : ${sesiones}"
-                                                th:value="${s.id}"
-                                                th:text="'Semana ' + ${s.semana} + ' — ' + ${s.grupo != null ? s.grupo.nombre : 'Sin grupo'}"
-                                                th:selected="${s.id == idSesionSeleccionada}">
-                                        </option>
+                                        <option th:each="s : ${sesiones}" th:value="${s.id}" th:text="'Semana ' + ${s.semana} + ' — ' + ${s.grupo != null ? s.grupo.nombre : 'Sin grupo'}" th:selected="${s.id == idSesionSeleccionada}"></option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" id="tab-tutorado">
                         <form method="get" th:action="@{/asistencia}">
                             <input type="hidden" name="tipoBusqueda" value="tutorado">
@@ -84,133 +118,136 @@
                                 <div class="col-md-8">
                                     <select name="idTutorado" class="form-select" required>
                                         <option value="">Selecciona un tutorado...</option>
-                                        <option th:each="t : ${tutorados}"
-                                                th:value="${t.id}"
-                                                th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}"
-                                                th:selected="${t.id == idTutoradoSeleccionado}">
-                                        </option>
+                                        <option th:each="t : ${tutorados}" th:value="${t.id}" th:text="${t.nombre} + ' ' + ${t.apellido} + ' — ' + ${t.numeroControl}" th:selected="${t.id == idTutoradoSeleccionado}"></option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
 
-            <!-- Tabla -->
+            <div th:if="${totalElementos > 0}" class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-body-secondary" th:text="${totalElementos} + ' asistencia(s)'"></small>
+                <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
+            </div>
+
             <div th:if="${asistencias != null and !#lists.isEmpty(asistencias)}">
-                <!-- Contador -->
-                <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
-                    <small class="text-body-secondary"
-                           th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' asistencias'">
-                    </small>
-                </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="sort-th">
-                                <a th:href="@{/asistencia(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">
-                                    ID
-                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Sesión</th>
-                            <th>Tutorado</th>
-                            <th>No. Control</th>
-                            <th>Presente</th>
-                            <th>Recuperada</th>
-                            <th>Registrado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="asistencia : ${asistencias}">
-                            <td th:text="${asistencia.id}"></td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : 'Sin sesión'"
-                                      th:classappend="${asistencia.sesion != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.nombre} + ' ' + ${asistencia.tutorado.apellido} : 'Sin tutorado'"
-                                      th:classappend="${asistencia.tutorado != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.numeroControl} : '---'"></td>
-                            <td>
-                                    <span class="badge rounded-pill"
-                                          th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'"
-                                          th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'">
-                                    </span>
-                            </td>
-                            <td>
-                                    <span class="badge rounded-pill"
-                                          th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'"
-                                          th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'">
-                                    </span>
-                            </td>
-                            <td th:if="${asistencia.fechaRegistro != null}"
-                                th:data-ts="${asistencia.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      th:title="${#dates.format(asistencia.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                            </td>
-                            <td th:unless="${asistencia.fechaRegistro != null}">
-                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a th:href="@{/asistencia/resumen/{id}(id=${asistencia.tutorado.id})}"
-                                       class="btn btn-sm btn-outline-primary">Resumen</a>
-                                    <a th:href="@{/asistencia/actualizar/{id}(id=${asistencia.id})}"
-                                       class="btn btn-sm btn-outline-secondary">Editar</a>
+
+                <!-- VISTA CARDS -->
+                <div id="view-cards">
+                    <div class="row g-3 asist-grid">
+                        <div class="col-sm-6 col-lg-3 col-card" th:each="asistencia : ${asistencias}">
+                            <div class="asist-card" th:data-ts="${asistencia.fechaRegistro != null} ? ${asistencia.fechaRegistro.time} : ''">
+                                <div class="asist-card-header">
+                                    <img th:if="${asistencia.tutorado != null}"
+                                         th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${asistencia.tutorado.nombre}+${asistencia.tutorado.apellido}|}"
+                                         alt="Avatar" class="asist-avatar">
+                                    <div th:unless="${asistencia.tutorado != null}"
+                                         style="width:48px;height:48px;border-radius:50%;background:rgba(99,102,241,0.15);border:2px solid rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.5)" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                                    </div>
+                                    <span class="asist-semana" th:if="${asistencia.sesion != null}" th:text="'Semana ' + ${asistencia.sesion.semana}"></span>
                                 </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                <div class="asist-card-body">
+                                    <p class="asist-card-name" th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.nombre} + ' ' + ${asistencia.tutorado.apellido} : 'Sin tutorado'"></p>
+                                    <span class="asist-card-sub" th:if="${asistencia.tutorado != null}" th:text="${asistencia.tutorado.numeroControl}"></span>
+                                    <div class="asist-card-badges">
+                                        <span class="badge rounded-pill" th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'" th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                        <span class="badge rounded-pill" th:if="${asistencia.recuperada == 1}" th:text="'Recuperada'" style="background:rgba(251,191,36,0.2);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">Recuperada</span>
+                                    </div>
+                                </div>
+                                <div class="asist-card-footer">
+                                    <span class="a-rel-time" th:if="${asistencia.fechaRegistro != null}">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        <span class="rel-badge" data-bs-toggle="tooltip" th:title="${#dates.format(asistencia.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    </span>
+                                    <div class="d-flex gap-1 ms-auto">
+                                        <a th:href="@{/asistencia/actualizar/{id}(id=${asistencia.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
+                                        <a th:href="@{/asistencia/resumen/{id}(id=${asistencia.tutorado.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">Resumen</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Paginación -->
-                <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
-                    <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                                <a class="page-link" th:href="@{/asistencia(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&laquo;</a>
-                            </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                                <a class="page-link" th:text="${i + 1}" th:href="@{/asistencia(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}"></a>
-                            </li>
-                            <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                                <a class="page-link" th:href="@{/asistencia(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                    <div class="d-flex align-items-center gap-2">
-                        <small class="text-body-secondary">Mostrar</small>
-                        <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
-                            <option value="5"  th:selected="${pageSize == 5}">5</option>
-                            <option value="10" th:selected="${pageSize == 10}">10</option>
-                            <option value="20" th:selected="${pageSize == 20}">20</option>
-                            <option value="50" th:selected="${pageSize == 50}">50</option>
-                        </select>
-                        <small class="text-body-secondary">por página</small>
+                <!-- VISTA LISTA -->
+                <div id="view-list">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="sort-th"><a th:href="@{/asistencia(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">ID <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span></a></th>
+                                <th>Sesión</th>
+                                <th>Tutorado</th>
+                                <th>No. Control</th>
+                                <th>Presente</th>
+                                <th>Recuperada</th>
+                                <th>Registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="asistencia : ${asistencias}" class="fade-in-up">
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${asistencia.id}"></td>
+                                <td><span class="badge rounded-pill" th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : 'Sin sesión'" th:classappend="${asistencia.sesion != null} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img th:if="${asistencia.tutorado != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&size=28&name=${asistencia.tutorado.nombre}+${asistencia.tutorado.apellido}|}" alt="Avatar" style="width:28px;height:28px;border-radius:50%;">
+                                        <span class="fw-medium" th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.nombre} + ' ' + ${asistencia.tutorado.apellido} : 'Sin tutorado'"></span>
+                                    </div>
+                                </td>
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="${asistencia.tutorado != null} ? ${asistencia.tutorado.numeroControl} : '—'"></td>
+                                <td><span class="badge rounded-pill" th:text="${asistencia.presente == 1} ? 'Presente' : 'Ausente'" th:classappend="${asistencia.presente == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${asistencia.recuperada == 1} ? 'Sí' : 'No'" th:classappend="${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'bg-secondary'"></span></td>
+                                <td th:if="${asistencia.fechaRegistro != null}" th:data-ts="${asistencia.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(asistencia.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                </td>
+                                <td th:unless="${asistencia.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/asistencia/resumen/{id}(id=${asistencia.tutorado.id})}" class="btn btn-sm btn-outline-primary">Resumen</a>
+                                        <a th:href="@{/asistencia/actualizar/{id}(id=${asistencia.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-4 px-1">
+                <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0 gap-1">
+                        <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/asistencia(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/asistencia(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                            <a class="page-link" th:href="@{/asistencia(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-body-secondary">Mostrar</small>
+                    <select class="form-select form-select-sm" style="width:auto;" onchange="cambiarPageSize(this.value)">
+                        <option value="8"  th:selected="${pageSize == 8}">8</option>
+                        <option value="12" th:selected="${pageSize == 12}">12</option>
+                        <option value="24" th:selected="${pageSize == 24}">24</option>
+                    </select>
+                    <small class="text-body-secondary">por página</small>
                 </div>
             </div>
 
             <!-- Empty state -->
-            <div th:unless="${asistencias != null and !#lists.isEmpty(asistencias)}"
-                 class="empty-state">
+            <div th:unless="${asistencias != null and !#lists.isEmpty(asistencias)}" class="empty-state">
                 <img th:src="@{/images/utils/img.png}" alt="Sin registros">
                 <h5>No hay asistencias registradas</h5>
                 <p>Registra la asistencia desde la vista de sesiones.</p>
@@ -230,5 +267,38 @@
 <script th:src="@{/js/rel-time.js}"></script>
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
+<script>
+    const STORAGE_KEY = 'asistencia_view_mode';
+    function setView(mode) {
+        const initStyle = document.getElementById('view-init');
+        if (initStyle) initStyle.remove();
+        const cards = document.getElementById('view-cards');
+        const list  = document.getElementById('view-list');
+        const btnC  = document.getElementById('btn-cards');
+        const btnL  = document.getElementById('btn-list');
+        if (mode === 'cards') {
+            cards.style.display = 'block'; list.style.display = 'none';
+            btnC.classList.add('active'); btnL.classList.remove('active');
+        } else {
+            cards.style.display = 'none'; list.style.display = 'block';
+            btnC.classList.remove('active'); btnL.classList.add('active');
+        }
+        localStorage.setItem(STORAGE_KEY, mode);
+    }
+    function cambiarPageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
+        document.querySelectorAll('.asist-card[data-ts]').forEach(function (card) {
+            const ms = parseInt(card.dataset.ts, 10);
+            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
+        });
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
+    });
+</script>
 </body>
 </html>

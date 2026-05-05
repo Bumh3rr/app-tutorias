@@ -7,34 +7,81 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <script>
+        (function () {
+            var m = localStorage.getItem('grupo_view_mode') || 'cards';
+            var s = document.createElement('style');
+            s.id = 'view-init';
+            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
+            document.head.appendChild(s);
+        })();
+    </script>
+    <style>
+        .view-toggle { display:flex; gap:4px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:3px; }
+        .view-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:rgba(255,255,255,0.35); cursor:pointer; transition:background 0.15s,color 0.15s; }
+        .view-btn.active { background:rgba(99,102,241,0.2); color:#a5b4fc; }
+        .view-btn:hover:not(.active) { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); }
+
+        .grupo-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; animation:fadeSlide 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+        .grupo-card:hover { transform:translateY(-4px); border-color:rgba(99,102,241,0.35); box-shadow:0 12px 32px rgba(0,0,0,0.35); }
+        .grupo-card.card-new { border-color:rgba(99,102,241,0.5)!important; box-shadow:0 0 0 1px rgba(99,102,241,0.25),0 4px 20px rgba(99,102,241,0.15); }
+        .grupo-card.card-new .grupo-card-header::before { content:'Nuevo'; position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.85); color:#fff; letter-spacing:0.04em; }
+
+        .grupo-card-header { height:80px; background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:space-between; padding:0 18px; position:relative; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+        .grupo-alumnos { display:flex; flex-direction:column; align-items:center; }
+        .grupo-alumnos-num { font-size:26px; font-weight:800; color:rgba(165,180,252,0.8); line-height:1; }
+        .grupo-alumnos-lbl { font-size:9px; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.06em; }
+
+        .grupo-card-body { padding:14px 16px; flex-grow:1; display:flex; flex-direction:column; gap:7px; }
+        .grupo-card-name { font-size:14px; font-weight:700; margin:0; }
+        .grupo-chip { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:rgba(255,255,255,0.4); }
+        .grupo-chip svg { opacity:0.6; }
+        .grupo-card-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid rgba(255,255,255,0.05); gap:6px; }
+        .g-rel-time { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:rgba(255,255,255,0.35); }
+        .g-rel-time .rel-badge,.g-rel-time .rel-badge.badge-new-hot,.g-rel-time .rel-badge.badge-new-today,.g-rel-time .rel-badge.badge-sin-asignar { background:transparent!important; border:none!important; color:inherit!important; animation:none!important; padding:0!important; font-size:inherit!important; font-weight:inherit!important; }
+
+        .grupo-grid .col-card:nth-child(1) .grupo-card { animation-delay:0.00s; }
+        .grupo-grid .col-card:nth-child(2) .grupo-card { animation-delay:0.05s; }
+        .grupo-grid .col-card:nth-child(3) .grupo-card { animation-delay:0.10s; }
+        .grupo-grid .col-card:nth-child(4) .grupo-card { animation-delay:0.15s; }
+        .grupo-grid .col-card:nth-child(5) .grupo-card { animation-delay:0.20s; }
+        .grupo-grid .col-card:nth-child(6) .grupo-card { animation-delay:0.25s; }
+    </style>
 </head>
 <body>
-
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main">
+
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
             <div class="page-header">
                 <div>
                     <h3 class="mb-1">Grupos</h3>
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los grupos de tutoría por semestre y carrera.</p>
                 </div>
-                <a th:href="@{/grupo/agregar}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                    </svg>
-                    Agregar Grupo
-                </a>
-            </div>
-
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${msg_success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${msg_error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="view-toggle">
+                        <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        </button>
+                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <a th:href="@{/grupo/agregar}" class="btn btn-primary btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
+                        Agregar Grupo
+                    </a>
+                </div>
             </div>
 
             <div th:if="${filtro != null}" class="mb-3">
@@ -46,252 +93,179 @@
             <div class="search-filters mb-4">
                 <h6 class="mb-3">Buscar Grupos</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'todos'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'semestre'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-semestre">Por Semestre</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'tutorSemestre'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-tutor-semestre">Por Tutor y Semestre</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-carrera-semestre">Por Carrera y Semestre</button>
-                    </li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'todos'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'semestre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-semestre">Por Semestre</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'tutorSemestre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-tutor-semestre">Por Tutor y Semestre</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-carrera-semestre">Por Carrera y Semestre</button></li>
                 </ul>
                 <div class="tab-content pt-3">
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos'} ? 'show active'" id="tab-todos">
                         <a th:href="@{/grupo}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
                         <form method="get" th:action="@{/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="nombre">
                             <div class="row g-2">
-                                <div class="col-md-8">
-                                    <input type="text" name="q" class="form-control"
-                                           placeholder="Buscar por nombre de grupo..."
-                                           th:value="${q}" autofocus>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Nombre de grupo..." th:value="${q}" autofocus></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semestre'} ? 'show active'" id="tab-semestre">
                         <form method="get" th:action="@{/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="semestre">
                             <div class="row g-2">
-                                <div class="col-md-8">
-                                    <select name="idSemestre" class="form-select" required>
-                                        <option value="">Selecciona un semestre...</option>
-                                        <option th:each="s : ${semestres}"
-                                                th:value="${s.id}"
-                                                th:text="${s.periodo} + ' ' + ${s.anio}"
-                                                th:selected="${s.id == idSemestreSeleccionado}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-8"><select name="idSemestre" class="form-select" required><option value="">Selecciona un semestre...</option><option th:each="s : ${semestres}" th:value="${s.id}" th:text="${s.periodo} + ' ' + ${s.anio}" th:selected="${s.id == idSemestreSeleccionado}"></option></select></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'tutorSemestre'} ? 'show active'" id="tab-tutor-semestre">
                         <form method="get" th:action="@{/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="tutorSemestre">
                             <div class="row g-2">
-                                <div class="col-md-4">
-                                    <select name="idTutor" class="form-select" required>
-                                        <option value="">Tutor...</option>
-                                        <option th:each="t : ${tutores}"
-                                                th:value="${t.id}"
-                                                th:text="${t.nombre} + ' ' + ${t.apellido}"
-                                                th:selected="${t.id == idTutorSeleccionado}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <select name="idSemestre" class="form-select" required>
-                                        <option value="">Semestre...</option>
-                                        <option th:each="s : ${semestres}"
-                                                th:value="${s.id}"
-                                                th:text="${s.periodo} + ' ' + ${s.anio}"
-                                                th:selected="${s.id == idSemestreSeleccionado}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-4"><select name="idTutor" class="form-select" required><option value="">Tutor...</option><option th:each="t : ${tutores}" th:value="${t.id}" th:text="${t.nombre} + ' ' + ${t.apellido}" th:selected="${t.id == idTutorSeleccionado}"></option></select></div>
+                                <div class="col-md-4"><select name="idSemestre" class="form-select" required><option value="">Semestre...</option><option th:each="s : ${semestres}" th:value="${s.id}" th:text="${s.periodo} + ' ' + ${s.anio}" th:selected="${s.id == idSemestreSeleccionado}"></option></select></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'show active'" id="tab-carrera-semestre">
                         <form method="get" th:action="@{/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="carreraSemestre">
                             <div class="row g-2">
-                                <div class="col-md-4">
-                                    <select name="idCarrera" class="form-select" required>
-                                        <option value="">Carrera...</option>
-                                        <option th:each="c : ${carreras}"
-                                                th:value="${c.id}"
-                                                th:text="${c.nombre}"
-                                                th:selected="${c.id == idCarreraSeleccionada}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <select name="idSemestre" class="form-select" required>
-                                        <option value="">Semestre...</option>
-                                        <option th:each="s : ${semestres}"
-                                                th:value="${s.id}"
-                                                th:text="${s.periodo} + ' ' + ${s.anio}"
-                                                th:selected="${s.id == idSemestreSeleccionado}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-4"><select name="idCarrera" class="form-select" required><option value="">Carrera...</option><option th:each="c : ${carreras}" th:value="${c.id}" th:text="${c.nombre}" th:selected="${c.id == idCarreraSeleccionada}"></option></select></div>
+                                <div class="col-md-4"><select name="idSemestre" class="form-select" required><option value="">Semestre...</option><option th:each="s : ${semestres}" th:value="${s.id}" th:text="${s.periodo} + ' ' + ${s.anio}" th:selected="${s.id == idSemestreSeleccionado}"></option></select></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
 
-            <!-- Contador -->
-            <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
-                <small class="text-body-secondary"
-                       th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' grupos'">
-                </small>
+            <div th:if="${totalElementos > 0}" class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-body-secondary" th:text="${totalElementos} + ' grupo(s)'"></small>
+                <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
             </div>
 
-            <!-- Tabla -->
             <div th:if="${grupos != null and !#lists.isEmpty(grupos)}">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="sort-th">
-                                <a th:href="@{/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">
-                                    ID
-                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th class="sort-th">
-                                <a th:href="@{/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">
-                                    Nombre
-                                    <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Alumnos</th>
-                            <th>Tutor</th>
-                            <th>Carrera</th>
-                            <th>Semestre</th>
-                            <th>Aula</th>
-                            <th>Día</th>
-                            <th>Horario</th>
-                            <th>Estado</th>
-                            <th>Registrado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="grupo : ${grupos}">
-                            <td th:text="${grupo.id}"></td>
-                            <td th:text="${grupo.nombre}"></td>
-                            <td class="text-center">
-                                <span class="badge rounded-pill bg-primary"
-                                      th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.tutor != null} ? ${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido} : 'Sin tutor'"
-                                      th:classappend="${grupo.tutor != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.carrera != null} ? ${grupo.carrera.nombre} : 'Sin carrera'"
-                                      th:classappend="${grupo.carrera != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : 'Sin semestre'"
-                                      th:classappend="${grupo.semestre != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.aula != null and !grupo.aula.isEmpty()} ? ${grupo.aula} : 'Sin aula'"
-                                      th:classappend="${grupo.aula != null and !grupo.aula.isEmpty()} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? ${grupo.diaSemana} : '—'"
-                                      th:classappend="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.horario != null and !grupo.horario.isEmpty()} ? ${grupo.horario} : '—'"
-                                      th:classappend="${grupo.horario != null and !grupo.horario.isEmpty()} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'"
-                                      th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                </span>
-                            </td>
-                            <td th:if="${grupo.fechaRegistro != null}"
-                                th:data-ts="${grupo.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                            </td>
-                            <td th:unless="${grupo.fechaRegistro != null}">
-                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1 flex-wrap">
-                                    <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                    <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                    <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+
+                <!-- VISTA CARDS -->
+                <div id="view-cards">
+                    <div class="row g-3 grupo-grid">
+                        <div class="col-sm-6 col-md-4 col-card" th:each="grupo : ${grupos}">
+                            <div class="grupo-card" th:data-ts="${grupo.fechaRegistro != null} ? ${grupo.fechaRegistro.time} : ''">
+                                <div class="grupo-card-header">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.5)" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    <div class="grupo-alumnos">
+                                        <span class="grupo-alumnos-num" th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0"></span>
+                                        <span class="grupo-alumnos-lbl">alumnos</span>
+                                    </div>
                                 </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                <div class="grupo-card-body">
+                                    <p class="grupo-card-name" th:text="${grupo.nombre}"></p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="grupo-chip" th:if="${grupo.tutor != null}">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                                            <img th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&size=18&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}" style="width:18px;height:18px;border-radius:50%;" alt="t">
+                                            <span th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <span class="badge rounded-pill badge-sin-asignar" th:if="${grupo.carrera != null}" th:text="${grupo.carrera.nombre}" style="font-size:10.5px;"></span>
+                                        <span class="badge bg-secondary" th:if="${grupo.semestre != null}" th:text="${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio}" style="font-size:10.5px;"></span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="grupo-chip" th:if="${grupo.aula != null and !grupo.aula.isEmpty()}">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                                            <span th:text="${grupo.aula}"></span>
+                                        </span>
+                                        <span class="grupo-chip" th:if="${grupo.horario != null and !grupo.horario.isEmpty()}">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            <span th:text="${grupo.horario}"></span>
+                                        </span>
+                                    </div>
+                                    <span class="badge rounded-pill" th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                </div>
+                                <div class="grupo-card-footer">
+                                    <span class="g-rel-time" th:if="${grupo.fechaRegistro != null}">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        <span class="rel-badge" data-bs-toggle="tooltip" th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    </span>
+                                    <div class="d-flex gap-1 ms-auto">
+                                        <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
+                                        <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">
+                                            Ver <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:1px;"><polyline points="9 18 15 12 9 6"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISTA LISTA -->
+                <div id="view-list">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th class="sort-th"><a th:href="@{/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">ID <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span></a></th>
+                                <th class="sort-th"><a th:href="@{/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">Nombre <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span></a></th>
+                                <th>Alumnos</th>
+                                <th>Tutor</th>
+                                <th>Carrera</th>
+                                <th>Semestre</th>
+                                <th>Aula</th>
+                                <th>Día</th>
+                                <th>Horario</th>
+                                <th>Estado</th>
+                                <th>Registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="grupo : ${grupos}" class="fade-in-up">
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${grupo.id}"></td>
+                                <td class="fw-medium" th:text="${grupo.nombre}"></td>
+                                <td class="text-center"><span class="badge rounded-pill bg-primary" th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0"></span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2" th:if="${grupo.tutor != null}">
+                                        <img th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&size=24&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}" style="width:24px;height:24px;border-radius:50%;" alt="t">
+                                        <span th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></span>
+                                    </div>
+                                    <span class="badge rounded-pill badge-sin-asignar" th:unless="${grupo.tutor != null}">Sin tutor</span>
+                                </td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.carrera != null} ? ${grupo.carrera.nombre} : 'Sin carrera'" th:classappend="${grupo.carrera != null} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : 'Sin semestre'" th:classappend="${grupo.semestre != null} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.aula != null and !grupo.aula.isEmpty()} ? ${grupo.aula} : '—'" th:classappend="${grupo.aula != null and !grupo.aula.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? ${grupo.diaSemana} : '—'" th:classappend="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.horario != null and !grupo.horario.isEmpty()} ? ${grupo.horario} : '—'" th:classappend="${grupo.horario != null and !grupo.horario.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
+                                <td th:if="${grupo.fechaRegistro != null}" th:data-ts="${grupo.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                </td>
+                                <td th:unless="${grupo.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Paginación -->
-            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
+            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-4 px-1">
                 <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
                 <nav>
-                    <ul class="pagination pagination-sm mb-0">
+                    <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
                             <a class="page-link" th:href="@{/grupo(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
                         </li>
@@ -305,30 +279,23 @@
                 </nav>
                 <div class="d-flex align-items-center gap-2">
                     <small class="text-body-secondary">Mostrar</small>
-                    <select class="form-select form-select-sm" style="width: auto;" onchange="cambiarPageSize(this.value)">
-                        <option value="5"  th:selected="${pageSize == 5}">5</option>
-                        <option value="10" th:selected="${pageSize == 10}">10</option>
-                        <option value="20" th:selected="${pageSize == 20}">20</option>
-                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    <select class="form-select form-select-sm" style="width:auto;" onchange="cambiarPageSize(this.value)">
+                        <option value="8"  th:selected="${pageSize == 8}">8</option>
+                        <option value="12" th:selected="${pageSize == 12}">12</option>
+                        <option value="24" th:selected="${pageSize == 24}">24</option>
                     </select>
                     <small class="text-body-secondary">por página</small>
                 </div>
             </div>
 
             <!-- Empty state -->
-            <div th:unless="${grupos != null and !#lists.isEmpty(grupos)}"
-                 class="empty-state">
+            <div th:unless="${grupos != null and !#lists.isEmpty(grupos)}" class="empty-state">
                 <img th:src="@{/images/utils/img.png}" alt="No hay grupos">
                 <h5>No hay grupos registrados</h5>
                 <p>Agrega un nuevo grupo para organizar las tutorías por semestre y carrera.</p>
                 <div class="d-flex gap-2">
                     <a th:href="@{/grupo}" class="btn btn-outline-secondary">Refrescar</a>
-                    <a th:href="@{/grupo/agregar}" class="btn btn-primary">
-                        Agregar Grupo
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                        </svg>
-                    </a>
+                    <a th:href="@{/grupo/agregar}" class="btn btn-primary">Agregar Grupo</a>
                 </div>
             </div>
 
@@ -342,5 +309,38 @@
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script>
+    const STORAGE_KEY = 'grupo_view_mode';
+    function setView(mode) {
+        const initStyle = document.getElementById('view-init');
+        if (initStyle) initStyle.remove();
+        const cards = document.getElementById('view-cards');
+        const list  = document.getElementById('view-list');
+        const btnC  = document.getElementById('btn-cards');
+        const btnL  = document.getElementById('btn-list');
+        if (mode === 'cards') {
+            cards.style.display = 'block'; list.style.display = 'none';
+            btnC.classList.add('active'); btnL.classList.remove('active');
+        } else {
+            cards.style.display = 'none'; list.style.display = 'block';
+            btnC.classList.remove('active'); btnL.classList.add('active');
+        }
+        localStorage.setItem(STORAGE_KEY, mode);
+    }
+    function cambiarPageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
+        document.querySelectorAll('.grupo-card[data-ts]').forEach(function (card) {
+            const ms = parseInt(card.dataset.ts, 10);
+            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
+        });
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
+    });
+</script>
 </body>
 </html>

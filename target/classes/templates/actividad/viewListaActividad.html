@@ -8,13 +8,72 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script>
+        (function () {
+            var m = localStorage.getItem('actividad_view_mode') || 'cards';
+            var s = document.createElement('style');
+            s.id = 'view-init';
+            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
+            document.head.appendChild(s);
+        })();
+    </script>
+    <style>
+        .view-toggle { display:flex; gap:4px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:3px; }
+        .view-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:rgba(255,255,255,0.35); cursor:pointer; transition:background 0.15s,color 0.15s; }
+        .view-btn.active { background:rgba(99,102,241,0.2); color:#a5b4fc; }
+        .view-btn:hover:not(.active) { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); }
+
+        .act-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform 0.2s ease,border-color 0.2s ease,box-shadow 0.2s ease; animation:fadeSlide 0.35s cubic-bezier(0.4,0,0.2,1) both; }
+        .act-card:hover { transform:translateY(-4px); border-color:rgba(99,102,241,0.35); box-shadow:0 12px 32px rgba(0,0,0,0.35); }
+        .act-card.card-new { border-color:rgba(99,102,241,0.5)!important; box-shadow:0 0 0 1px rgba(99,102,241,0.25),0 4px 20px rgba(99,102,241,0.15); }
+        .act-card.card-new .act-card-img::after { content:'Nuevo'; position:absolute; top:8px; left:8px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.85); color:#fff; letter-spacing:0.04em; }
+
+        .act-card-img { height:130px; background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; flex-shrink:0; }
+        .act-card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.3s ease; }
+        .act-card:hover .act-card-img img { transform:scale(1.04); }
+        .act-card-img .status-corner { position:absolute; top:8px; right:8px; }
+
+        .act-card-body { padding:16px; flex-grow:1; display:flex; flex-direction:column; gap:8px; }
+        .act-card-title { font-size:14px; font-weight:700; line-height:1.35; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .act-card-meta { display:flex; flex-wrap:wrap; gap:10px; }
+        .act-meta-chip { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; color:rgba(255,255,255,0.4); }
+        .act-meta-chip svg { opacity:0.6; flex-shrink:0; }
+        .act-card-desc { font-size:12.5px; color:rgba(255,255,255,0.45); line-height:1.6; flex-grow:1; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin:0; }
+
+        .act-card-footer { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.05); gap:8px; flex-wrap:wrap; }
+        .act-rel-time { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:rgba(255,255,255,0.35); }
+        .act-rel-time .rel-badge,
+        .act-rel-time .rel-badge.badge-new-hot,
+        .act-rel-time .rel-badge.badge-new-today,
+        .act-rel-time .rel-badge.badge-sin-asignar { background:transparent!important; border:none!important; color:inherit!important; animation:none!important; padding:0!important; font-size:inherit!important; font-weight:inherit!important; }
+
+        .act-grid .col-card:nth-child(1)  .act-card { animation-delay:0.00s; }
+        .act-grid .col-card:nth-child(2)  .act-card { animation-delay:0.05s; }
+        .act-grid .col-card:nth-child(3)  .act-card { animation-delay:0.10s; }
+        .act-grid .col-card:nth-child(4)  .act-card { animation-delay:0.15s; }
+        .act-grid .col-card:nth-child(5)  .act-card { animation-delay:0.20s; }
+        .act-grid .col-card:nth-child(6)  .act-card { animation-delay:0.25s; }
+        .act-grid .col-card:nth-child(7)  .act-card { animation-delay:0.30s; }
+        .act-grid .col-card:nth-child(8)  .act-card { animation-delay:0.35s; }
+        .act-grid .col-card:nth-child(9)  .act-card { animation-delay:0.40s; }
+        .act-grid .col-card:nth-child(10) .act-card { animation-delay:0.45s; }
+    </style>
 </head>
 <body>
-
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
         <main class="app-main">
+
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
             <!-- Header -->
             <div class="page-header">
@@ -22,122 +81,65 @@
                     <h3 class="mb-1">Actividades</h3>
                     <p class="text-body-secondary fs-6 mb-0">Gestiona las actividades del Plan de Acción Tutorial.</p>
                 </div>
-                <a th:href="@{/actividad/agregar}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                    </svg>
-                    Agregar Actividad
-                </a>
-            </div>
-
-            <!-- Alertas -->
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${msg_success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${msg_error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-
-            <!-- Filtro activo -->
-            <div th:if="${filtro != null}" class="mb-3">
-                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
-                <a th:href="@{/actividad}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="view-toggle">
+                        <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        </button>
+                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <a th:href="@{/actividad/agregar}" class="btn btn-primary btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
+                        Agregar Actividad
+                    </a>
+                </div>
             </div>
 
             <!-- Búsqueda -->
             <div class="search-filters mb-4">
                 <h6 class="mb-3">Buscar Actividades</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'todos'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'fecha'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-fecha">Por Fecha</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'rango'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-rango">Por Rango de Fechas</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'pat'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-pat">Por PAT</button>
-                    </li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'todos'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'fecha'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-fecha">Por Fecha</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'rango'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-rango">Por Rango</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'pat'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-pat">Por PAT</button></li>
                 </ul>
                 <div class="tab-content pt-3">
-
-                    <!-- Tab todos -->
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos'} ? 'show active'" id="tab-todos">
                         <a th:href="@{/actividad}" class="btn btn-primary btn-sm">Ver todas</a>
                     </div>
-
-                    <!-- Tab por nombre -->
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
                         <form method="get" th:action="@{/actividad}">
                             <input type="hidden" name="tipoBusqueda" value="nombre">
                             <div class="row g-2">
-                                <div class="col-md-8">
-                                    <input type="text" name="q" class="form-control"
-                                           placeholder="Buscar por nombre de actividad..."
-                                           th:value="${q}" autofocus>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Nombre de actividad..." th:value="${q}" autofocus></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
-                    <!-- Tab por fecha exacta -->
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'fecha'} ? 'show active'" id="tab-fecha">
                         <form method="get" th:action="@{/actividad}">
                             <input type="hidden" name="tipoBusqueda" value="fecha">
                             <div class="row g-2">
-                                <div class="col-md-8">
-                                    <input type="text" name="fecha" class="form-control"
-                                           data-datepicker
-                                           placeholder="Selecciona una fecha..."
-                                           th:value="${fechaSeleccionada}"
-                                           required>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-8"><input type="text" name="fecha" class="form-control" data-datepicker placeholder="Selecciona una fecha..." th:value="${fechaSeleccionada}" required></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
-                    <!-- Tab por rango de fechas -->
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'rango'} ? 'show active'" id="tab-rango">
                         <form method="get" th:action="@{/actividad}">
                             <input type="hidden" name="tipoBusqueda" value="rango">
                             <input type="hidden" id="hiddenFechaInicio" name="fechaInicio" th:value="${fechaInicio}">
                             <input type="hidden" id="hiddenFechaFin" name="fechaFin" th:value="${fechaFin}">
                             <div class="row g-2">
-                                <div class="col-md-8">
-                                    <label class="form-label small">Rango de fechas</label>
-                                    <input type="text" id="rangoDisplay" class="form-control"
-                                           data-datepicker-range
-                                           data-range-start="hiddenFechaInicio"
-                                           data-range-end="hiddenFechaFin"
-                                           placeholder="Selecciona un rango..."
-                                           readonly>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-8"><input type="text" id="rangoDisplay" class="form-control" data-datepicker-range data-range-start="hiddenFechaInicio" data-range-end="hiddenFechaFin" placeholder="Selecciona un rango..." readonly></div>
+                                <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
-                    <!-- Tab por PAT -->
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'pat'} ? 'show active'" id="tab-pat">
                         <form method="get" th:action="@{/actividad}">
                             <input type="hidden" name="tipoBusqueda" value="pat">
@@ -145,188 +147,157 @@
                                 <div class="col-md-8">
                                     <select name="idPat" class="form-select" required>
                                         <option value="">Selecciona un PAT...</option>
-                                        <option th:each="p : ${pats}"
-                                                th:value="${p.id}"
-                                                th:text="${p.nombre}"
-                                                th:selected="${p.id == idPatSeleccionado}">
-                                        </option>
+                                        <option th:each="p : ${pats}" th:value="${p.id}" th:text="${p.nombre}" th:selected="${p.id == idPatSeleccionado}"></option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
 
             <!-- Contador -->
-            <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
-                <small class="text-body-secondary"
-                       th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' actividades'">
-                </small>
+            <div th:if="${totalElementos > 0}" class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-body-secondary" th:text="${totalElementos} + ' actividad(es)'"></small>
+                <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
             </div>
 
-            <!-- Tabla -->
             <div th:if="${actividades != null and !#lists.isEmpty(actividades)}">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th class="sort-th">
-                                <a th:href="@{/actividad(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">
-                                    ID
-                                    <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Foto</th>
-                            <th class="sort-th">
-                                <a th:href="@{/actividad(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">
-                                    Nombre
-                                    <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>PAT</th>
-                            <th class="sort-th">
-                                <a th:href="@{/actividad(sortBy='semana',sort=${sortBy == 'semana' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">
-                                    Semana
-                                    <span th:if="${sortBy == 'semana'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
-                                    <span th:unless="${sortBy == 'semana'}" class="sort-arrow-idle">↕</span>
-                                </a>
-                            </th>
-                            <th>Estado</th>
-                            <th>Registrado</th>
-                            <th>Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="actividad : ${actividades}">
-                            <td th:text="${actividad.id}"></td>
-                            <td>
-                                <img th:if="${actividad.foto != null}"
-                                     th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
-                                     alt="Foto"
-                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
-                                <img th:unless="${actividad.foto != null}"
-                                     th:src="@{/images/utils/sin_imagen.png}"
-                                     alt="Sin foto"
-                                     style="width:45px; height:45px; object-fit:cover; border-radius:8px;">
-                            </td>
-                            <td th:text="${actividad.nombre}"></td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${actividad.pat != null} ? ${actividad.pat.nombre} : 'Sin PAT'"
-                                      th:classappend="${actividad.pat != null} ? '' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
-                            <td>
-                                    <span class="badge bg-secondary"
-                                          th:text="'Semana ' + ${actividad.semana}"></span>
-                            </td>
-                            <td>
-                                    <span class="badge rounded-pill"
-                                          th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"
-                                          th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                    </span>
-                            </td>
-                            <td th:if="${actividad.fechaRegistro != null}"
-                                th:data-ts="${actividad.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
-                                      data-bs-toggle="tooltip" data-bs-placement="top"
-                                      th:title="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                            </td>
-                            <td th:unless="${actividad.fechaRegistro != null}">
-                                <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a th:href="@{/actividad/ver/{id}(id=${actividad.id})}"
-                                       class="btn btn-sm btn-outline-primary">Ver</a>
-                                    <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}"
-                                       class="btn btn-sm btn-outline-secondary">Editar</a>
-                                    <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}"
-                                       class="btn btn-sm btn-outline-danger">Eliminar</a>
+
+                <!-- VISTA CARDS -->
+                <div id="view-cards">
+                    <div class="row g-3 act-grid">
+                        <div class="col-sm-6 col-lg-4 col-card" th:each="actividad : ${actividades}">
+                            <div class="act-card" th:data-ts="${actividad.fechaRegistro != null} ? ${actividad.fechaRegistro.time} : ''">
+                                <div class="act-card-img">
+                                    <img th:if="${actividad.foto != null}" th:src="@{/actividad/{foto}(foto=${actividad.foto})}" alt="Foto actividad">
+                                    <div th:unless="${actividad.foto != null}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,0.1);">
+                                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                    </div>
+                                    <div class="status-corner">
+                                        <span class="badge rounded-pill" style="font-size:10px;" th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                    </div>
                                 </div>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                                <div class="act-card-body">
+                                    <p class="act-card-title" th:text="${actividad.nombre}"></p>
+                                    <div class="act-card-meta">
+                                        <span class="act-meta-chip" th:if="${actividad.fecha != null}">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                            <span th:text="${#temporals.format(actividad.fecha, 'dd/MM/yyyy')}"></span>
+                                        </span>
+                                        <span class="act-meta-chip" th:if="${actividad.pat != null}">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                            <span th:text="${actividad.pat.nombre}"></span>
+                                        </span>
+                                    </div>
+                                    <p class="act-card-desc" th:text="${actividad.descripcion != null and !actividad.descripcion.isEmpty()} ? ${actividad.descripcion} : 'Sin descripción registrada.'"></p>
+                                </div>
+                                <div class="act-card-footer">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary rounded-pill" style="font-size:11px;" th:text="'Semana ' + ${actividad.semana}"></span>
+                                        <span class="act-rel-time" th:if="${actividad.fechaRegistro != null}">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            <span class="rel-badge" data-bs-toggle="tooltip" th:title="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                        </span>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
+                                        <a th:href="@{/actividad/ver/{id}(id=${actividad.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">
+                                            Ver <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:1px;"><polyline points="9 18 15 12 9 6"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VISTA LISTA -->
+                <div id="view-list">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th><a th:href="@{/actividad(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th>Imagen</th>
+                                <th><a th:href="@{/actividad(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th>PAT</th>
+                                <th><a th:href="@{/actividad(sortBy='semana',sort=${sortBy == 'semana' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">Semana <span th:if="${sortBy == 'semana'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th>Estado</th>
+                                <th>Registrado</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="actividad : ${actividades}" class="fade-in-up">
+                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${actividad.id}"></td>
+                                <td>
+                                    <img th:if="${actividad.foto != null}" th:src="@{/actividad/{foto}(foto=${actividad.foto})}" alt="Foto" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
+                                    <div th:unless="${actividad.foto != null}" style="width:40px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(99,102,241,0.08);display:flex;align-items:center;justify-content:center;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.5)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-medium" style="font-size:13.5px;" th:text="${actividad.nombre}"></div>
+                                    <small class="text-body-secondary" th:if="${actividad.descripcion != null and !actividad.descripcion.isEmpty()}" th:text="${#strings.abbreviate(actividad.descripcion, 55)}"></small>
+                                </td>
+                                <td><span class="badge rounded-pill badge-sin-asignar" th:text="${actividad.pat != null} ? ${actividad.pat.nombre} : 'Sin PAT'"></span></td>
+                                <td><span class="badge bg-secondary rounded-pill" th:text="'Semana ' + ${actividad.semana}"></span></td>
+                                <td><span class="badge rounded-pill" th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
+                                <td th:if="${actividad.fechaRegistro != null}" th:data-ts="${actividad.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                </td>
+                                <td th:unless="${actividad.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a th:href="@{/actividad/ver/{id}(id=${actividad.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Paginación -->
-            <div th:if="${totalPaginas > 1}"
-                 class="d-flex justify-content-between align-items-center mt-3 px-1">
-
-                <small class="text-body-secondary"
-                       th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}">
-                </small>
-
+            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-4 px-1">
+                <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
                 <nav>
-                    <ul class="pagination pagination-sm mb-0">
-
-                        <!-- Anterior -->
+                    <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link"
-                               th:href="@{/actividad(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idPatSeleccionado=${idPatSeleccionado}, fecha=${fechaSeleccionada}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
-                                &laquo;
-                            </a>
+                            <a class="page-link" th:href="@{/actividad(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">&laquo;</a>
                         </li>
-
-                        <!-- Números de página -->
-                        <li class="page-item"
-                            th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
-                            th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link"
-                               th:text="${i + 1}"
-                               th:href="@{/actividad(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idPatSeleccionado=${idPatSeleccionado}, fecha=${fechaSeleccionada}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
-                            </a>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/actividad(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}"></a>
                         </li>
-
-                        <!-- Siguiente -->
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link"
-                               th:href="@{/actividad(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy = ${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idPatSeleccionado=${idPatSeleccionado}, fecha=${fechaSeleccionada}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
-                                &raquo;
-                            </a>
+                            <a class="page-link" th:href="@{/actividad(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idPatSeleccionado=${idPatSeleccionado},fecha=${fechaSeleccionada},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">&raquo;</a>
                         </li>
-
                     </ul>
                 </nav>
-
-                <!-- Selector de tamaño de página -->
                 <div class="d-flex align-items-center gap-2">
                     <small class="text-body-secondary">Mostrar</small>
-                    <select class="form-select form-select-sm" style="width: auto;"
-                            onchange="cambiarPageSize(this.value)">
-                        <option value="5" th:selected="${pageSize == 5}">5</option>
-                        <option value="10" th:selected="${pageSize == 10}">10</option>
-                        <option value="20" th:selected="${pageSize == 20}">20</option>
-                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    <select class="form-select form-select-sm" style="width:auto;" onchange="cambiarPageSize(this.value)">
+                        <option value="6" th:selected="${pageSize == 6}">6</option>
+                        <option value="12" th:selected="${pageSize == 12}">12</option>
+                        <option value="24" th:selected="${pageSize == 24}">24</option>
                     </select>
                     <small class="text-body-secondary">por página</small>
                 </div>
-
             </div>
 
             <!-- Empty state -->
-            <div th:unless="${actividades != null and !#lists.isEmpty(actividades)}"
-                 class="empty-state">
+            <div th:unless="${actividades != null and !#lists.isEmpty(actividades)}" class="empty-state">
                 <img th:src="@{/images/utils/img.png}" alt="Sin registros">
                 <h5>No hay actividades registradas</h5>
-                <p>Agrega una nueva actividad para continuar con el PAT.</p>
+                <p>No se encontraron actividades con los filtros aplicados.</p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/actividad}" class="btn btn-outline-secondary">Refrescar</a>
-                    <a th:href="@{/actividad/agregar}" class="btn btn-primary">
-                        Agregar Actividad
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="#FFFFFF" d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
-                        </svg>
-                    </a>
+                    <a th:href="@{/actividad}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                    <a th:href="@{/actividad/agregar}" class="btn btn-primary">Agregar Actividad</a>
                 </div>
             </div>
 
@@ -342,5 +313,38 @@
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/date-picker.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script>
+    const STORAGE_KEY = 'actividad_view_mode';
+    function setView(mode) {
+        const initStyle = document.getElementById('view-init');
+        if (initStyle) initStyle.remove();
+        const cards = document.getElementById('view-cards');
+        const list  = document.getElementById('view-list');
+        const btnC  = document.getElementById('btn-cards');
+        const btnL  = document.getElementById('btn-list');
+        if (mode === 'cards') {
+            cards.style.display = 'block'; list.style.display = 'none';
+            btnC.classList.add('active'); btnL.classList.remove('active');
+        } else {
+            cards.style.display = 'none'; list.style.display = 'block';
+            btnC.classList.remove('active'); btnL.classList.add('active');
+        }
+        localStorage.setItem(STORAGE_KEY, mode);
+    }
+    function cambiarPageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
+        document.querySelectorAll('.act-card[data-ts]').forEach(function (card) {
+            const ms = parseInt(card.dataset.ts, 10);
+            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
+        });
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
+    });
+</script>
 </body>
 </html>
