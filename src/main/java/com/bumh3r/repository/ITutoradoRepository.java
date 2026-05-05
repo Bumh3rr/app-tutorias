@@ -29,6 +29,6 @@ public interface ITutoradoRepository extends JpaRepository<Tutorado, Integer> {
     boolean existsByEmailAndActivo(String email, Integer activo);
     boolean existsByEmailAndActivoAndIdNot(String email, Integer activo, Integer id);
 
-    @Query("SELECT t FROM Tutorado t WHERE (:q IS NULL OR :q = '' OR LOWER(CONCAT(t.nombre, ' ', t.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
+    @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(CONCAT(t.nombre, ' ', t.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Tutorado> searchByName(@Param("q") String q, Pageable pageable);
 }

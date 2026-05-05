@@ -141,7 +141,7 @@
                                 th:data-ts="${evidencia.fechaRegistro.time}">
                                 <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                                 <small class="d-block text-body-secondary mt-1 text-nowrap"
-                                       th:text="${#dates.format(evidencia.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                       th:text="${#dates.format(evidencia.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                             </td>
                             <td th:unless="${evidencia.fechaRegistro != null}">
                                 <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>

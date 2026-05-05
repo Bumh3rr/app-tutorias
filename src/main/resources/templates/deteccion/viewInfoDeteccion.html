@@ -13,7 +13,7 @@
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center">
+        <main class="app-main d-flex justify-content-center align-items-start">
             <div class="form-card w-100 mx-auto" style="max-width: 580px;">
 
                     <h4 class="mb-1">Detección de Necesidades</h4>
@@ -25,18 +25,22 @@
                         <img th:if="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
                              th:src="@{/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
                              alt="Foto"
-                             style="width:56px; height:56px; object-fit:cover; border-radius:50%;">
+                             class="avatar avatar-xl">
                         <img th:unless="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
-                             src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                             th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${deteccion.tutorado.nombre}+${deteccion.tutorado.apellido}|}"
                              alt="Sin foto"
-                             style="width:56px; height:56px; object-fit:cover; border-radius:50%;">
+                             class="avatar avatar-xl">
                         <div>
                             <h5 class="mb-0 fw-semibold"
                                 th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.nombre} + ' ' + ${deteccion.tutorado.apellido} : 'Sin tutorado'">
                             </h5>
+                            <small class="text-secondary font-monospace"
+                                   th:text="'ID: #' + ${deteccion.tutorado.id}"></small>
+                            <br>
                             <small class="text-secondary"
-                                   th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.numeroControl} : ''"></small>
+                                   th:text="${deteccion.tutorado != null} ?  'No. Control: ' + ${deteccion.tutorado.numeroControl} : ''"></small>
                         </div>
+
                     </div>
 
                     <!-- Datos generales -->
@@ -50,18 +54,13 @@
                             <span class="detail-value"
                                   th:text="${deteccion.sesion != null} ? 'Semana ' + ${deteccion.sesion.semana} : 'Sin sesión'"></span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Fecha de aplicación</span>
-                            <span class="detail-value"
-                                  th:text="${deteccion.fechaAplicacion != null} ? ${#dates.format(deteccion.fechaAplicacion, 'dd/MM/yyyy')} : '---'"></span>
-                        </div>
                         <div class="detail-row" th:if="${deteccion.fechaRegistro != null}">
                             <span class="detail-label">Registrado</span>
                             <span class="detail-value">
                                 <div th:data-ts="${deteccion.fechaRegistro.time}">
                                     <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                                     <small class="d-block text-body-secondary mt-1"
-                                           th:text="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                           th:text="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                                 </div>
                             </span>
                         </div>

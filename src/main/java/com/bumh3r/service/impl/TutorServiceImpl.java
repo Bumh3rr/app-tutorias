@@ -30,7 +30,6 @@ public class TutorServiceImpl implements TutorService {
         if (this.iTutorRepository.existsByEmailAndActivo(tutor.getEmail(), 1)) {
             throw new IllegalArgumentException("Ya existe un tutor activo con el email " + tutor.getEmail());
         }
-        tutor.setFoto(tutor.getFoto() != null && !tutor.getFoto().isEmpty() ? tutor.getFoto() : null);
         tutor.setActivo(1);
         this.iTutorRepository.save(tutor);
     }
@@ -75,6 +74,12 @@ public class TutorServiceImpl implements TutorService {
     public Page<Tutor> obtenerTodosTutoresPaginado(Integer page, Integer pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iTutorRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public Page<Tutor> buscarPorNombre(String q, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.searchByName(q, pageable);
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -35,9 +36,9 @@ public class ActividadServiceImpl implements ActividadService {
     @Override
     public void guardarActividad(Actividad actividad) {
         resolverRelaciones(actividad);
-        if (this.iActividadRepository.existsByNombreAndSemanaAndActivo(actividad.getNombre(), actividad.getSemana(), 1)) {
+        if (actividad.getPat() != null && this.iActividadRepository.existsByPatAndSemanaAndActivo(actividad.getPat(), actividad.getSemana(), 1)) {
             throw new IllegalArgumentException(
-                "Ya existe una actividad activa con el nombre \"" + actividad.getNombre() + "\" en la semana " + actividad.getSemana());
+                "Este PAT ya tiene una actividad en la Semana " + actividad.getSemana());
         }
         actividad.setActivo(1);
         this.iActividadRepository.save(actividad);
@@ -50,9 +51,9 @@ public class ActividadServiceImpl implements ActividadService {
 
         resolverRelaciones(actividad);
 
-        if (this.iActividadRepository.existsByNombreAndSemanaAndActivoExcludingId(actividad.getNombre(), actividad.getSemana(), id)) {
+        if (actividad.getPat() != null && this.iActividadRepository.existsByPatAndSemanaAndActivoExcludingId(actividad.getPat(), actividad.getSemana(), id)) {
             throw new IllegalArgumentException(
-                "Ya existe una actividad activa con el nombre \"" + actividad.getNombre() + "\" en la semana " + actividad.getSemana());
+                "Este PAT ya tiene una actividad en la Semana " + actividad.getSemana());
         }
 
         actividadDB.setNombre(actividad.getNombre());
@@ -63,6 +64,22 @@ public class ActividadServiceImpl implements ActividadService {
         actividadDB.setPat(actividad.getPat());
 
         this.iActividadRepository.save(actividadDB);
+    }
+
+    @Override
+    public List<String> guardarLoteActividades(Integer idPat, List<Actividad> actividades) {
+        PAT pat = this.iPATRepository.findById(idPat)
+                .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
+        List<String> errores = new ArrayList<>();
+        for (Actividad a : actividades) {
+            try {
+                a.setPat(pat);
+                guardarActividad(a);
+            } catch (Exception e) {
+                errores.add("Semana " + a.getSemana() + ": " + e.getMessage());
+            }
+        }
+        return errores;
     }
 
     @Override
@@ -93,6 +110,12 @@ public class ActividadServiceImpl implements ActividadService {
         PAT pat = this.iPATRepository.findById(idPat)
                 .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
         return this.iActividadRepository.findByActivoAndPat(1, pat);
+    }
+
+    @Override
+    public Page<Actividad> buscarActividadesPorNombrePaginado(String q, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iActividadRepository.searchByName(q, pageable);
     }
 
     @Override

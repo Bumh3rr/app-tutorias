@@ -156,7 +156,6 @@
                             <th>Derecho</th>
                             <th>Económica</th>
                             <th>Psicológica</th>
-                            <th>Fecha</th>
                             <th>Registrado</th>
                             <th>Acciones</th>
                         </tr>
@@ -206,17 +205,11 @@
                                           th:classappend="${deteccion.necesidadPsicologica == 1} ? 'badge-inactive' : 'bg-secondary'">
                                     </span>
                             </td>
-                            <td>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.fechaAplicacion != null} ? ${#dates.format(deteccion.fechaAplicacion, 'dd/MM/yyyy')} : 'Sin fecha'"
-                                      th:classappend="${deteccion.fechaAplicacion != null} ? 'bg-secondary' : 'badge-sin-asignar'">
-                                </span>
-                            </td>
                             <td th:if="${deteccion.fechaRegistro != null}"
                                 th:data-ts="${deteccion.fechaRegistro.time}">
                                 <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                                 <small class="d-block text-body-secondary mt-1 text-nowrap"
-                                       th:text="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                       th:text="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                             </td>
                             <td th:unless="${deteccion.fechaRegistro != null}">
                                 <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>

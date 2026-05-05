@@ -48,7 +48,7 @@
                         <div th:data-ts="${carrera.fechaRegistro.time}">
                             <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                             <small class="d-block text-body-secondary mt-1"
-                                   th:text="${#dates.format(carrera.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                   th:text="${#dates.format(carrera.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                         </div>
                     </span>
                 </div>

@@ -100,6 +100,11 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
                 .findByActivoAndCarreraAndSemestre(1, carrera, semestre);
     }
 
+    @Override
+    public Page<CoordinadorCarrera> buscarPorNombrePage(String q, Pageable pageable) {
+        return this.iCoordinadorCarreraRepository.searchByName(q, pageable);
+    }
+
     private void resolverRelaciones(CoordinadorCarrera coordinador) {
         if (coordinador.getCarrera() != null && coordinador.getCarrera().getId() != null) {
             Carrera carrera = this.iCarreraRepository.findById(coordinador.getCarrera().getId())

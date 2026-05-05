@@ -12,6 +12,7 @@ public interface TutorService {
     void eliminarTutor(Integer id);
 
     Page<Tutor> obtenerTodosTutoresPaginado(Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Tutor> buscarPorNombre(String q, Integer page, Integer pageSize, String sortBy, String sort);
 
     List<Tutor> obtenerTodosTutores();
 }

@@ -28,8 +28,8 @@ public class CarreraController {
     public String obtenerVistaListaCarreras(
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
-            @RequestParam(value = "sortBy", required = false, defaultValue = "nombre") String sortBy,
+            @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
             Model model) {
 
         if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "asc";

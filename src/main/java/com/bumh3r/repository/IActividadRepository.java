@@ -39,6 +39,12 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
     @Query("SELECT COUNT(a) > 0 FROM Actividad a WHERE a.nombre = :nombre AND a.semana = :semana AND a.activo = 1 AND a.id <> :id")
     boolean existsByNombreAndSemanaAndActivoExcludingId(@Param("nombre") String nombre, @Param("semana") Integer semana, @Param("id") Integer id);
 
-    @Query("SELECT a FROM Actividad a WHERE (:q IS NULL OR :q = '' OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
+    // Validación: semana duplicada dentro del mismo PAT
+    boolean existsByPatAndSemanaAndActivo(PAT pat, Integer semana, Integer activo);
+
+    @Query("SELECT COUNT(a) > 0 FROM Actividad a WHERE a.pat = :pat AND a.semana = :semana AND a.activo = 1 AND a.id <> :id")
+    boolean existsByPatAndSemanaAndActivoExcludingId(@Param("pat") PAT pat, @Param("semana") Integer semana, @Param("id") Integer id);
+
+    @Query("SELECT a FROM Actividad a WHERE a.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Actividad> searchByName(@Param("q") String q, Pageable pageable);
 }

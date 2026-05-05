@@ -15,4 +15,5 @@ public interface TutoradoService {
     // Paginados
     Page<Tutorado> obtenerTodosTutoradosPaginado(int page, int pageSize, String sortBy, String sort);
     Page<Tutorado> buscarTutoradosPorSemestreYCarreraPaginado(Integer idSemestre, Integer idCarrera, int page, int pageSize, String sortBy, String sort);
+    Page<Tutorado> buscarPorNombre(String q, int page, int pageSize, String sortBy, String sort);
 }

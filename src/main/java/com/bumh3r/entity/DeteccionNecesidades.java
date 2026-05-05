@@ -45,9 +45,6 @@ public class DeteccionNecesidades {
 
     private String observaciones;
 
-    @Column(name = "fecha_aplicacion")
-    private Date fechaAplicacion;
-
     private Integer activo;
 
     @CreationTimestamp

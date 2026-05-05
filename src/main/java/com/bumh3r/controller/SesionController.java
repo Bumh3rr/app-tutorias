@@ -43,8 +43,8 @@ public class SesionController {
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
-            @RequestParam(value = "sortBy", required = false, defaultValue = "semana") String sortBy,
+            @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
             Model model) {
 
         List<String> validSortFields = List.of("id", "semana");

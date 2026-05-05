@@ -30,13 +30,21 @@
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center">
+        <main class="app-main d-flex justify-content-center align-items-start">
             <div class="form-card w-100 mx-auto" style="max-width: 620px;">
                     <h3 class="text-center mb-1"
                         th:text="${isEdit} ? 'Editar Detección' : 'Registrar Detección de Necesidades'"></h3>
-                    <p class="text-center text-body-secondary small mb-4">
+                    <p class="text-center text-body-secondary small mb-2">
                         Instrumento aplicado al tutorado para identificar sus necesidades de apoyo.
                     </p>
+                    <p class="text-body-secondary small mb-4">
+                        Los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios.
+                    </p>
+
+                    <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                        <span th:text="${msg_error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
 
                     <form method="post"
                           th:object="${deteccion}"
@@ -50,8 +58,11 @@
 
                         <!-- Tutorado -->
                         <div class="mb-3">
-                            <label class="form-label">Tutorado</label>
+                            <label class="form-label">
+                                Tutorado <span class="text-danger">*</span>
+                            </label>
                             <div class="entity-picker"
+                                 th:classappend="${#fields.hasErrors('tutorado')} ? 'is-invalid'"
                                  data-entity="tutorado"
                                  data-placeholder="Selecciona un tutorado..."
                                  th:data-current-id="${deteccion.tutorado != null ? deteccion.tutorado.id : ''}"
@@ -61,6 +72,8 @@
                                 <input type="hidden" name="tutorado.id"
                                        th:value="${deteccion.tutorado != null ? deteccion.tutorado.id : ''}">
                             </div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('tutorado')}"
+                                 th:errors="*{tutorado}"></div>
                         </div>
 
                         <!-- Sesión -->
@@ -76,15 +89,6 @@
                                 <input type="hidden" name="sesion.id"
                                        th:value="${deteccion.sesion != null ? deteccion.sesion.id : ''}">
                             </div>
-                        </div>
-
-                        <!-- Fecha de aplicación -->
-                        <div class="mb-4">
-                            <label for="fechaAplicacion" class="form-label">Fecha de aplicación</label>
-                            <input type="text" class="form-control" id="fechaAplicacion"
-                                   data-datepicker
-                                   placeholder="aaaa-mm-dd"
-                                   th:field="*{fechaAplicacion}">
                         </div>
 
                         <!-- Necesidades académicas -->
@@ -213,7 +217,9 @@
                         <!-- Botones -->
                         <div class="d-flex gap-2 justify-content-end">
                             <a th:href="@{/deteccion}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
+                            </button>
                         </div>
 
                     </form>

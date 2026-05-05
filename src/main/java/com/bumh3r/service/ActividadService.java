@@ -22,7 +22,11 @@ public interface ActividadService {
     // Actividades de un PAT específico
     List<Actividad> buscarActividadesPorPAT(Integer idPat);
 
+    // Guardar múltiples actividades (batch)
+    List<String> guardarLoteActividades(Integer idPat, List<Actividad> actividades);
+
     // Paginado y ordenamiento
+    Page<Actividad> buscarActividadesPorNombrePaginado(String q, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> buscarActividadesPorFechaPaginado(Date fechaDate, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> buscarActividadesPorRangoFechasPaginado(Date fInicio, Date fFin, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> buscarActividadesPorPATPaginado(Integer idPat, Integer page, Integer pageSize, String sortBy, String sort);

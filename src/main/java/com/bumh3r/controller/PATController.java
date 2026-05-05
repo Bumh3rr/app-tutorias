@@ -108,6 +108,7 @@ public class PATController {
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
             Model model,
             RedirectAttributes attributes) {
+        pat.setFoto(pat.getFoto() != null && !pat.getFoto().isEmpty() ? pat.getFoto() : null);
         if (result.hasErrors()) {
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());

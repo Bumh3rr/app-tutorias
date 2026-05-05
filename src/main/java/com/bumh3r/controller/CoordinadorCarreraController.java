@@ -6,10 +6,12 @@ import com.bumh3r.service.CoordinadorCarreraService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.enums.FileType;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +40,11 @@ public class CoordinadorCarreraController {
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "desc") String sort,
-            @RequestParam(value = "sortBy", defaultValue = "nombre") String sortBy,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             Model model) {
 
         if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
@@ -52,7 +55,10 @@ public class CoordinadorCarreraController {
 
         Page<CoordinadorCarrera> pageResult;
         try {
-            if ("carrera".equals(tipoBusqueda) && idCarrera != null) {
+            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
+                pageResult = this.coordinadorCarreraService.buscarPorNombrePage(q, pageable);
+                model.addAttribute("filtro", "Nombre: " + q);
+            } else if ("carrera".equals(tipoBusqueda) && idCarrera != null) {
                 List<CoordinadorCarrera> lista = this.coordinadorCarreraService.buscarPorCarrera(idCarrera);
                 pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Carrera seleccionada");
@@ -85,6 +91,7 @@ public class CoordinadorCarreraController {
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("q", q);
         return "coordinador/viewListaCoordinador";
     }
 
@@ -105,9 +112,18 @@ public class CoordinadorCarreraController {
 
     @PostMapping(value = "guardar")
     public String guardarCoordinador(
-            CoordinadorCarrera coordinador,
+            @Valid CoordinadorCarrera coordinador,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        coordinador.setFoto(coordinador.getFoto() != null && !coordinador.getFoto().isEmpty() ? coordinador.getFoto() : null);
+        if (result.hasErrors()) {
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", false);
+            return "coordinador/viewFormCoordinador";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 String foto = this.fileStoreService.save(fotoFile, FileType.COORDINADOR);
@@ -117,7 +133,11 @@ public class CoordinadorCarreraController {
             this.coordinadorCarreraService.guardarCoordinador(coordinador);
             attributes.addFlashAttribute("msg_success", "Coordinador guardado correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar el coordinador: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar el coordinador: " + e.getMessage());
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", false);
+            return "coordinador/viewFormCoordinador";
         }
         return "redirect:/coordinador";
     }
@@ -144,9 +164,17 @@ public class CoordinadorCarreraController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarCoordinador(
             @PathVariable Integer id,
-            CoordinadorCarrera coordinador,
+            @Valid CoordinadorCarrera coordinador,
+            BindingResult result,
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            Model model,
             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", true);
+            return "coordinador/viewFormCoordinador";
+        }
         try {
             if (fotoFile != null && !fotoFile.isEmpty()) {
                 this.fileStoreService.delete(coordinador.getFoto(), FileType.COORDINADOR);
@@ -157,7 +185,11 @@ public class CoordinadorCarreraController {
             this.coordinadorCarreraService.actualizarCoordinador(id, coordinador);
             attributes.addFlashAttribute("msg_success", "Coordinador actualizado correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar el coordinador: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar el coordinador: " + e.getMessage());
+            model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+            model.addAttribute("isEdit", true);
+            return "coordinador/viewFormCoordinador";
         }
         return "redirect:/coordinador";
     }

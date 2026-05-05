@@ -6,6 +6,7 @@ import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.DeteccionNecesidadesService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutoradoService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -131,13 +133,26 @@ public class DeteccionNecesidadesController {
     }
 
     @PostMapping(value = "guardar")
-    public String guardarDeteccion(DeteccionNecesidades deteccion, RedirectAttributes attributes) {
+    public String guardarDeteccion(
+            @Valid DeteccionNecesidades deteccion,
+            BindingResult result,
+            Model model,
+            RedirectAttributes attributes) {
+        if (deteccion.getTutorado() == null || deteccion.getTutorado().getId() == null) {
+            result.rejectValue("tutorado", "required", "El tutorado es obligatorio");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", false);
+            return "deteccion/viewFormDeteccion";
+        }
         try {
             log.info("Guardar deteccion: {}", deteccion);
             this.deteccionNecesidadesService.guardarDeteccion(deteccion);
             attributes.addFlashAttribute("msg_success", "Detección de necesidades guardada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al guardar la detección: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al guardar la detección: " + e.getMessage());
+            model.addAttribute("isEdit", false);
+            return "deteccion/viewFormDeteccion";
         }
         return "redirect:/deteccion";
     }
@@ -164,14 +179,25 @@ public class DeteccionNecesidadesController {
     @PostMapping(value = "actualizar/{id}")
     public String actualizarDeteccion(
             @PathVariable Integer id,
-            DeteccionNecesidades deteccion,
+            @Valid DeteccionNecesidades deteccion,
+            BindingResult result,
+            Model model,
             RedirectAttributes attributes) {
+        if (deteccion.getTutorado() == null || deteccion.getTutorado().getId() == null) {
+            result.rejectValue("tutorado", "required", "El tutorado es obligatorio");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("isEdit", true);
+            return "deteccion/viewFormDeteccion";
+        }
         try {
             log.info("Actualizar deteccion {}: {}", id, deteccion);
             this.deteccionNecesidadesService.actualizarDeteccion(id, deteccion);
             attributes.addFlashAttribute("msg_success", "Detección actualizada correctamente");
         } catch (Exception e) {
-            attributes.addFlashAttribute("msg_error", "Error al actualizar la detección: " + e.getMessage());
+            model.addAttribute("msg_error", "Error al actualizar la detección: " + e.getMessage());
+            model.addAttribute("isEdit", true);
+            return "deteccion/viewFormDeteccion";
         }
         return "redirect:/deteccion";
     }

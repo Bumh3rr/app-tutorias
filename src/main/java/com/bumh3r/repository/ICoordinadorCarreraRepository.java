@@ -6,6 +6,8 @@ import com.bumh3r.entity.Semestre;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +27,7 @@ public interface ICoordinadorCarreraRepository extends JpaRepository<Coordinador
 
     // Coordinadores por carrera y semestre
     List<CoordinadorCarrera> findByActivoAndCarreraAndSemestre(Integer activo, Carrera carrera, Semestre semestre);
+
+    @Query("SELECT c FROM CoordinadorCarrera c WHERE c.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(CONCAT(c.nombre, ' ', c.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
+    Page<CoordinadorCarrera> searchByName(@Param("q") String q, Pageable pageable);
 }

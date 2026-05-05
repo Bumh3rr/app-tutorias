@@ -87,7 +87,6 @@
                                 <th>Actividad</th>
                                 <th>PAT</th>
                                 <th>Semana</th>
-                                <th>Fecha</th>
                                 <th>Estado</th>
                                 <th></th>
                             </tr>
@@ -100,7 +99,6 @@
                                     <span class="badge bg-secondary"
                                           th:text="'Semana ' + ${actividad.semana}"></span>
                                 </td>
-                                <td class="text-body-secondary" th:text="${#dates.format(actividad.fecha, 'dd/MM/yyyy')}"></td>
                                 <td>
                                     <span class="badge rounded-pill"
                                           th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"

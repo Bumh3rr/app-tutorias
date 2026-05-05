@@ -37,6 +37,47 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Filtro activo -->
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/tutor}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="search-filters mb-4">
+                <h6 class="mb-3">Buscar Tutores</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link" th:classappend="${tipoBusqueda != 'nombre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button>
+                    </li>
+                </ul>
+                <div class="tab-content pt-3">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda != 'nombre'} ? 'show active'" id="tab-todos">
+                        <a th:href="@{/tutor}" class="btn btn-primary btn-sm">Ver todos</a>
+                    </div>
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
+                        <form method="get" th:action="@{/tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="nombre">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <input type="text" name="q" class="form-control"
+                                           placeholder="Buscar por nombre o apellido..."
+                                           th:value="${q}" autofocus>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Contador -->
             <div th:if="${totalElementos > 0}" class="d-flex justify-content-end align-items-center mb-2">
                 <small class="text-body-secondary"
@@ -51,7 +92,7 @@
                         <thead>
                         <tr>
                             <th class="sort-th">
-                                <a th:href="@{/tutor(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                <a th:href="@{/tutor(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">
                                     ID
                                     <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
@@ -59,14 +100,14 @@
                             </th>
                             <th>Foto</th>
                             <th class="sort-th">
-                                <a th:href="@{/tutor(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                <a th:href="@{/tutor(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">
                                     Nombre
                                     <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span>
                                 </a>
                             </th>
                             <th class="sort-th">
-                                <a th:href="@{/tutor(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">
+                                <a th:href="@{/tutor(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">
                                     No. Control
                                     <span th:if="${sortBy == 'numeroControl'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'numeroControl'}" class="sort-arrow-idle">↕</span>
@@ -104,7 +145,7 @@
                                 th:data-ts="${tutor.fechaRegistro.time}">
                                 <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                                 <small class="d-block text-body-secondary mt-1 text-nowrap"
-                                       th:text="${#dates.format(tutor.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                       th:text="${#dates.format(tutor.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                             </td>
                             <td th:unless="${tutor.fechaRegistro != null}">
                                 <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
@@ -128,15 +169,15 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/tutor(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy})}">&laquo;</a>
+                            <a class="page-link" th:href="@{/tutor(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q})}">&laquo;</a>
                         </li>
                         <li class="page-item"
                             th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
                             th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/tutor(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy})}"></a>
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/tutor(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/tutor(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy})}">&raquo;</a>
+                            <a class="page-link" th:href="@{/tutor(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>

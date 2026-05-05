@@ -42,10 +42,6 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
     public void guardarDeteccion(DeteccionNecesidades deteccion) {
         resolverRelaciones(deteccion);
 
-        if (deteccion.getFechaAplicacion() == null) {
-            deteccion.setFechaAplicacion(new Date());
-        }
-
         // Valores por defecto si vienen nulos
         if (deteccion.getNecesidadAlgebra() == null) deteccion.setNecesidadAlgebra(0);
         if (deteccion.getNecesidadCalculo() == null) deteccion.setNecesidadCalculo(0);
@@ -73,7 +69,6 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
         deteccionDB.setNecesidadEconomica(deteccion.getNecesidadEconomica());
         deteccionDB.setNecesidadPsicologica(deteccion.getNecesidadPsicologica());
         deteccionDB.setObservaciones(deteccion.getObservaciones());
-        deteccionDB.setFechaAplicacion(deteccion.getFechaAplicacion());
         deteccionDB.setActivo(deteccion.getActivo());
 
         this.iDeteccionNecesidadesRepository.save(deteccionDB);

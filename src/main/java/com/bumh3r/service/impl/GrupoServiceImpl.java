@@ -167,6 +167,11 @@ public class GrupoServiceImpl implements GrupoService {
         return this.iGrupoRepository.findByActivoAndCarreraAndSemestre(1, carrera, semestre, pageable);
     }
 
+    @Override
+    public Page<Grupo> buscarPorNombrePage(String q, Pageable pageable) {
+        return this.iGrupoRepository.searchByName(q, pageable);
+    }
+
     private void resolverRelaciones(Grupo grupo) {
         if (grupo.getTutor() != null && grupo.getTutor().getId() != null) {
             Tutor tutor = this.iTutorRepository.findById(grupo.getTutor().getId())

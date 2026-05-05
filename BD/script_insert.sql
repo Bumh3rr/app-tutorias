@@ -283,11 +283,11 @@ INSERT INTO evidencia_sesion (id_sesion, archivo_url, notas_coordinador, estatus
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO deteccion_necesidades
   (id_tutorado, id_sesion, necesidad_algebra, necesidad_calculo, necesidad_derecho,
-   necesidad_otra, necesidad_economica, necesidad_psicologica, observaciones, fecha_aplicacion, activo, fecha_registro)
+   necesidad_otra, necesidad_economica, necesidad_psicologica, observaciones, activo, fecha_registro)
 VALUES
-(2, 2, 1, 1, 0, NULL, 0, 0, 'Alumno con dificultades en álgebra y cálculo. Se canalizó a asesorías.', '2026-01-30', 1, '2026-01-30 11:30:00'),
-(3, 2, 0, 1, 0, NULL, 1, 0, 'Dificultad en cálculo diferencial. Situación económica a monitorear.',   '2026-01-30', 1, '2026-01-30 11:35:00'),
-(4, 2, 0, 0, 0, NULL, 0, 1, 'Alumno presenta signos de estrés académico. Se recomendó psicólogo.',    '2026-01-30', 1, NOW());   -- ← reciente
+(2, 2, 1, 1, 0, NULL, 0, 0, 'Alumno con dificultades en álgebra y cálculo. Se canalizó a asesorías.', 1, '2026-01-30 11:30:00'),
+(3, 2, 0, 1, 0, NULL, 1, 0, 'Dificultad en cálculo diferencial. Situación económica a monitorear.', 1, '2026-01-30 11:35:00'),
+(4, 2, 0, 0, 0, NULL, 0, 1, 'Alumno presenta signos de estrés académico. Se recomendó psicólogo.', 1, NOW());   -- ← reciente
 
 -- ─────────────────────────────────────────────────────────────
 -- 14. REPORTES DE SESIÓN

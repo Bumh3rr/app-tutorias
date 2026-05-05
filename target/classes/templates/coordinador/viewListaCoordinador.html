@@ -47,25 +47,49 @@
                 <h6 class="mb-3">Buscar Coordinadores</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'todos'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-carrera">Por Carrera</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-semestre">Por Semestre</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'carrera'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-carrera">Por Carrera</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-carrera-semestre">Carrera y Semestre</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'semestre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-semestre">Por Semestre</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-carrera-semestre">Carrera y Semestre</button>
                     </li>
                 </ul>
                 <div class="tab-content pt-3">
 
-                    <div class="tab-pane fade show active" id="tab-todos">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos'} ? 'show active'" id="tab-todos">
                         <a th:href="@{/coordinador}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-carrera">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
+                        <form method="get" th:action="@{/coordinador}">
+                            <input type="hidden" name="tipoBusqueda" value="nombre">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <input type="text" name="q" class="form-control"
+                                           placeholder="Buscar por nombre o apellido..."
+                                           th:value="${q}" autofocus>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carrera'} ? 'show active'" id="tab-carrera">
                         <form method="get" th:action="@{/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="carrera">
                             <div class="row g-2">
@@ -86,7 +110,7 @@
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-semestre">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semestre'} ? 'show active'" id="tab-semestre">
                         <form method="get" th:action="@{/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="semestre">
                             <div class="row g-2">
@@ -107,7 +131,7 @@
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-carrera-semestre">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'show active'" id="tab-carrera-semestre">
                         <form method="get" th:action="@{/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="carreraSemestre">
                             <div class="row g-2">
@@ -154,7 +178,7 @@
                         <thead>
                         <tr>
                             <th class="sort-th">
-                                <a th:href="@{/coordinador(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">
+                                <a th:href="@{/coordinador(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">
                                     ID
                                     <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
@@ -214,7 +238,7 @@
                                 th:data-ts="${coordinador.fechaRegistro.time}">
                                 <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                                 <small class="d-block text-body-secondary mt-1 text-nowrap"
-                                       th:text="${#dates.format(coordinador.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                       th:text="${#dates.format(coordinador.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                             </td>
                             <td th:unless="${coordinador.fechaRegistro != null}">
                                 <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>
@@ -240,13 +264,13 @@
                     <nav>
                         <ul class="pagination pagination-sm mb-0">
                             <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                                <a class="page-link" th:href="@{/coordinador(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&laquo;</a>
+                                <a class="page-link" th:href="@{/coordinador(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&laquo;</a>
                             </li>
                             <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                                <a class="page-link" th:text="${i + 1}" th:href="@{/coordinador(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}"></a>
+                                <a class="page-link" th:text="${i + 1}" th:href="@{/coordinador(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}"></a>
                             </li>
                             <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                                <a class="page-link" th:href="@{/coordinador(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&raquo;</a>
+                                <a class="page-link" th:href="@{/coordinador(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&raquo;</a>
                             </li>
                         </ul>
                     </nav>

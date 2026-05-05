@@ -46,7 +46,6 @@ public class TutoradoServiceImpl implements TutoradoService {
         if (this.iTutoradoRepository.existsByEmailAndActivo(tutorado.getEmail(), 1)) {
             throw new IllegalArgumentException("Ya existe un tutorado activo con el email " + tutorado.getEmail());
         }
-        tutorado.setFoto(tutorado.getFoto() != null && !tutorado.getFoto().isEmpty() ? tutorado.getFoto() : null);
         tutorado.setActivo(1);
         this.iTutoradoRepository.save(tutorado);
     }
@@ -104,6 +103,12 @@ public class TutoradoServiceImpl implements TutoradoService {
 
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iTutoradoRepository.findByActivoAndSemestreAndCarrera(1, semestre, carrera, pageable);
+    }
+
+    @Override
+    public Page<Tutorado> buscarPorNombre(String q, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.searchByName(q, pageable);
     }
 
     private void resolverRelaciones(Tutorado tutorado) {

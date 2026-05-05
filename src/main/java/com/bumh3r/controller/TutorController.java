@@ -37,6 +37,8 @@ public class TutorController {
 
     @GetMapping()
     public String obtenerVistaListaTutores(
+            @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -45,7 +47,13 @@ public class TutorController {
 
         Page<Tutor> paginaTutores;
         try {
-            paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
+                paginaTutores = this.tutorService.buscarPorNombre(q, page, pageSize, sortBy, sort);
+                model.addAttribute("filtro", "Nombre: " + q);
+            } else {
+                paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                model.addAttribute("filtro", null);
+            }
         } catch (Exception e) {
             paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(0, pageSize, "id", "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
@@ -64,6 +72,8 @@ public class TutorController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sort", sort);
         model.addAttribute("mapSort", mapSort);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("q", q);
 
         return "tutor/viewListaTutor";
     }
@@ -82,6 +92,7 @@ public class TutorController {
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
             Model model,
             RedirectAttributes attributes) {
+            tutor.setFoto(tutor.getFoto() != null && !tutor.getFoto().isEmpty() ? tutor.getFoto() : null);
         if (result.hasErrors()) {
             model.addAttribute("isEdit", false);
             return "tutor/viewFormTutor";

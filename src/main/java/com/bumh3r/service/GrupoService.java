@@ -22,4 +22,5 @@ public interface GrupoService {
     Page<Grupo> buscarPorSemestrePage(Integer idSemestre, Pageable pageable);
     Page<Grupo> buscarPorTutorYSemestrePage(Integer idTutor, Integer idSemestre, Pageable pageable);
     Page<Grupo> buscarPorCarreraYSemestrePage(Integer idCarrera, Integer idSemestre, Pageable pageable);
+    Page<Grupo> buscarPorNombrePage(String q, Pageable pageable);
 }

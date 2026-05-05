@@ -42,6 +42,8 @@ public class TutoradoController {
 
     @GetMapping()
     public String obtenerVistaListaTutorados(
+            @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -55,7 +57,10 @@ public class TutoradoController {
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
 
         try {
-            if (idSemestre != null && idCarrera != null) {
+            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
+                paginaTutorados = this.tutoradoService.buscarPorNombre(q, page, pageSize, sortBy, sort);
+                model.addAttribute("filtro", "Nombre: " + q);
+            } else if ("semestreCarrera".equals(tipoBusqueda) && idSemestre != null && idCarrera != null) {
                 paginaTutorados = this.tutoradoService.buscarTutoradosPorSemestreYCarreraPaginado(idSemestre, idCarrera, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Semestre y carrera seleccionados");
             } else {
@@ -84,6 +89,8 @@ public class TutoradoController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sort", sort);
         model.addAttribute("mapSort", mapSort);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("q", q);
 
         return "tutorado/viewListaTutorado";
     }
@@ -104,6 +111,7 @@ public class TutoradoController {
             @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
             Model model,
             RedirectAttributes attributes) {
+        tutorado.setFoto(tutorado.getFoto() != null && !tutorado.getFoto().isEmpty() ? tutorado.getFoto() : null);
         if (result.hasErrors()) {
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());

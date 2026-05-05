@@ -45,10 +45,11 @@ public class GrupoController {
             @RequestParam(value = "idTutor", required = false) Integer idTutor,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
-            @RequestParam(value = "sortBy", required = false, defaultValue = "nombre") String sortBy,
+            @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
             Model model) {
 
         // Valid sort fields
@@ -61,7 +62,10 @@ public class GrupoController {
 
         org.springframework.data.domain.Page<Grupo> pageResult;
         try {
-            if ("semestre".equals(tipoBusqueda) && idSemestre != null) {
+            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
+                pageResult = this.grupoService.buscarPorNombrePage(q, pageable);
+                model.addAttribute("filtro", "Nombre: " + q);
+            } else if ("semestre".equals(tipoBusqueda) && idSemestre != null) {
                 pageResult = this.grupoService.buscarPorSemestrePage(idSemestre, pageable);
                 model.addAttribute("filtro", "Semestre seleccionado");
             } else if ("tutorSemestre".equals(tipoBusqueda) && idTutor != null && idSemestre != null) {
@@ -92,6 +96,7 @@ public class GrupoController {
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("idTutorSeleccionado", idTutor);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
+        model.addAttribute("q", q);
         return "grupo/viewListaGrupo";
     }
 

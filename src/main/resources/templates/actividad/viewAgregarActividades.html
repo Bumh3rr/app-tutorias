@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Actividades</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <style>
+        /* ── Week builder ───────────────────────── */
+        @keyframes slotIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .week-slot {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            animation: slotIn 0.28s cubic-bezier(.4,0,.2,1) both;
+        }
+        .week-slot:hover { border-color: rgba(255,255,255,0.16); }
+
+        .week-slot--saved   { border-color: rgba(16,185,129,0.3); }
+        .week-slot--pending { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.04); }
+        .week-slot--editing { border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.04); }
+
+        /* ── Week header row ──────────────────── */
+        .week-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            min-height: 54px;
+        }
+
+        .week-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            flex-shrink: 0;
+            transition: background 0.2s, color 0.2s;
+        }
+        .week-slot--saved   .week-num { background: rgba(16,185,129,0.15); color: #10b981; }
+        .week-slot--pending .week-num { background: rgba(99,102,241,0.2);  color: #818cf8; }
+        .week-slot--editing .week-num { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+        .week-info { flex: 1; min-width: 0; }
+        .week-info .activity-name {
+            font-weight: 500;
+            font-size: 0.88rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .week-info .activity-meta {
+            font-size: 0.74rem;
+            color: var(--bs-secondary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 1px;
+        }
+        .week-empty-label { font-size: 0.8rem; color: var(--bs-secondary-color); }
+
+        .week-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+        /* ── Inline expand form ───────────────── */
+        .slot-form-wrap {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.22s ease;
+        }
+        .slot-form-wrap.open { max-height: 500px; opacity: 1; }
+
+        .slot-form {
+            padding: 12px 14px 14px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            background: rgba(0,0,0,0.18);
+        }
+
+        /* ── Pending badge ────────────────────── */
+        .badge-pending {
+            background: rgba(99,102,241,0.22);
+            color: #818cf8;
+            font-size: 0.68rem;
+            vertical-align: middle;
+        }
+
+        /* ── Save bar ─────────────────────────── */
+        .save-bar {
+            position: sticky;
+            bottom: 0;
+            margin: 0 -2rem -2rem;
+            padding: 14px 2rem;
+            background: var(--bs-body-bg);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 20;
+            display: none;
+        }
+        .save-bar.visible {
+            display: block;
+            animation: slideInDown 0.22s cubic-bezier(.4,0,.2,1) both;
+        }
+        .save-error-item { font-size: 0.8rem; }
+
+        /* ── PAT info card ────────────────────── */
+        .pat-card {
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 10px;
+            padding: 13px 18px;
+            background: rgba(255,255,255,0.03);
+            animation: fadeInUp 0.28s cubic-bezier(.4,0,.2,1) both;
+        }
+
+        /* ── Skeleton loader ──────────────────── */
+        .skeleton-slot {
+            height: 54px;
+            border-radius: 10px;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0.04) 25%,
+                rgba(255,255,255,0.08) 50%,
+                rgba(255,255,255,0.04) 75%);
+            background-size: 400px 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        #loadingSkeleton { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h3 class="mb-1">Agregar Actividades</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Crea múltiples actividades para un PAT en un solo paso.</p>
+                </div>
+                <a th:href="@{/actividad}" class="btn btn-outline-secondary">← Volver a la lista</a>
+            </div>
+
+            <!-- Step 1 — PAT selector -->
+            <div class="card bg-body-secondary mb-4" style="border:1px solid rgba(255,255,255,0.08);">
+                <div class="card-body p-4">
+                    <label class="form-label fw-semibold mb-3" for="patSelector">
+                        <span class="badge bg-primary rounded-pill me-2" style="font-size:.7rem;">1</span>
+                        Selecciona el PAT
+                    </label>
+                    <select id="patSelector" class="form-select" style="max-width:480px;">
+                        <option value="">— Elige un PAT —</option>
+                        <option th:each="p : ${pats}"
+                                th:value="${p.id}"
+                                th:text="${p.nombre}"
+                                th:attr="data-carrera=${p.carrera != null ? p.carrera.nombre : 'General'},
+                                         data-semestre=${p.semestre != null ? p.semestre.periodo + ' ' + p.semestre.anio : 'Sin semestre'}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Builder (shown after PAT selection) -->
+            <div id="builderSection" style="display:none;">
+
+                <!-- PAT info pill -->
+                <div id="patInfoCard" class="pat-card mb-4 d-flex align-items-center gap-3">
+                    <div>
+                        <div class="fw-semibold" id="patInfoNombre"></div>
+                        <small class="text-secondary">
+                            <span id="patInfoCarrera"></span>
+                            <span class="mx-1 opacity-50">·</span>
+                            <span id="patInfoSemestre"></span>
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Step 2 header -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <span class="badge bg-primary rounded-pill me-2" style="font-size:.7rem;">2</span>
+                        <span class="fw-semibold">Actividades por semana</span>
+                        <small class="text-body-secondary ms-2" id="slotSubtitle"></small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddCustom">
+                        + Semana personalizada
+                    </button>
+                </div>
+
+                <!-- Slots container -->
+                <div id="slotsContainer" class="vstack gap-2 mb-4">
+                    <div id="loadingSkeleton" class="vstack gap-2">
+                        <div class="skeleton-slot"></div>
+                        <div class="skeleton-slot"></div>
+                        <div class="skeleton-slot"></div>
+                        <div class="skeleton-slot"></div>
+                    </div>
+                </div>
+
+                <!-- Sticky save bar -->
+                <div id="saveBar" class="save-bar">
+                    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                        <div>
+                            <span class="fw-semibold"><span id="pendingCount">0</span> actividades pendientes</span>
+                            <small class="text-body-secondary ms-2">sin guardar</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-danger btn-sm" id="btnClearPending">
+                                Descartar todo
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnSaveAll">
+                                <span id="btnSaveText">Guardar todo</span>
+                                <span id="btnSaveSpinner" class="spinner-border spinner-border-sm ms-1"
+                                      role="status" style="display:none;"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="saveErrorArea" style="display:none;" class="mt-3">
+                        <div class="alert alert-warning mb-0 py-2 px-3">
+                            <strong class="d-block mb-1">Algunas actividades no se pudieron guardar:</strong>
+                            <ul id="saveErrorList" class="mb-0 ps-3"></ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /builderSection -->
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+(function () {
+    'use strict';
+
+    // ── Pre-selected PAT from URL ──────────────────────────────
+    const preselectedPatId = /*[[${preselectedPatId}]]*/ null;
+
+    // ── State ──────────────────────────────────────────────────
+    let currentPatId  = null;
+    let existing      = [];  // [{id, nombre, descripcion, semana, fecha}] from DB
+    let pending       = [];  // [{nombre, descripcion, semana, fecha}] unsaved
+    let openFormWeek  = null;
+    let editingId     = null;
+
+    const DEFAULT_WEEKS = 10;
+
+    // ── DOM refs ───────────────────────────────────────────────
+    const patSelector     = document.getElementById('patSelector');
+    const builderSection  = document.getElementById('builderSection');
+    const patInfoNombre   = document.getElementById('patInfoNombre');
+    const patInfoCarrera  = document.getElementById('patInfoCarrera');
+    const patInfoSemestre = document.getElementById('patInfoSemestre');
+    const slotsContainer  = document.getElementById('slotsContainer');
+    const loadingSkeleton = document.getElementById('loadingSkeleton');
+    const saveBar         = document.getElementById('saveBar');
+    const pendingCount    = document.getElementById('pendingCount');
+    const slotSubtitle    = document.getElementById('slotSubtitle');
+    const btnSaveAll      = document.getElementById('btnSaveAll');
+    const btnSaveText     = document.getElementById('btnSaveText');
+    const btnSaveSpinner  = document.getElementById('btnSaveSpinner');
+    const btnClearPending = document.getElementById('btnClearPending');
+    const btnAddCustom    = document.getElementById('btnAddCustom');
+    const saveErrorArea   = document.getElementById('saveErrorArea');
+    const saveErrorList   = document.getElementById('saveErrorList');
+
+    // ── Helpers ────────────────────────────────────────────────
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatDate(str) {
+        if (!str) return '';
+        const parts = str.split('-');
+        if (parts.length !== 3) return str;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function weeksToShow() {
+        const maxEx  = existing.reduce((m, a) => Math.max(m, a.semana), 0);
+        const maxPnd = pending.reduce((m, a)  => Math.max(m, a.semana), 0);
+        const maxOF  = openFormWeek || 0;
+        return Math.max(DEFAULT_WEEKS, maxEx, maxPnd, maxOF);
+    }
+
+    function getExistingForWeek(w) { return existing.find(a => a.semana === w) || null; }
+    function getPendingForWeek(w)  { return pending.find(a  => a.semana === w) || null; }
+
+    function usedWeeks() {
+        const set = new Set();
+        existing.forEach(a => set.add(a.semana));
+        pending.forEach(a  => set.add(a.semana));
+        return set;
+    }
+
+    function initFlatpickr(el) {
+        if (!el || el._flatpickr) return;
+        flatpickr(el, {
+            dateFormat: 'Y-m-d',
+            locale: 'es',
+            allowInput: true,
+            disableMobile: false
+        });
+    }
+
+    // ── Render ─────────────────────────────────────────────────
+    function render() {
+        slotsContainer.querySelectorAll('.week-slot').forEach(el => el.remove());
+
+        const total = weeksToShow();
+        for (let w = 1; w <= total; w++) {
+            const slot = buildSlot(w);
+            slot.style.animationDelay = `${(w - 1) * 0.02}s`;
+            slotsContainer.appendChild(slot);
+        }
+
+        updateSaveBar();
+        updateSubtitle();
+    }
+
+    function buildSlot(w) {
+        const ex        = getExistingForWeek(w);
+        const pnd       = getPendingForWeek(w);
+        const isEditing = editingId !== null && ex && ex.id === editingId;
+        const isAdding  = openFormWeek === w && !ex && !pnd;
+
+        const div = document.createElement('div');
+        div.className = 'week-slot';
+        div.dataset.week = w;
+
+        if (ex  && !isEditing) div.classList.add('week-slot--saved');
+        if (pnd)               div.classList.add('week-slot--pending');
+        if (isEditing)         div.classList.add('week-slot--editing');
+
+        // ── Header ──────────────────────────────────
+        const header  = document.createElement('div');
+        header.className = 'week-header';
+
+        const numBadge = document.createElement('div');
+        numBadge.className = 'week-num';
+        numBadge.textContent = `S${w}`;
+
+        const info = document.createElement('div');
+        info.className = 'week-info';
+
+        if (isEditing) {
+            info.innerHTML = `<span class="week-empty-label text-warning-emphasis">Editando actividad...</span>`;
+        } else if (ex) {
+            info.innerHTML =
+                `<div class="activity-name">${escHtml(ex.nombre)}</div>` +
+                `<div class="activity-meta">` +
+                (ex.fecha ? `${formatDate(ex.fecha)}` : 'Sin fecha') +
+                (ex.descripcion ? ` &nbsp;·&nbsp; ${escHtml(ex.descripcion)}` : '') +
+                `</div>`;
+        } else if (pnd) {
+            info.innerHTML =
+                `<div class="activity-name">${escHtml(pnd.nombre)} ` +
+                `<span class="badge badge-pending rounded-pill">pendiente</span></div>` +
+                `<div class="activity-meta">` +
+                (pnd.fecha ? `${formatDate(pnd.fecha)}` : 'Sin fecha') +
+                (pnd.descripcion ? ` &nbsp;·&nbsp; ${escHtml(pnd.descripcion)}` : '') +
+                `</div>`;
+        } else {
+            info.innerHTML = `<span class="week-empty-label">Vacío — sin actividad asignada</span>`;
+        }
+
+        // ── Actions ──────────────────────────────────
+        const actions = document.createElement('div');
+        actions.className = 'week-actions';
+
+        if (isEditing) {
+            const btnCancel = makeBtn('Cancelar', 'btn-sm btn-outline-secondary', () => cancelEdit());
+            actions.appendChild(btnCancel);
+        } else if (ex) {
+            const btnEdit = makeBtn('Editar', 'btn-sm btn-outline-warning', () => startEdit(ex.id));
+            const btnDel  = makeBtn('✕', 'btn-sm btn-outline-danger', () => deleteExisting(ex.id, w));
+            btnDel.title = 'Eliminar actividad';
+            actions.appendChild(btnEdit);
+            actions.appendChild(btnDel);
+        } else if (pnd) {
+            const btnRem = makeBtn('✕ Quitar', 'btn-sm btn-outline-secondary', () => removePending(w));
+            actions.appendChild(btnRem);
+        } else {
+            const label = isAdding ? '↑ Cerrar' : '+ Agregar';
+            const btnAdd = makeBtn(label, 'btn-sm btn-outline-primary', () => toggleAddForm(w));
+            actions.appendChild(btnAdd);
+        }
+
+        header.appendChild(numBadge);
+        header.appendChild(info);
+        header.appendChild(actions);
+        div.appendChild(header);
+
+        // ── Inline form ──────────────────────────────
+        if (isAdding || isEditing) {
+            div.appendChild(buildInlineForm(w, ex, isEditing));
+        }
+
+        return div;
+    }
+
+    function makeBtn(label, cls, handler) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn ' + cls;
+        btn.innerHTML = label;
+        btn.addEventListener('click', handler);
+        return btn;
+    }
+
+    function buildInlineForm(w, ex, isEdit) {
+        const wrap = document.createElement('div');
+        wrap.className = 'slot-form-wrap';
+
+        const form = document.createElement('div');
+        form.className = 'slot-form';
+
+        form.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-5">
+                    <label class="form-label small mb-1">
+                        Nombre <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control form-control-sm slot-nombre"
+                           placeholder="Ej. Sesión de orientación..."
+                           value="${escHtml(isEdit ? ex.nombre : '')}">
+                    <div class="invalid-feedback">El nombre es obligatorio.</div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1">Fecha</label>
+                    <input type="text" class="form-control form-control-sm slot-fecha"
+                           placeholder="YYYY-MM-DD"
+                           value="${escHtml(isEdit && ex.fecha ? ex.fecha : '')}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small mb-1">Descripción</label>
+                    <input type="text" class="form-control form-control-sm slot-desc"
+                           placeholder="Opcional..."
+                           value="${escHtml(isEdit ? (ex.descripcion || '') : '')}">
+                </div>
+                <div class="col-12 d-flex gap-2 mt-1">
+                    <button type="button" class="btn btn-primary btn-sm btn-slot-confirm">
+                        ${isEdit ? 'Actualizar' : 'Agregar a lista'}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-slot-cancel">
+                        Cancelar
+                    </button>
+                </div>
+            </div>`;
+
+        wrap.appendChild(form);
+
+        const nombreEl  = form.querySelector('.slot-nombre');
+        const fechaEl   = form.querySelector('.slot-fecha');
+        const descEl    = form.querySelector('.slot-desc');
+        const btnOk     = form.querySelector('.btn-slot-confirm');
+        const btnCancel = form.querySelector('.btn-slot-cancel');
+
+        setTimeout(() => initFlatpickr(fechaEl), 50);
+
+        function confirm_() {
+            const nombre = nombreEl.value.trim();
+            if (!nombre) {
+                nombreEl.classList.add('is-invalid');
+                nombreEl.focus();
+                return;
+            }
+            nombreEl.classList.remove('is-invalid');
+            const fecha = fechaEl.value.trim();
+            const desc  = descEl.value.trim();
+            if (isEdit) saveEdit(ex.id, w, nombre, desc, fecha);
+            else        addPending(w, nombre, desc, fecha);
+        }
+
+        function cancel_() {
+            if (isEdit) cancelEdit();
+            else        closeAddForm();
+        }
+
+        btnOk.addEventListener('click', confirm_);
+        btnCancel.addEventListener('click', cancel_);
+        nombreEl.addEventListener('input', () => nombreEl.classList.remove('is-invalid'));
+
+        [nombreEl, fechaEl, descEl].forEach(inp => {
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter')  { e.preventDefault(); confirm_(); }
+                if (e.key === 'Escape') { e.preventDefault(); cancel_();  }
+            });
+        });
+
+        // open with animation and focus
+        setTimeout(() => {
+            wrap.classList.add('open');
+            nombreEl.focus();
+        }, 20);
+
+        return wrap;
+    }
+
+    // ── State actions ──────────────────────────────────────────
+    function toggleAddForm(w) {
+        openFormWeek = (openFormWeek === w) ? null : w;
+        if (openFormWeek) editingId = null;
+        render();
+    }
+
+    function closeAddForm()  { openFormWeek = null; render(); }
+    function startEdit(id)   { editingId = id; openFormWeek = null; render(); }
+    function cancelEdit()    { editingId = null; render(); }
+
+    function addPending(w, nombre, desc, fecha) {
+        pending.push({ semana: w, nombre, descripcion: desc || null, fecha: fecha || null });
+        openFormWeek = null;
+        render();
+    }
+
+    function removePending(w) {
+        pending = pending.filter(a => a.semana !== w);
+        render();
+    }
+
+    function clearPending() {
+        pending = [];
+        openFormWeek = null;
+        editingId = null;
+        render();
+    }
+
+    async function deleteExisting(id, w) {
+        if (!confirm(`¿Eliminar la actividad de la Semana ${w}?`)) return;
+        try {
+            const res = await fetch(`/actividad/api/eliminar/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const d = await res.json().catch(() => ({}));
+                alert('Error al eliminar: ' + (d.error || res.status));
+                return;
+            }
+            existing = existing.filter(a => a.id !== id);
+            render();
+        } catch (e) {
+            alert('Error de red: ' + e.message);
+        }
+    }
+
+    async function saveEdit(id, w, nombre, desc, fecha) {
+        const btnSlot = slotsContainer.querySelector(`[data-week="${w}"] .btn-slot-confirm`);
+        if (btnSlot) { btnSlot.disabled = true; btnSlot.textContent = 'Guardando...'; }
+
+        try {
+            const res = await fetch(`/actividad/api/actualizar/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, descripcion: desc || null, semana: w, fecha: fecha || null })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert('Error al actualizar: ' + (data.error || res.status));
+                return;
+            }
+            const idx = existing.findIndex(a => a.id === id);
+            if (idx !== -1) {
+                existing[idx] = { ...existing[idx], nombre, descripcion: desc || null, fecha: fecha || null };
+            }
+            editingId = null;
+            render();
+        } catch (e) {
+            alert('Error de red: ' + e.message);
+            if (btnSlot) { btnSlot.disabled = false; btnSlot.textContent = 'Actualizar'; }
+        }
+    }
+
+    // ── Batch save ─────────────────────────────────────────────
+    async function saveAll() {
+        if (!pending.length) return;
+        setBusy(true);
+        saveErrorArea.style.display = 'none';
+
+        const payload = {
+            idPat: currentPatId,
+            actividades: pending.map(p => ({
+                nombre: p.nombre,
+                descripcion: p.descripcion || null,
+                semana: p.semana,
+                fecha: p.fecha || null
+            }))
+        };
+
+        try {
+            const res  = await fetch('/actividad/api/guardar-lote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.status === 207) {
+                // Partial — keep only failed weeks in pending
+                const failedWeeks = new Set(
+                    (data.errores || [])
+                        .map(e => { const m = e.match(/^Semana (\d+)/); return m ? +m[1] : null; })
+                        .filter(Boolean)
+                );
+                pending = pending.filter(p => failedWeeks.has(p.semana));
+                showErrors(data.errores || []);
+                await reloadExisting();
+            } else if (res.ok) {
+                pending = [];
+                saveErrorArea.style.display = 'none';
+                await reloadExisting();
+            } else {
+                showErrors([data.error || 'Error desconocido al guardar.']);
+            }
+        } catch (e) {
+            showErrors(['Error de red: ' + e.message]);
+        } finally {
+            setBusy(false);
+            render();
+        }
+    }
+
+    function setBusy(busy) {
+        btnSaveAll.disabled   = busy;
+        btnSaveText.textContent  = busy ? 'Guardando...' : 'Guardar todo';
+        btnSaveSpinner.style.display = busy ? 'inline-block' : 'none';
+    }
+
+    function showErrors(errs) {
+        saveErrorList.innerHTML = errs.map(e => `<li class="save-error-item">${escHtml(e)}</li>`).join('');
+        saveErrorArea.style.display = 'block';
+    }
+
+    function updateSaveBar() {
+        if (pending.length > 0) {
+            saveBar.classList.add('visible');
+            pendingCount.textContent = pending.length;
+        } else {
+            saveBar.classList.remove('visible');
+        }
+    }
+
+    function updateSubtitle() {
+        slotSubtitle.textContent = `${existing.length} guardada${existing.length !== 1 ? 's' : ''} · ${pending.length} pendiente${pending.length !== 1 ? 's' : ''}`;
+    }
+
+    // ── Load from API ──────────────────────────────────────────
+    async function loadExisting(patId) {
+        loadingSkeleton.style.display = 'flex';
+        slotsContainer.querySelectorAll('.week-slot').forEach(el => el.remove());
+
+        try {
+            const res = await fetch(`/actividad/api/por-pat/${patId}`);
+            existing  = res.ok ? await res.json() : [];
+        } catch (_) {
+            existing = [];
+        }
+
+        loadingSkeleton.style.display = 'none';
+        render();
+    }
+
+    async function reloadExisting() {
+        if (!currentPatId) return;
+        try {
+            const res = await fetch(`/actividad/api/por-pat/${currentPatId}`);
+            if (res.ok) existing = await res.json();
+        } catch (_) {}
+    }
+
+    // ── PAT selection ──────────────────────────────────────────
+    function selectPat(id) {
+        currentPatId = id;
+        pending      = [];
+        openFormWeek = null;
+        editingId    = null;
+
+        const opt = patSelector.querySelector(`option[value="${id}"]`);
+        if (opt) {
+            patInfoNombre.textContent   = opt.textContent.trim();
+            patInfoCarrera.textContent  = opt.dataset.carrera  || 'General';
+            patInfoSemestre.textContent = opt.dataset.semestre || 'Sin semestre';
+        }
+
+        builderSection.style.display = 'block';
+        setTimeout(() => builderSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+        loadExisting(id);
+    }
+
+    // ── Event wiring ───────────────────────────────────────────
+    patSelector.addEventListener('change', () => {
+        const id = parseInt(patSelector.value, 10);
+        if (id) {
+            selectPat(id);
+            const url = new URL(window.location.href);
+            url.searchParams.set('idPat', id);
+            history.replaceState(null, '', url.toString());
+        } else {
+            builderSection.style.display = 'none';
+            currentPatId = null;
+            existing = [];
+            pending  = [];
+        }
+    });
+
+    btnSaveAll.addEventListener('click', saveAll);
+
+    btnClearPending.addEventListener('click', () => {
+        if (!pending.length) return;
+        if (confirm('¿Descartar todas las actividades pendientes?')) clearPending();
+    });
+
+    btnAddCustom.addEventListener('click', () => {
+        const used = usedWeeks();
+        let w = 1;
+        while (used.has(w)) w++;
+        openFormWeek = w;
+        editingId = null;
+        render();
+        setTimeout(() => {
+            const slot = slotsContainer.querySelector(`[data-week="${w}"]`);
+            if (slot) slot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 80);
+    });
+
+    // ── Auto-select if idPat in URL ────────────────────────────
+    if (preselectedPatId) {
+        const id = parseInt(preselectedPatId, 10);
+        if (id && patSelector.querySelector(`option[value="${id}"]`)) {
+            patSelector.value = id;
+            selectPat(id);
+        }
+    }
+
+})();
+/*]]>*/
+</script>
+</body>
+</html>

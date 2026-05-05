@@ -27,7 +27,7 @@
                          alt="Foto"
                          class="avatar avatar-xl">
                     <img th:unless="${coordinador.foto != null}"
-                         src="https://api.dicebear.com/9.x/notionists-neutral/svg"
+                         th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${coordinador.nombre}+${coordinador.apellido}|}"
                          alt="Sin foto"
                          class="avatar avatar-xl">
                     <div>
@@ -76,7 +76,7 @@
                         <div th:data-ts="${coordinador.fechaRegistro.time}">
                             <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
                             <small class="d-block text-body-secondary mt-1"
-                                   th:text="${#dates.format(coordinador.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></small>
+                                   th:text="${#dates.format(coordinador.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                         </div>
                     </span>
                 </div>
