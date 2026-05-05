@@ -17,11 +17,6 @@
         })();
     </script>
     <style>
-        .view-toggle { display:flex; gap:4px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:3px; }
-        .view-btn { display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px; border:none; background:transparent; color:rgba(255,255,255,0.35); cursor:pointer; transition:background 0.15s,color 0.15s; }
-        .view-btn.active { background:rgba(99,102,241,0.2); color:#a5b4fc; }
-        .view-btn:hover:not(.active) { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); }
-
         .data-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s; animation:fadeSlide 0.35s cubic-bezier(0.4,0,0.2,1) both; }
         .data-card:hover { transform:translateY(-4px); border-color:rgba(99,102,241,0.35); box-shadow:0 12px 32px rgba(0,0,0,0.35); }
         .data-card.card-new { border-color:rgba(99,102,241,0.5)!important; box-shadow:0 0 0 1px rgba(99,102,241,0.25),0 4px 20px rgba(99,102,241,0.15); }
@@ -64,14 +59,6 @@
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los semestres del programa de tutorías.</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <div class="view-toggle">
-                        <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                        </button>
-                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                        </button>
-                    </div>
                     <a th:href="@{/semestre/agregar}" class="btn btn-primary btn-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
                         Agregar Semestre
@@ -81,7 +68,17 @@
 
             <div th:if="${totalElementos > 0}" class="d-flex justify-content-between align-items-center mb-3">
                 <small class="text-body-secondary" th:text="${totalElementos} + ' semestre(s)'"></small>
-                <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
+                    <div class="view-toggle">
+                        <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        </button>
+                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div th:if="${semestres != null and !#lists.isEmpty(semestres)}">
@@ -123,9 +120,9 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th class="sort-th"><a th:href="@{/semestre(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">ID <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span></a></th>
-                                <th class="sort-th"><a th:href="@{/semestre(sortBy='periodo',sort=${sortBy == 'periodo' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">Periodo <span th:if="${sortBy == 'periodo'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'periodo'}" class="sort-arrow-idle">↕</span></a></th>
-                                <th class="sort-th"><a th:href="@{/semestre(sortBy='anio',sort=${sortBy == 'anio' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">Año <span th:if="${sortBy == 'anio'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span><span th:unless="${sortBy == 'anio'}" class="sort-arrow-idle">↕</span></a></th>
+                                <th class="sort-th"><a th:href="@{/semestre(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/semestre(sortBy='periodo',sort=${sortBy == 'periodo' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">Periodo <span th:if="${sortBy == 'periodo'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/semestre(sortBy='anio',sort=${sortBy == 'anio' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize})}">Año <span th:if="${sortBy == 'anio'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>Estado</th>
                                 <th>Registrado</th>
                                 <th>Acciones</th>
@@ -135,7 +132,7 @@
                             <tr th:each="semestre : ${semestres}" class="fade-in-up">
                                 <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${semestre.id}"></td>
                                 <td class="fw-medium" th:text="${semestre.periodo}"></td>
-                                <td th:text="${semestre.anio}"></td>
+                                <td class="text-body-secondary font-monospace" style="font-size:12.5px;"  th:text="${semestre.anio}"></td>
                                 <td><span class="badge rounded-pill" th:text="${semestre.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${semestre.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
                                 <td th:if="${semestre.fechaRegistro != null}" th:data-ts="${semestre.fechaRegistro.time}">
                                     <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(semestre.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
