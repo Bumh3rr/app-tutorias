@@ -1,9 +1,13 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Carrera;
+import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
+import com.bumh3r.service.AsistenciaService;
 import com.bumh3r.service.CarreraService;
+import com.bumh3r.service.DeteccionNecesidadesService;
 import com.bumh3r.service.FileStoreService;
+import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.TutoradoService;
 import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
@@ -33,6 +37,12 @@ public class TutoradoController {
     private CarreraService carreraService;
     @Autowired
     private FileStoreService fileStoreService;
+    @Autowired
+    private GrupoTutoradoService grupoTutoradoService;
+    @Autowired
+    private DeteccionNecesidadesService deteccionNecesidadesService;
+    @Autowired
+    private AsistenciaService asistenciaService;
 
     private final Logger log = LoggerFactory.getLogger(TutoradoController.class);
 
@@ -125,8 +135,15 @@ public class TutoradoController {
     @GetMapping(value = "ver/{id}")
     public String obtenerVistaVerTutorado(@PathVariable Integer id, Model model) {
         Tutorado tutorado = this.tutoradoService.obtenerTutorado(id);
+        List<GrupoTutorado> gruposTutorado = this.grupoTutoradoService.buscarTutoriasPorTutorado(id);
+        java.util.List<com.bumh3r.entity.DeteccionNecesidades> detecciones =
+                this.deteccionNecesidadesService.buscarPorTutorado(id);
+        com.bumh3r.dto.ResumenAsistenciaDTO resumen = this.asistenciaService.calcularResumenAsistencia(id);
         log.info("Tutorado: {}", tutorado);
         model.addAttribute("tutorado", tutorado);
+        model.addAttribute("gruposTutorado", gruposTutorado);
+        model.addAttribute("detecciones", detecciones);
+        model.addAttribute("resumen", resumen);
         return "tutorado/viewInfoTutorado";
     }
 

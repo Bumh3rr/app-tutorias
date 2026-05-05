@@ -3,85 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle Actividad</title>
+    <title th:text="${actividad.nombre} + ' | Sistema Tutorías'">Detalle Actividad | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .ac-hero  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .ac-left  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .ac-right { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.13s both; }
+
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Info chips ── */
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.5);
+        }
+        .info-chip svg { opacity: 0.6; flex-shrink: 0; }
+
+        /* ── Activity image ── */
+        .activity-img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.25s ease, border-color 0.2s ease;
+            display: block;
+        }
+        .activity-img:hover {
+            transform: scale(1.015);
+            border-color: rgba(255,255,255,0.18);
+        }
+        .activity-img-placeholder {
+            width: 100%;
+            height: 160px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* ── Week indicator ── */
+        .week-track {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        .week-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+        .week-dot.active {
+            border-color: var(--bs-primary);
+            background: rgba(99,102,241,0.18);
+            color: #a5b4fc;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px rgba(99,102,241,0.3);
+        }
+
+        /* ── Content block ── */
+        .content-block {
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.7);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ── PAT card ── */
+        .pat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+        .pat-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .pat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── Nav link items ── */
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: inherit;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link-item:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .nav-link-item .link-chevron { opacity: 0.25; margin-left: auto; transition: opacity 0.15s ease; }
+        .nav-link-item:hover .link-chevron { opacity: 0.7; }
+    </style>
 </head>
 <body>
 
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
+        <main class="app-main">
 
-            <div class="form-card w-100 mx-auto" style="max-width: 540px;">
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-                <!-- Imagen y nombre -->
-                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
-                     style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                    <img th:if="${actividad.foto != null}"
-                         th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
-                         alt="Foto"
-                         style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
-                    <img th:unless="${actividad.foto != null}"
-                         th:src="@{/images/utils/sin_imagen.png}"
-                         alt="Sin foto"
-                         style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
-                    <div>
-                        <h5 class="mb-1 fw-semibold" th:text="${actividad.nombre}"></h5>
-                        <small class="text-secondary font-monospace"
-                               th:text="'ID: #' + ${actividad.id}"></small>
+            <!-- Header -->
+            <div class="page-header ac-hero">
+                <div>
+                    <a th:href="@{/actividad}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Actividades
+                    </a>
+                    <h3 class="mb-1">Detalle de Actividad</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Información registrada de la actividad.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill px-3 py-2" style="font-size:12px;"
+                          th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"
+                          th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                    </span>
+                    <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
+
+            <!-- Hero: nombre + contexto -->
+            <div class="glass-surface ac-hero mb-4">
+                <div class="d-flex align-items-start gap-4 flex-wrap">
+
+                    <!-- Thumbnail de imagen -->
+                    <div style="flex-shrink:0;">
+                        <img th:if="${actividad.foto != null}"
+                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             alt="Imagen actividad"
+                             style="width:72px; height:72px; object-fit:cover; border-radius:10px;
+                                    border:2px solid rgba(255,255,255,0.1);
+                                    transition: border-color 0.2s ease, transform 0.2s ease;"
+                             onmouseover="this.style.borderColor='rgba(255,255,255,0.28)';this.style.transform='scale(1.04)'"
+                             onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='scale(1)'">
+                        <div th:unless="${actividad.foto != null}"
+                             style="width:72px; height:72px; border-radius:10px;
+                                    border:2px solid rgba(255,255,255,0.08);
+                                    background:rgba(99,102,241,0.1);
+                                    display:flex; align-items:center; justify-content:center;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.6)" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                        </div>
                     </div>
+
+                    <!-- Nombre y chips -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h4 class="mb-0 fw-bold" th:text="${actividad.nombre}"></h4>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-body-secondary small font-monospace"
+                                  th:text="'#' + ${actividad.id}"
+                                  style="opacity:0.4;"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="info-chip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span th:if="${actividad.fecha != null}"
+                                      th:text="${#dates.format(actividad.fecha, 'dd/MM/yyyy')}"></span>
+                                <span th:unless="${actividad.fecha != null}">Sin fecha</span>
+                            </span>
+                            <span class="info-chip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <span th:text="'Semana ' + ${actividad.semana}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${actividad.pat != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                <span th:text="${actividad.pat.nombre}"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dos columnas -->
+            <div class="row g-4">
+
+                <!-- Columna izquierda -->
+                <div class="col-lg-7 d-flex flex-column gap-4">
+
+                    <!-- Descripción -->
+                    <div class="glass-surface ac-left"
+                         th:if="${actividad.descripcion != null and !actividad.descripcion.isEmpty()}">
+                        <p class="section-title">Descripción</p>
+                        <div class="content-block" th:text="${actividad.descripcion}"></div>
+                    </div>
+
+                    <!-- PAT asociado -->
+                    <div class="glass-surface ac-left" style="animation-delay:0.08s;"
+                         th:if="${actividad.pat != null}">
+                        <p class="section-title">Plan de Acción Tutorial</p>
+                        <a th:href="@{/pat/ver/{id}(id=${actividad.pat.id})}" class="pat-card">
+                            <div class="pat-icon">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="fw-semibold" style="font-size:13.5px;"
+                                     th:text="${actividad.pat.nombre}"></div>
+                                <div class="text-body-secondary small text-truncate"
+                                     th:if="${actividad.pat.descripcion != null}"
+                                     th:text="${actividad.pat.descripcion}"></div>
+                            </div>
+                            <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.25; flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+
+                    <!-- Indicador de semana -->
+                    <div class="glass-surface ac-left" style="animation-delay:0.12s;">
+                        <p class="section-title">Posición en el plan</p>
+                        <div class="week-track mb-2">
+                            <div th:each="w : ${#numbers.sequence(1, 10)}"
+                                 class="week-dot"
+                                 th:classappend="${w == actividad.semana} ? 'active'"
+                                 th:text="${w}">
+                            </div>
+                        </div>
+                        <small class="text-body-secondary" style="opacity:0.5;">
+                            Esta actividad corresponde a la
+                            <strong th:text="'semana ' + ${actividad.semana}"></strong>
+                            de 10.
+                        </small>
+                    </div>
+
                 </div>
 
-                <!-- Datos -->
-                <div class="vstack gap-0">
-                    <div class="detail-row">
-                        <span class="detail-label">Descripción</span>
-                        <span class="detail-value" th:text="${actividad.descripcion}"></span>
+                <!-- Columna derecha -->
+                <div class="col-lg-5 d-flex flex-column gap-4">
+
+                    <!-- Imagen grande -->
+                    <div class="glass-surface ac-right">
+                        <p class="section-title">Imagen</p>
+                        <img th:if="${actividad.foto != null}"
+                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             alt="Imagen actividad"
+                             class="activity-img">
+                        <div th:unless="${actividad.foto != null}" class="activity-img-placeholder">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            <span style="font-size:12px;">Sin imagen registrada</span>
+                        </div>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">PAT</span>
-                        <span class="detail-value"
-                              th:text="${actividad.pat != null} ? ${actividad.pat.nombre} : 'Sin PAT'"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Semana</span>
-                        <span class="detail-value">
-                            <span class="badge bg-secondary"
+
+                    <!-- Metadata + acciones -->
+                    <div class="glass-surface ac-right" style="animation-delay:0.08s;">
+                        <p class="section-title">Registro</p>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Fecha actividad</span>
+                            <span class="detail-value"
+                                  th:text="${actividad.fecha != null} ? ${#dates.format(actividad.fecha, 'dd/MM/yyyy')} : '—'">
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Semana</span>
+                            <span class="badge bg-secondary rounded-pill"
                                   th:text="'Semana ' + ${actividad.semana}"></span>
-                        </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Estado</span>
-                        <span class="detail-value">
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Estado</span>
                             <span class="badge rounded-pill"
                                   th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"
                                   th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'">
                             </span>
-                        </span>
-                    </div>
-                    <div class="detail-row" th:if="${actividad.fechaRegistro != null}">
-                        <span class="detail-label">Registrado</span>
-                        <span class="detail-value">
-                            <div th:data-ts="${actividad.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
-                                <small class="d-block text-body-secondary mt-1"
-                                       th:text="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                        </div>
+
+                        <div class="detail-row" th:if="${actividad.fechaRegistro != null}">
+                            <span class="detail-label">Registrado</span>
+                            <span class="detail-value">
+                                <div th:data-ts="${actividad.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    <small class="d-block text-body-secondary mt-1"
+                                           th:text="${#dates.format(actividad.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                                </div>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">ID interno</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="'#' + ${actividad.id}"></span>
+                        </div>
+
+                        <div class="pt-3 mt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div class="d-flex flex-column gap-2">
+                                <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}"
+                                   class="nav-link-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                    Editar actividad
+                                    <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                </a>
+                                <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}"
+                                   class="nav-link-item" style="color: rgba(248,113,113,0.7);">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14H6L5 6"/>
+                                        <path d="M10 11v6"/><path d="M14 11v6"/>
+                                        <path d="M9 6V4h6v2"/>
+                                    </svg>
+                                    Eliminar actividad
+                                    <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                </a>
                             </div>
-                        </span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Botones -->
-                <div class="d-flex gap-2 mt-4">
-                    <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}"
-                       class="btn btn-primary w-100">Editar</a>
-                    <a th:href="@{/actividad}" class="btn btn-secondary w-100">Volver</a>
                 </div>
-
-            </div>
+            </div><!-- /row -->
 
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>

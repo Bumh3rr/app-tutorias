@@ -3,76 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle Evidencia</title>
+    <title th:text="'Evidencia #' + ${evidencia.id} + ' | Sistema Tutorías'">Detalle Evidencia | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .ev-hero   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .ev-file   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.05s both; }
+        .ev-info   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.10s both; }
+        .ev-valid  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.15s both; }
+
+        /* ── File preview ── */
+        .file-preview-box {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            position: relative;
+            transition: border-color 0.2s ease;
+        }
+        .file-preview-box:hover { border-color: rgba(255,255,255,0.18); }
+        .file-preview-box img {
+            max-width: 100%;
+            max-height: 340px;
+            object-fit: contain;
+            display: block;
+            border-radius: 4px;
+        }
+        .file-preview-link {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            background: rgba(0,0,0,0.45);
+            border-radius: 12px;
+            transition: opacity 0.2s ease;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            gap: 6px;
+        }
+        .file-preview-box:hover .file-preview-link { opacity: 1; }
+
+        .file-doc-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 40px 24px;
+            color: rgba(255,255,255,0.45);
+        }
+        .file-doc-icon svg { opacity: 0.5; }
+
+        /* ── Section title ── */
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Validation panel ── */
+        .validation-status-block {
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .validation-status-block.pendiente {
+            background: rgba(255,193,7,0.08);
+            border: 1px solid rgba(255,193,7,0.2);
+        }
+        .validation-status-block.validada {
+            background: rgba(25,135,84,0.08);
+            border: 1px solid rgba(25,135,84,0.2);
+        }
+        .validation-status-block.rechazada {
+            background: rgba(220,53,69,0.08);
+            border: 1px solid rgba(220,53,69,0.2);
+        }
+        .validation-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .validation-icon.pendiente { background: rgba(255,193,7,0.18); }
+        .validation-icon.validada  { background: rgba(25,135,84,0.18); }
+        .validation-icon.rechazada { background: rgba(220,53,69,0.18); }
+
+        .btn-validate {
+            background: rgba(25,135,84,0.15);
+            border: 1px solid rgba(25,135,84,0.3);
+            color: #4ade80;
+            transition: all 0.18s ease;
+        }
+        .btn-validate:hover {
+            background: rgba(25,135,84,0.28);
+            border-color: rgba(25,135,84,0.5);
+            color: #4ade80;
+            transform: translateY(-1px);
+        }
+        .btn-reject {
+            background: rgba(220,53,69,0.12);
+            border: 1px solid rgba(220,53,69,0.25);
+            color: #f87171;
+            transition: all 0.18s ease;
+        }
+        .btn-reject:hover {
+            background: rgba(220,53,69,0.24);
+            border-color: rgba(220,53,69,0.45);
+            color: #f87171;
+            transform: translateY(-1px);
+        }
+
+        /* ── Notes block ── */
+        .notes-block {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
 
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
-            <div class="form-card w-100 mx-auto" style="max-width: 560px;">
+        <main class="app-main">
 
-                    <h4 class="mb-1">Detalle de Evidencia</h4>
-                    <p class="text-secondary-emphasis small mb-4">Información de la evidencia registrada</p>
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-                    <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show">
-                        <span th:text="${msg_success}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show">
-                        <span th:text="${msg_error}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+            <!-- Header -->
+            <div class="page-header ev-hero">
+                <div>
+                    <a th:href="@{/evidencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Evidencias
+                    </a>
+                    <h3 class="mb-1" th:text="'Evidencia #' + ${evidencia.id}">Evidencia</h3>
+                    <p class="text-body-secondary fs-6 mb-0"
+                       th:if="${evidencia.fechaSubida != null}"
+                       th:text="'Subida el ' + ${#dates.format(evidencia.fechaSubida, 'dd/MM/yyyy')}"></p>
+                    <p class="text-body-secondary fs-6 mb-0" th:unless="${evidencia.fechaSubida != null}">Sin fecha de subida registrada</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Badge de estatus grande en el header -->
+                    <span class="badge rounded-pill px-3 py-2"
+                          style="font-size:12px;"
+                          th:text="${evidencia.estatusValidacion != null ? evidencia.estatusValidacion : 'SIN ESTATUS'}"
+                          th:classappend="${evidencia.estatusValidacion == 'VALIDADA' ? 'badge-active' : (evidencia.estatusValidacion == 'RECHAZADA' ? 'badge-inactive' : 'badge-pendiente')}">
+                    </span>
+                    <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/evidencia/delete/{id}(id=${evidencia.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
 
-                    <!-- Imagen evidencia -->
-                    <div class="mb-4 text-center" th:if="${evidencia.archivoUrl != null}">
+            <!-- Preview del archivo -->
+            <div class="glass-surface ev-file mb-4" th:if="${evidencia.archivoUrl != null}">
+                <p class="section-title">Archivo adjunto</p>
+                <div class="file-preview-box">
+                    <!-- Imagen -->
+                    <th:block th:if="${#strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.jpg') or
+                                       #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.jpeg') or
+                                       #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.png') or
+                                       #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.gif') or
+                                       #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.webp')}">
                         <img th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
-                             alt="Evidencia"
-                             style="max-width:100%; max-height:250px; object-fit:contain; border-radius:8px;
-                                    border: 1px solid rgba(255,255,255,0.08);">
-                    </div>
+                             alt="Evidencia">
+                        <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                           target="_blank" class="file-preview-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Ver en pantalla completa
+                        </a>
+                    </th:block>
 
-                    <div class="vstack gap-0">
-                        <div class="detail-row">
-                            <span class="detail-label">ID</span>
-                            <span class="detail-value" th:text="${evidencia.id}"></span>
+                    <!-- PDF -->
+                    <th:block th:if="${#strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.pdf')}">
+                        <div class="file-doc-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.4">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <div class="text-center">
+                                <div class="fw-medium" style="font-size:13px; color:rgba(255,255,255,0.7);" th:text="${evidencia.archivoUrl}"></div>
+                                <small style="color:#f87171;">PDF</small>
+                            </div>
+                            <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                               target="_blank" class="btn btn-outline-secondary btn-sm mt-2">
+                                Abrir documento
+                            </a>
                         </div>
-                        <div class="detail-row">
+                    </th:block>
+
+                    <!-- Archivo genérico -->
+                    <th:block th:unless="${#strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.jpg') or
+                                          #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.jpeg') or
+                                          #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.png') or
+                                          #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.gif') or
+                                          #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.webp') or
+                                          #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.pdf')}">
+                        <div class="file-doc-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <div class="text-center">
+                                <div class="fw-medium" style="font-size:13px; color:rgba(255,255,255,0.7);" th:text="${evidencia.archivoUrl}"></div>
+                            </div>
+                            <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                               target="_blank" class="btn btn-outline-secondary btn-sm mt-2">
+                                Descargar archivo
+                            </a>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
+            <!-- Sin archivo -->
+            <div class="glass-surface ev-file mb-4" th:unless="${evidencia.archivoUrl != null}">
+                <p class="section-title">Archivo adjunto</p>
+                <div class="file-doc-icon" style="min-height:120px;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span style="font-size:13px;">Sin archivo adjunto</span>
+                </div>
+            </div>
+
+            <!-- Dos columnas: info + validación -->
+            <div class="row g-4">
+
+                <!-- Información -->
+                <div class="col-lg-7">
+                    <div class="glass-surface ev-info h-100">
+                        <p class="section-title">Información de la evidencia</p>
+
+                        <div class="detail-row" th:if="${evidencia.sesion != null}">
                             <span class="detail-label">Sesión</span>
-                            <span class="detail-value"
-                                  th:text="${evidencia.sesion != null} ? 'Semana ' + ${evidencia.sesion.semana} : 'Sin sesión'"></span>
+                            <span class="detail-value">
+                                <a class="text-decoration-none"
+                                   th:href="@{/sesion/ver/{id}(id=${evidencia.sesion.id})}"
+                                   th:text="'Semana ' + ${evidencia.sesion.semana} + ' — #' + ${evidencia.sesion.id}"></a>
+                            </span>
                         </div>
-                        <div class="detail-row">
+                        <div class="detail-row" th:unless="${evidencia.sesion != null}">
+                            <span class="detail-label">Sesión</span>
+                            <span class="detail-value text-body-secondary">Sin sesión asignada</span>
+                        </div>
+
+                        <div class="detail-row" th:if="${evidencia.sesion != null and evidencia.sesion.grupo != null}">
                             <span class="detail-label">Grupo</span>
                             <span class="detail-value"
-                                  th:text="${evidencia.sesion != null and evidencia.sesion.grupo != null} ?
-                                           ${evidencia.sesion.grupo.nombre} : '---'">
+                                  th:text="${evidencia.sesion.grupo.nombre}"></span>
+                        </div>
+
+                        <div class="detail-row"
+                             th:if="${evidencia.sesion != null and evidencia.sesion.grupo != null and evidencia.sesion.grupo.semestre != null}">
+                            <span class="detail-label">Semestre</span>
+                            <span class="detail-value">
+                                <span class="badge rounded-pill badge-sin-asignar"
+                                      th:text="${evidencia.sesion.grupo.semestre.periodo} + ' ' + ${evidencia.sesion.grupo.semestre.anio}"></span>
                             </span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Fecha subida</span>
+
+                        <div class="detail-row" th:if="${evidencia.fechaSubida != null}">
+                            <span class="detail-label">Fecha de subida</span>
                             <span class="detail-value"
-                                  th:text="${evidencia.fechaSubida != null} ? ${#dates.format(evidencia.fechaSubida, 'dd/MM/yyyy')} : '---'"></span>
+                                  th:text="${#dates.format(evidencia.fechaSubida, 'dd/MM/yyyy')}"></span>
                         </div>
+
                         <div class="detail-row">
-                            <span class="detail-label">Notas coordinador</span>
-                            <span class="detail-value"
-                                  th:text="${evidencia.notasCoordinador != null and !evidencia.notasCoordinador.isEmpty()} ? ${evidencia.notasCoordinador} : 'Sin notas'">
-                            </span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Estatus validación</span>
+                            <span class="detail-label">Estado</span>
                             <span class="badge rounded-pill"
-                                  th:text="${evidencia.estatusValidacion}"
-                                  th:classappend="${evidencia.estatusValidacion == 'VALIDADA'} ? 'badge-active' :
-                                                  (${evidencia.estatusValidacion == 'RECHAZADA'} ? 'badge-inactive' : 'bg-warning text-dark')">
+                                  th:text="${evidencia.activo == 1} ? 'Activo' : 'Inactivo'"
+                                  th:classappend="${evidencia.activo == 1} ? 'badge-active' : 'badge-inactive'">
                             </span>
                         </div>
-                        <div class="detail-row" th:if="${evidencia.fechaRegistro != null}">
+
+                        <!-- Notas del coordinador -->
+                        <div class="mt-3" th:if="${evidencia.notasCoordinador != null and !evidencia.notasCoordinador.isBlank()}">
+                            <div class="detail-label mb-2">Notas del coordinador</div>
+                            <div class="notes-block" th:text="${evidencia.notasCoordinador}"></div>
+                        </div>
+
+                        <!-- Registro -->
+                        <div class="detail-row mt-2" th:if="${evidencia.fechaRegistro != null}">
                             <span class="detail-label">Registrado</span>
                             <span class="detail-value">
                                 <div th:data-ts="${evidencia.fechaRegistro.time}">
@@ -83,31 +331,101 @@
                             </span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Acciones de validación -->
-                    <div class="mt-4 p-3 rounded-3"
-                         th:if="${evidencia.estatusValidacion == 'PENDIENTE'}"
-                         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
-                        <p class="text-body-secondary small mb-3">Acciones de validación</p>
-                        <div class="d-flex gap-2">
-                            <form th:action="@{/evidencia/validar/{id}(id=${evidencia.id})}" method="post" class="flex-grow-1">
+                <!-- Panel de validación -->
+                <div class="col-lg-5">
+                    <div class="glass-surface ev-valid h-100">
+                        <p class="section-title">Validación</p>
+
+                        <!-- Estado actual -->
+                        <!-- PENDIENTE -->
+                        <div th:if="${evidencia.estatusValidacion == 'PENDIENTE'}"
+                             class="validation-status-block pendiente">
+                            <div class="validation-icon pendiente">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px; color:#ffc107;">Pendiente de revisión</div>
+                                <small class="text-body-secondary">Esta evidencia aún no ha sido validada por el coordinador.</small>
+                            </div>
+                        </div>
+
+                        <!-- VALIDADA -->
+                        <div th:if="${evidencia.estatusValidacion == 'VALIDADA'}"
+                             class="validation-status-block validada">
+                            <div class="validation-icon validada">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px; color:#4ade80;">Evidencia validada</div>
+                                <small class="text-body-secondary">La evidencia fue aprobada por el coordinador.</small>
+                            </div>
+                        </div>
+
+                        <!-- RECHAZADA -->
+                        <div th:if="${evidencia.estatusValidacion == 'RECHAZADA'}"
+                             class="validation-status-block rechazada">
+                            <div class="validation-icon rechazada">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px; color:#f87171;">Evidencia rechazada</div>
+                                <small class="text-body-secondary">Esta evidencia fue rechazada. Revisa las notas del coordinador.</small>
+                            </div>
+                        </div>
+
+                        <!-- Acciones solo si PENDIENTE -->
+                        <div th:if="${evidencia.estatusValidacion == 'PENDIENTE'}"
+                             class="d-flex flex-column gap-2 mt-2">
+                            <form th:action="@{/evidencia/validar/{id}(id=${evidencia.id})}" method="post">
                                 <input type="hidden" name="notas" value="Evidencia aprobada por coordinador">
-                                <button type="submit" class="btn btn-success w-100 btn-sm">Validar</button>
+                                <button type="submit" class="btn btn-validate w-100">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Validar evidencia
+                                </button>
                             </form>
-                            <button type="button" class="btn btn-danger flex-grow-1 btn-sm"
-                                    data-bs-toggle="modal" data-bs-target="#rechazarModal">
-                                Rechazar
+                            <button type="button" class="btn btn-reject w-100" data-bs-toggle="modal" data-bs-target="#rechazarModal">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                Rechazar evidencia
                             </button>
                         </div>
-                    </div>
 
-                    <div class="d-flex gap-2 mt-4">
-                        <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}"
-                           class="btn btn-primary w-100">Editar</a>
-                        <a th:href="@{/evidencia}" class="btn btn-secondary w-100">Volver</a>
+                        <!-- Separador y acciones de navegación -->
+                        <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                            <p class="section-title" style="margin-bottom:10px;">Navegación</p>
+                            <div class="d-flex flex-column gap-2">
+                                <a th:href="@{/sesion/ver/{id}(id=${evidencia.sesion.id})}"
+                                   th:if="${evidencia.sesion != null}"
+                                   class="btn btn-outline-secondary btn-sm w-100 text-start">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    Ver sesión vinculada
+                                </a>
+                                <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}"
+                                   class="btn btn-outline-secondary btn-sm w-100 text-start">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                    Editar evidencia
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-            </div>
+            </div><!-- /row -->
+
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
     </div>
@@ -117,19 +435,20 @@
 <div class="modal fade" id="rechazarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title">Rechazar evidencia</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form th:action="@{/evidencia/rechazar/{id}(id=${evidencia.id})}" method="post">
                 <div class="modal-body">
+                    <p class="text-body-secondary small mb-3">Indica el motivo por el que se rechaza esta evidencia. El tutor podrá ver esta nota.</p>
                     <label for="notasRechazo" class="form-label">Motivo del rechazo</label>
                     <textarea class="form-control" id="notasRechazo" name="notas" rows="3"
                               placeholder="Describe el motivo del rechazo..." required></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger">Rechazar</button>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Confirmar rechazo</button>
                 </div>
             </form>
         </div>

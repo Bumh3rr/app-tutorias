@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sesiones</title>
+    <title>Lista de Sesiones | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
@@ -47,28 +47,33 @@
                 <h6 class="mb-3">Buscar Sesiones</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'todos' or tipoBusqueda == null} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-todos">Todas</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-grupo">Por Grupo</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'grupo'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-grupo">Por Grupo</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-semana">Por Semana</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'semana'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-semana">Por Semana</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-grupo-semana">Grupo y Semana</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'grupoSemana'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-grupo-semana">Grupo y Semana</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-estatus">Por Estatus</button>
+                        <button class="nav-link" th:classappend="${tipoBusqueda == 'estatus'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-estatus">Por Estatus</button>
                     </li>
                 </ul>
                 <div class="tab-content pt-3">
 
-                    <div class="tab-pane fade show active" id="tab-todos">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos' or tipoBusqueda == null} ? 'show active'" id="tab-todos">
                         <a th:href="@{/sesion}" class="btn btn-primary btn-sm">Ver todas</a>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-grupo">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'grupo'} ? 'show active'" id="tab-grupo">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="grupo">
                             <div class="row g-2">
@@ -89,7 +94,7 @@
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-semana">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semana'} ? 'show active'" id="tab-semana">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="semana">
                             <div class="row g-2">
@@ -110,7 +115,7 @@
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-grupo-semana">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'grupoSemana'} ? 'show active'" id="tab-grupo-semana">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="grupoSemana">
                             <div class="row g-2">
@@ -141,7 +146,7 @@
                         </form>
                     </div>
 
-                    <div class="tab-pane fade" id="tab-estatus">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'estatus'} ? 'show active'" id="tab-estatus">
                         <form method="get" th:action="@{/sesion}">
                             <input type="hidden" name="tipoBusqueda" value="estatus">
                             <div class="row g-2">
@@ -224,8 +229,7 @@
                             <td>
                                 <span class="badge rounded-pill"
                                       th:text="${sesion.estatusRegistro}"
-                                      th:classappend="${sesion.estatusRegistro == 'REALIZADA'} ? 'badge-active' :
-                                                      (${sesion.estatusRegistro == 'CANCELADA'} ? 'badge-inactive' : 'bg-warning text-dark')">
+                                      th:classappend="${sesion.estatusRegistro == 'REALIZADA' ? 'badge-active' : (sesion.estatusRegistro == 'CANCELADA' ? 'badge-inactive' : 'badge-pendiente')}">
                                 </span>
                             </td>
                             <td>
@@ -236,9 +240,9 @@
                             </td>
                             <td th:if="${sesion.fechaRegistro != null}"
                                 th:data-ts="${sesion.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
-                                <small class="d-block text-body-secondary mt-1 text-nowrap"
-                                       th:text="${#dates.format(sesion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                                <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                      data-bs-toggle="tooltip" data-bs-placement="top"
+                                      th:title="${#dates.format(sesion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
                             </td>
                             <td th:unless="${sesion.fechaRegistro != null}">
                                 <span class="badge rounded-pill badge-sin-asignar">Sin registro</span>

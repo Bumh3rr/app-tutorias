@@ -3,10 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle Grupo</title>
+    <title th:text="${grupo.nombre} + ' | Sistema Tutorías'">Detalle Grupo | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .gp-hero   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .gp-left   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .gp-right  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.13s both; }
+        .gp-bottom { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.18s both; }
+
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Info chips ── */
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.5);
+        }
+        .info-chip svg { opacity: 0.6; flex-shrink: 0; }
+
+        /* ── Tutor card (hero right) ── */
+        .tutor-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+        .tutor-card:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .tutor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        .tutor-avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.12);
+            border: 2px solid rgba(99,102,241,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── Tutorado avatar row ── */
+        .tutorado-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+
+        /* ── Schedule pills ── */
+        .schedule-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .schedule-pill svg { opacity: 0.5; }
+
+        /* ── Session week dots ── */
+        .sesion-week-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .week-cell {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.25);
+            position: relative;
+            transition: transform 0.15s ease;
+        }
+        .week-cell:hover { transform: scale(1.08); }
+        .week-cell.realizada {
+            background: rgba(34,197,94,0.1);
+            border-color: rgba(34,197,94,0.3);
+            color: rgba(34,197,94,0.9);
+        }
+        .week-cell.cancelada {
+            background: rgba(220,53,69,0.08);
+            border-color: rgba(220,53,69,0.25);
+            color: rgba(220,53,69,0.7);
+        }
+        .week-cell.pendiente {
+            background: rgba(99,102,241,0.08);
+            border-color: rgba(99,102,241,0.2);
+            color: rgba(165,180,252,0.7);
+        }
+
+        /* ── Stat chips ── */
+        .stat-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-align: center;
+            flex: 1;
+            min-width: 0;
+        }
+        .stat-mini .num {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+        .stat-mini .lbl {
+            font-size: 10px;
+            opacity: 0.4;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        /* ── Nav link items ── */
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: inherit;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link-item:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .nav-link-item .link-chevron { opacity: 0.25; margin-left: auto; transition: opacity 0.15s ease; }
+        .nav-link-item:hover .link-chevron { opacity: 0.7; }
+
+        /* ── Session list rows ── */
+        .sesion-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            transition: background 0.15s ease, border-color 0.15s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        .sesion-row:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+            color: inherit;
+        }
+        .sesion-row .semana-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,163 +224,494 @@
     <div class="app-content">
         <main class="app-main">
 
-            <div class="page-header">
-                <div>
-                    <h3 class="mb-1" th:text="${grupo.nombre}">Grupo</h3>
-                    <p class="text-body-secondary fs-6 mb-0"
-                       th:text="(${grupo.carrera != null} ? ${grupo.carrera.nombre} : '') + ' — ' + (${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : '')">
-                    </p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-primary">Editar</a>
-                    <a th:href="@{/grupo}" class="btn btn-secondary">Volver</a>
-                </div>
-            </div>
-
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
                 <span th:text="${msg_success}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4">
                 <span th:text="${msg_error}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div class="row g-4">
+            <!-- Header -->
+            <div class="page-header gp-hero">
+                <div>
+                    <a th:href="@{/grupo}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Grupos
+                    </a>
+                    <h3 class="mb-1" th:text="${grupo.nombre}">Grupo</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Detalle del grupo de tutoría.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill px-3 py-2" style="font-size:12px;"
+                          th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'"
+                          th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                    </span>
+                    <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
 
-                <!-- Datos del grupo -->
-                <div class="col-md-5">
-                    <div class="card bg-body-secondary border-0 h-100">
-                        <div class="card-body p-4">
-                            <h5 class="mb-3">Datos del Grupo</h5>
-                            <div class="detail-row">
-                                <span class="detail-label">ID</span>
-                                <span class="detail-value" th:text="${grupo.id}"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Nombre</span>
-                                <span class="detail-value" th:text="${grupo.nombre}"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Tutor</span>
-                                <span class="detail-value"
-                                      th:text="${grupo.tutor != null} ? ${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido} : 'Sin tutor'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Carrera</span>
-                                <span class="detail-value"
-                                      th:text="${grupo.carrera != null} ? ${grupo.carrera.nombre} : 'Sin carrera'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Semestre</span>
-                                <span class="detail-value"
-                                      th:text="${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : 'Sin semestre'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Aula</span>
-                                <span class="detail-value" th:text="${grupo.aula != null} ? ${grupo.aula} : '---'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Día</span>
-                                <span class="detail-value" th:text="${grupo.diaSemana != null} ? ${grupo.diaSemana} : '---'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Horario</span>
-                                <span class="detail-value" th:text="${grupo.horario != null} ? ${grupo.horario} : '---'"></span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Estado</span>
-                                <span class="badge rounded-pill"
-                                      th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'"
-                                      th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                </span>
-                            </div>
-                            <div class="detail-row" th:if="${grupo.fechaRegistro != null}">
-                                <span class="detail-label">Registrado</span>
-                                <span class="detail-value">
-                                    <div th:data-ts="${grupo.fechaRegistro.time}">
-                                        <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
-                                        <small class="d-block text-body-secondary mt-1"
-                                               th:text="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
-                                    </div>
-                                </span>
-                            </div>
+            <!-- Hero: identidad del grupo -->
+            <div class="glass-surface gp-hero mb-4">
+                <div class="d-flex align-items-start gap-4 flex-wrap">
+
+                    <!-- Icono grupo -->
+                    <div style="width:72px; height:72px; border-radius:12px; flex-shrink:0;
+                                background:rgba(99,102,241,0.1); border:2px solid rgba(99,102,241,0.2);
+                                display:flex; align-items:center; justify-content:center;">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.7)" stroke-width="1.6">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+
+                    <!-- Info principal -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h4 class="mb-0 fw-bold" th:text="${grupo.nombre}"></h4>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-body-secondary small font-monospace"
+                                  th:text="'#' + ${grupo.id}"
+                                  style="opacity:0.4;"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="info-chip" th:if="${grupo.carrera != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                <span th:text="${grupo.carrera.nombre}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${grupo.semestre != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span th:text="${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${grupo.diaSemana != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <span th:text="${grupo.diaSemana}" th:if="${grupo.horario == null}"></span>
+                                <span th:if="${grupo.horario != null}"
+                                      th:text="${grupo.diaSemana} + ' · ' + ${grupo.horario}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${grupo.aula != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                    <polyline points="9 22 9 12 15 12 15 22"/>
+                                </svg>
+                                <span th:text="'Aula ' + ${grupo.aula}"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mini stats -->
+                    <div class="d-flex gap-2 align-self-start flex-shrink-0">
+                        <div class="stat-mini">
+                            <span class="num" th:text="${tutorados != null} ? ${#lists.size(tutorados)} : 0"></span>
+                            <span class="lbl">Tutorados</span>
+                        </div>
+                        <div class="stat-mini">
+                            <span class="num" th:text="${sesiones != null} ? ${#lists.size(sesiones)} : 0"></span>
+                            <span class="lbl">Sesiones</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tres columnas superiores -->
+            <div class="row g-4 mb-4">
+
+                <!-- Info general -->
+                <div class="col-lg-4">
+                    <div class="glass-surface gp-left h-100">
+                        <p class="section-title">Información general</p>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Carrera</span>
+                            <span class="detail-value" th:if="${grupo.carrera != null}"
+                                  th:text="${grupo.carrera.nombre}"></span>
+                            <span th:unless="${grupo.carrera != null}"
+                                  class="badge rounded-pill badge-sin-asignar">Sin asignar</span>
+                        </div>
+
+                        <div class="detail-row" th:if="${grupo.carrera != null and grupo.carrera.clave != null}">
+                            <span class="detail-label">Clave</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="${grupo.carrera.clave}"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Semestre</span>
+                            <span class="detail-value" th:if="${grupo.semestre != null}"
+                                  th:text="${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio}"></span>
+                            <span th:unless="${grupo.semestre != null}"
+                                  class="badge rounded-pill badge-sin-asignar">Sin asignar</span>
+                        </div>
+
+                        <div class="detail-row" th:if="${grupo.aula != null}">
+                            <span class="detail-label">Aula</span>
+                            <span class="detail-value" th:text="${grupo.aula}"></span>
+                        </div>
+
+                        <div class="detail-row" th:if="${grupo.diaSemana != null}">
+                            <span class="detail-label">Día</span>
+                            <span class="detail-value" th:text="${grupo.diaSemana}"></span>
+                        </div>
+
+                        <div class="detail-row" th:if="${grupo.horario != null}">
+                            <span class="detail-label">Horario</span>
+                            <span class="detail-value" th:text="${grupo.horario}"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Estado</span>
+                            <span class="badge rounded-pill"
+                                  th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'"
+                                  th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                            </span>
+                        </div>
+
+                        <div class="detail-row" th:if="${grupo.fechaRegistro != null}">
+                            <span class="detail-label">Registrado</span>
+                            <span class="detail-value">
+                                <div th:data-ts="${grupo.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    <small class="d-block text-body-secondary mt-1"
+                                           th:text="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                                </div>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">ID interno</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="'#' + ${grupo.id}"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tutorados del grupo -->
-                <div class="col-md-7">
-                    <div class="card bg-body-secondary border-0">
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">Tutorados del Grupo</h5>
-                                <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}" class="btn btn-sm btn-primary">
-                                    Asignar Tutorados
-                                </a>
-                            </div>
+                <!-- Tutor + horario + acciones -->
+                <div class="col-lg-4 d-flex flex-column gap-4">
 
-                            <div th:if="${tutorados != null and !#lists.isEmpty(tutorados)}">
-                                <div class="table-wrapper">
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th>Tutorado</th>
-                                            <th>No. Control</th>
-                                            <th>Estado</th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr th:each="item : ${tutorados}">
-                                            <td>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <img th:if="${item.tutorado.foto != null}"
-                                                         th:src="@{/tutorado/{foto}(foto=${item.tutorado.foto})}"
-                                                         alt="Foto"
-                                                         class="avatar avatar-sm">
-                                                    <img th:unless="${item.tutorado.foto != null}"
-                                                         th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${item.tutorado.nombre}+${item.tutorado.apellido}|}"
-                                                         alt="Sin foto"
-                                                         class="avatar avatar-sm">
-                                                    <span th:text="${item.tutorado.nombre} + ' ' + ${item.tutorado.apellido}"></span>
-                                                </div>
-                                            </td>
-                                            <td class="text-body-secondary" th:text="${item.tutorado.numeroControl}"></td>
-                                            <td>
-                                                <span class="badge rounded-pill"
-                                                      th:text="${item.tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
-                                                      th:classappend="${item.tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <form th:action="@{/grupo/tutorado/quitar/{id}(id=${item.id})}"
-                                                      method="post" style="display:inline;">
-                                                    <input type="hidden" name="idGrupo" th:value="${grupo.id}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                            onclick="return confirm('¿Quitar este tutorado del grupo?')">
-                                                        Quitar
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                    <!-- Tutor -->
+                    <div class="glass-surface gp-left" style="animation-delay:0.05s;">
+                        <p class="section-title">Tutor asignado</p>
+
+                        <div th:if="${grupo.tutor != null}">
+                            <a th:href="@{/tutor/ver/{id}(id=${grupo.tutor.id})}" class="tutor-card mb-3">
+                                <img th:if="${grupo.tutor.foto != null}"
+                                     th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}"
+                                     alt="Foto tutor"
+                                     class="tutor-avatar">
+                                <div th:unless="${grupo.tutor.foto != null}" class="tutor-avatar-placeholder">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-semibold text-truncate" style="font-size:13.5px;"
+                                         th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></div>
+                                    <div class="text-body-secondary small font-monospace text-truncate"
+                                         th:if="${grupo.tutor.numeroControl}"
+                                         th:text="${grupo.tutor.numeroControl}"></div>
+                                </div>
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.25; flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        </div>
+                        <div th:unless="${grupo.tutor != null}"
+                             class="text-center py-3 text-body-secondary small" style="opacity:0.5;">
+                            Sin tutor asignado
+                        </div>
+
+                        <a th:href="@{/grupo/asignar-tutor/{id}(id=${grupo.id})}" class="nav-link-item mt-1">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                                <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+                            </svg>
+                            <span th:text="${grupo.tutor != null} ? 'Cambiar tutor' : 'Asignar tutor'">Asignar tutor</span>
+                            <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="glass-surface gp-left" style="animation-delay:0.09s;">
+                        <p class="section-title">Acciones</p>
+                        <div class="d-flex flex-column gap-2">
+                            <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Editar grupo
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+                                </svg>
+                                Asignar tutorados
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/sesion}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Ver sesiones
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="nav-link-item" style="color:rgba(248,113,113,0.7);">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14H6L5 6"/>
+                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                                Eliminar grupo
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Vista general sesiones (semanas) -->
+                <div class="col-lg-4">
+                    <div class="glass-surface gp-right h-100">
+                        <p class="section-title">Estado de sesiones · semanas 1–10</p>
+
+                        <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}">
+                            <div class="sesion-week-grid mb-3">
+                                <div th:each="w : ${#numbers.sequence(1, 10)}">
+                                    <!-- buscar si hay sesión para esa semana -->
+                                    <div th:with="found=${false}">
+                                        <div th:each="s : ${sesiones}" th:if="${s.semana == w}">
+                                            <div class="week-cell"
+                                                 th:classappend="${s.estatusRegistro == 'REALIZADA' ? 'realizada' : (s.estatusRegistro == 'CANCELADA' ? 'cancelada' : 'pendiente')}"
+                                                 th:text="${w}"
+                                                 data-bs-toggle="tooltip" data-bs-placement="top"
+                                                 th:title="${'Semana ' + w + ' · ' + s.estatusRegistro}">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div th:unless="${tutorados != null and !#lists.isEmpty(tutorados)}"
-                                 class="text-center py-4 text-body-secondary">
-                                <p class="mb-2">No hay tutorados asignados a este grupo.</p>
-                                <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary">
-                                    Asignar ahora
-                                </a>
+                            <!-- Leyenda -->
+                            <div class="d-flex flex-wrap gap-2 mb-3" style="font-size:11px;">
+                                <span class="d-flex align-items-center gap-1">
+                                    <span style="width:10px;height:10px;border-radius:3px;background:rgba(34,197,94,0.4);display:inline-block;"></span>
+                                    Realizada
+                                </span>
+                                <span class="d-flex align-items-center gap-1">
+                                    <span style="width:10px;height:10px;border-radius:3px;background:rgba(99,102,241,0.4);display:inline-block;"></span>
+                                    Pendiente
+                                </span>
+                                <span class="d-flex align-items-center gap-1">
+                                    <span style="width:10px;height:10px;border-radius:3px;background:rgba(220,53,69,0.4);display:inline-block;"></span>
+                                    Cancelada
+                                </span>
+                            </div>
+                        </div>
+
+                        <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}"
+                             class="text-center py-4 text-body-secondary" style="opacity:0.45;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <small>Sin sesiones registradas</small>
+                        </div>
+
+                        <!-- Resumen contadores -->
+                        <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}" class="d-flex gap-2">
+                            <div class="stat-mini">
+                                <span class="num text-success"
+                                      th:text="${#lists.size(sesiones.?[estatusRegistro == 'REALIZADA'])}">0</span>
+                                <span class="lbl">Realizadas</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="num" style="color:#a5b4fc;"
+                                      th:text="${#lists.size(sesiones.?[estatusRegistro != 'REALIZADA' and estatusRegistro != 'CANCELADA'])}">0</span>
+                                <span class="lbl">Pendientes</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="num text-danger"
+                                      th:text="${#lists.size(sesiones.?[estatusRegistro == 'CANCELADA'])}">0</span>
+                                <span class="lbl">Canceladas</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
             </div>
+
+            <!-- Fila inferior: tutorados + sesiones detalladas -->
+            <div class="row g-4 gp-bottom">
+
+                <!-- Tutorados -->
+                <div class="col-lg-6">
+                    <div class="glass-surface h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <p class="section-title mb-0">Tutorados del grupo
+                                <span class="ms-1 badge bg-secondary rounded-pill"
+                                      style="font-size:10px; vertical-align:middle;"
+                                      th:if="${tutorados != null}"
+                                      th:text="${#lists.size(tutorados)}">
+                                </span>
+                            </p>
+                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}"
+                               class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                                + Asignar
+                            </a>
+                        </div>
+
+                        <div th:if="${tutorados != null and !#lists.isEmpty(tutorados)}">
+                            <div class="table-wrapper">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Tutorado</th>
+                                        <th>No. Control</th>
+                                        <th>Estado</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="item : ${tutorados}">
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img th:if="${item.tutorado.foto != null}"
+                                                     th:src="@{/tutorado/{foto}(foto=${item.tutorado.foto})}"
+                                                     alt="Foto"
+                                                     class="tutorado-avatar">
+                                                <img th:unless="${item.tutorado.foto != null}"
+                                                     th:src="@{|https://ui-avatars.com/api/?size=60&background=random&color=fff&rounded=true&bold=true&name=${item.tutorado.nombre}+${item.tutorado.apellido}|}"
+                                                     alt="Avatar"
+                                                     class="tutorado-avatar">
+                                                <a th:href="@{/tutorado/ver/{id}(id=${item.tutorado.id})}"
+                                                   class="text-decoration-none"
+                                                   th:text="${item.tutorado.nombre} + ' ' + ${item.tutorado.apellido}"
+                                                   style="font-size:13px;"></a>
+                                            </div>
+                                        </td>
+                                        <td class="text-body-secondary font-monospace small"
+                                            th:text="${item.tutorado.numeroControl}"></td>
+                                        <td>
+                                            <span class="badge rounded-pill"
+                                                  th:text="${item.tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
+                                                  th:classappend="${item.tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/grupo/tutorado/quitar/{id}(id=${item.id})}"
+                                                  method="post" style="display:inline;">
+                                                <input type="hidden" name="idGrupo" th:value="${grupo.id}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('¿Quitar este tutorado del grupo?')">
+                                                    Quitar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div th:unless="${tutorados != null and !#lists.isEmpty(tutorados)}"
+                             class="text-center py-5" style="opacity:0.45;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            <p class="small mb-2">No hay tutorados asignados</p>
+                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}"
+                               class="btn btn-sm btn-outline-primary">Asignar ahora</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sesiones -->
+                <div class="col-lg-6">
+                    <div class="glass-surface h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <p class="section-title mb-0">Sesiones registradas
+                                <span class="ms-1 badge bg-secondary rounded-pill"
+                                      style="font-size:10px; vertical-align:middle;"
+                                      th:if="${sesiones != null}"
+                                      th:text="${#lists.size(sesiones)}">
+                                </span>
+                            </p>
+                            <a th:href="@{/sesion/agregar}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                                + Nueva
+                            </a>
+                        </div>
+
+                        <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}"
+                             class="d-flex flex-column gap-2">
+                            <a th:each="s : ${sesiones}"
+                               th:href="@{/sesion/ver/{id}(id=${s.id})}"
+                               class="sesion-row">
+                                <!-- Semana badge -->
+                                <div class="semana-badge"
+                                     th:classappend="${s.estatusRegistro == 'REALIZADA' ? 'realizada' : (s.estatusRegistro == 'CANCELADA' ? 'cancelada' : 'pendiente')}"
+                                     th:style="${s.estatusRegistro == 'REALIZADA'} ? 'background:rgba(34,197,94,0.12);color:rgba(34,197,94,0.9);'
+                                               : (${s.estatusRegistro == 'CANCELADA'} ? 'background:rgba(220,53,69,0.1);color:rgba(220,53,69,0.8);'
+                                               : 'background:rgba(99,102,241,0.1);color:#a5b4fc;')"
+                                     th:text="${s.semana}">
+                                </div>
+                                <!-- Info -->
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-medium" style="font-size:13px;"
+                                         th:text="'Semana ' + ${s.semana}
+                                                  + (${s.actividad != null} ? ' · ' + ${s.actividad.nombre} : '')">
+                                    </div>
+                                    <div class="text-body-secondary" style="font-size:11.5px;"
+                                         th:if="${s.fechaImparticion != null}"
+                                         th:text="${#dates.format(s.fechaImparticion, 'dd/MM/yyyy')}">
+                                    </div>
+                                </div>
+                                <!-- Estatus badge -->
+                                <span class="badge rounded-pill flex-shrink-0"
+                                      th:text="${s.estatusRegistro}"
+                                      th:classappend="${s.estatusRegistro == 'REALIZADA' ? 'badge-active' : (s.estatusRegistro == 'CANCELADA' ? 'badge-inactive' : 'badge-pendiente')}">
+                                </span>
+                            </a>
+                        </div>
+
+                        <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}"
+                             class="text-center py-5" style="opacity:0.45;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <p class="small mb-2">No hay sesiones registradas</p>
+                            <a th:href="@{/sesion/agregar}" class="btn btn-sm btn-outline-primary">Nueva sesión</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /row bottom -->
 
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
@@ -181,5 +721,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    });
+</script>
 </body>
 </html>

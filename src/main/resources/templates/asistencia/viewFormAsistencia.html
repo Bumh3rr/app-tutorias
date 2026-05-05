@@ -15,8 +15,10 @@
     <div class="app-content">
         <main class="app-main d-flex justify-content-center align-items-start">
             <div class="form-card w-100 mx-auto" style="max-width: 560px;">
-                <h3 class="text-center mb-4"
-                    th:text="${isEdit} ? 'Editar Asistencia' : 'Agregar Asistencia'"></h3>
+                <div class="mb-4 text-center">
+                    <h3 class="mb-1" th:text="${isEdit} ? 'Editar Asistencia' : 'Agregar Asistencia'"></h3>
+                    <p class="text-body-secondary fs-6 mb-0">Registra o edita una asistencia individual.</p>
+                </div>
 
                 <form method="post"
                       th:object="${asistencia}"

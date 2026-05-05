@@ -3,92 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle PAT</title>
+    <title th:text="${pat.nombre} + ' | Sistema Tutorías'">Detalle PAT | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .pt-hero  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .pt-left  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .pt-right { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.13s both; }
+
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Thumbnail hero ── */
+        .thumb-hero {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .thumb-hero:hover {
+            border-color: rgba(255,255,255,0.28);
+            transform: scale(1.04);
+        }
+        .thumb-placeholder {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.08);
+            background: rgba(99,102,241,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── Info chips ── */
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.5);
+        }
+        .info-chip svg { opacity: 0.6; flex-shrink: 0; }
+
+        /* ── Tipo badge variants ── */
+        .tipo-badge-general {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 99px;
+            background: rgba(99,102,241,0.14);
+            color: #a5b4fc;
+            border: 1px solid rgba(99,102,241,0.25);
+            letter-spacing: 0.02em;
+        }
+        .tipo-badge-carrera {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 99px;
+            background: rgba(100,116,139,0.14);
+            color: rgba(203,213,225,0.85);
+            border: 1px solid rgba(100,116,139,0.25);
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Content block ── */
+        .content-block {
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.7);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ── Tipo info card ── */
+        .tipo-info-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+        }
+        .tipo-info-card--general {
+            background: rgba(99,102,241,0.07);
+            border: 1px solid rgba(99,102,241,0.18);
+        }
+        .tipo-info-card--carrera {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .tipo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .tipo-icon--general { background: rgba(99,102,241,0.15); }
+        .tipo-icon--carrera { background: rgba(255,255,255,0.06); }
+
+        /* ── Image preview ── */
+        .pat-img-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.25s ease, border-color 0.2s ease;
+            display: block;
+        }
+        .pat-img-preview:hover {
+            transform: scale(1.015);
+            border-color: rgba(255,255,255,0.18);
+        }
+        .pat-img-placeholder {
+            width: 100%;
+            height: 140px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* ── Nav link items ── */
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: inherit;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link-item:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .nav-link-item .link-chevron { opacity: 0.25; margin-left: auto; transition: opacity 0.15s ease; }
+        .nav-link-item:hover .link-chevron { opacity: 0.7; }
+    </style>
 </head>
 <body>
 
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
+        <main class="app-main">
 
-            <div class="form-card w-100 mx-auto" style="max-width: 540px;">
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-                <!-- Imagen y nombre -->
-                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
-                     style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+            <!-- Header -->
+            <div class="page-header pt-hero">
+                <div>
+                    <a th:href="@{/pat}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        PATs
+                    </a>
+                    <h3 class="mb-1">Detalle del PAT</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Plan de Acción Tutorial registrado.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Tipo -->
+                    <span th:if="${pat.esGeneral == 1}" class="tipo-badge-general">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        General
+                    </span>
+                    <span th:unless="${pat.esGeneral == 1}" class="tipo-badge-carrera">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                        Por carrera
+                    </span>
+                    <!-- Activo -->
+                    <span class="badge rounded-pill px-3 py-2" style="font-size:12px;"
+                          th:text="${pat.activo == 1} ? 'Activo' : 'Inactivo'"
+                          th:classappend="${pat.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                    </span>
+                    <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/pat/delete/{id}(id=${pat.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
+
+            <!-- Hero: identidad del PAT -->
+            <div class="glass-surface pt-hero mb-4">
+                <div class="d-flex align-items-start gap-4 flex-wrap">
+
+                    <!-- Thumbnail -->
                     <img th:if="${pat.foto != null}"
                          th:src="@{/pat/{foto}(foto=${pat.foto})}"
-                         alt="Foto"
-                         style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
-                    <img th:unless="${pat.foto != null}"
-                         th:src="@{/images/utils/sin_imagen.png}"
-                         alt="Sin foto"
-                         style="width:72px; height:72px; object-fit:cover; border-radius:8px;">
-                    <div>
-                        <h5 class="mb-1 fw-semibold" th:text="${pat.nombre}"></h5>
-                        <small class="text-secondary font-monospace"
-                               th:text="'ID: #' + ${pat.id}"></small>
+                         alt="Imagen PAT"
+                         class="thumb-hero">
+                    <div th:unless="${pat.foto != null}" class="thumb-placeholder">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.6)" stroke-width="1.5">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
                     </div>
+
+                    <!-- Nombre y contexto -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h4 class="mb-0 fw-bold" th:text="${pat.nombre}"></h4>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-body-secondary small font-monospace"
+                                  th:text="'#' + ${pat.id}"
+                                  style="opacity:0.4;"></span>
+                        </div>
+                        <!-- Meta chips -->
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="info-chip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                                <span th:text="${pat.esGeneral == 1} ? 'General' : 'Por carrera'"></span>
+                            </span>
+                            <span class="info-chip" th:if="${pat.carrera != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                <span th:text="${pat.carrera.nombre}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${pat.semestre != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span th:text="${pat.semestre.periodo} + ' ' + ${pat.semestre.anio}"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dos columnas -->
+            <div class="row g-4">
+
+                <!-- Columna izquierda -->
+                <div class="col-lg-7 d-flex flex-column gap-4">
+
+                    <!-- Descripción -->
+                    <div class="glass-surface pt-left"
+                         th:if="${pat.descripcion != null and !pat.descripcion.isEmpty()}">
+                        <p class="section-title">Descripción</p>
+                        <div class="content-block" th:text="${pat.descripcion}"></div>
+                    </div>
+
+                    <!-- Tipo de PAT -->
+                    <div class="glass-surface pt-left" style="animation-delay:0.08s;">
+                        <p class="section-title">Tipo de plan</p>
+
+                        <!-- General -->
+                        <div th:if="${pat.esGeneral == 1}" class="tipo-info-card tipo-info-card--general">
+                            <div class="tipo-icon tipo-icon--general">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.8">
+                                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px; color:#a5b4fc;">PAT General</div>
+                                <div class="text-body-secondary small mt-1">
+                                    Este plan aplica para todas las carreras y no está limitado a una carrera específica.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Por carrera -->
+                        <div th:unless="${pat.esGeneral == 1}" class="tipo-info-card tipo-info-card--carrera">
+                            <div class="tipo-icon tipo-icon--carrera">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.8">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px;">PAT por carrera</div>
+                                <div class="text-body-secondary small mt-1">
+                                    Este plan está diseñado específicamente para
+                                    <span th:if="${pat.carrera != null}"
+                                          class="fw-medium"
+                                          th:text="${pat.carrera.nombre}"></span>
+                                    <span th:unless="${pat.carrera != null}">una carrera</span>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asignación académica -->
+                    <div class="glass-surface pt-left" style="animation-delay:0.12s;">
+                        <p class="section-title">Asignación académica</p>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Carrera</span>
+                            <span class="detail-value" th:if="${pat.carrera != null}"
+                                  th:text="${pat.carrera.nombre}"></span>
+                            <span th:unless="${pat.carrera != null}"
+                                  class="badge rounded-pill badge-sin-asignar">General / Todas</span>
+                        </div>
+
+                        <div class="detail-row" th:if="${pat.carrera != null and pat.carrera.clave != null}">
+                            <span class="detail-label">Clave carrera</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="${pat.carrera.clave}"></span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Semestre</span>
+                            <span class="detail-value" th:if="${pat.semestre != null}"
+                                  th:text="${pat.semestre.periodo} + ' ' + ${pat.semestre.anio}"></span>
+                            <span th:unless="${pat.semestre != null}"
+                                  class="badge rounded-pill badge-sin-asignar">Sin asignar</span>
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <!-- Datos -->
-                <div class="vstack gap-0">
-                    <div class="detail-row">
-                        <span class="detail-label">Descripción</span>
-                        <span class="detail-value" th:text="${pat.descripcion}"></span>
+                <!-- Columna derecha -->
+                <div class="col-lg-5 d-flex flex-column gap-4">
+
+                    <!-- Imagen -->
+                    <div class="glass-surface pt-right">
+                        <p class="section-title">Imagen</p>
+                        <img th:if="${pat.foto != null}"
+                             th:src="@{/pat/{foto}(foto=${pat.foto})}"
+                             alt="Imagen PAT"
+                             class="pat-img-preview">
+                        <div th:unless="${pat.foto != null}" class="pat-img-placeholder">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            <span style="font-size:12px;">Sin imagen registrada</span>
+                        </div>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Tipo</span>
-                        <span class="detail-value">
-                            <span class="badge rounded-pill"
-                                  th:text="${pat.esGeneral == 1} ? 'General' : 'Por carrera'"
-                                  th:classappend="${pat.esGeneral == 1} ? 'bg-primary' : 'bg-secondary'">
+
+                    <!-- Registro + acciones -->
+                    <div class="glass-surface pt-right" style="animation-delay:0.08s;">
+                        <p class="section-title">Registro</p>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Tipo</span>
+                            <span th:if="${pat.esGeneral == 1}" class="tipo-badge-general">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                                General
                             </span>
-                        </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Carrera</span>
-                        <span class="detail-value"
-                              th:text="${pat.carrera != null} ? ${pat.carrera.nombre} : 'General'"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Semestre</span>
-                        <span class="detail-value"
-                              th:text="${pat.semestre != null} ? ${pat.semestre.periodo} + ' ' + ${pat.semestre.anio} : 'Sin asignar'"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Estado</span>
-                        <span class="detail-value">
+                            <span th:unless="${pat.esGeneral == 1}" class="tipo-badge-carrera">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                Por carrera
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Estado</span>
                             <span class="badge rounded-pill"
                                   th:text="${pat.activo == 1} ? 'Activo' : 'Inactivo'"
                                   th:classappend="${pat.activo == 1} ? 'badge-active' : 'badge-inactive'">
                             </span>
-                        </span>
-                    </div>
-                    <div class="detail-row" th:if="${pat.fechaRegistro != null}">
-                        <span class="detail-label">Registrado</span>
-                        <span class="detail-value">
-                            <div th:data-ts="${pat.fechaRegistro.time}">
-                                <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
-                                <small class="d-block text-body-secondary mt-1"
-                                       th:text="${#dates.format(pat.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                        </div>
+
+                        <div class="detail-row" th:if="${pat.fechaRegistro != null}">
+                            <span class="detail-label">Registrado</span>
+                            <span class="detail-value">
+                                <div th:data-ts="${pat.fechaRegistro.time}">
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(pat.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                                    <small class="d-block text-body-secondary mt-1"
+                                           th:text="${#dates.format(pat.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
+                                </div>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">ID interno</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="'#' + ${pat.id}"></span>
+                        </div>
+
+                        <div class="pt-3 mt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div class="d-flex flex-column gap-2">
+                                <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}"
+                                   class="nav-link-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                    Editar PAT
+                                    <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                </a>
+                                <a th:href="@{/actividad}" class="nav-link-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                                        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                                    </svg>
+                                    Ver actividades
+                                    <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                </a>
+                                <a th:href="@{/pat/delete/{id}(id=${pat.id})}"
+                                   class="nav-link-item" style="color: rgba(248,113,113,0.7);">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14H6L5 6"/>
+                                        <path d="M10 11v6"/><path d="M14 11v6"/>
+                                        <path d="M9 6V4h6v2"/>
+                                    </svg>
+                                    Eliminar PAT
+                                    <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                </a>
                             </div>
-                        </span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Botones -->
-                <div class="d-flex gap-2 mt-4">
-                    <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}"
-                       class="btn btn-primary w-100">Editar</a>
-                    <a th:href="@{/pat}" class="btn btn-secondary w-100">Volver</a>
                 </div>
-
-            </div>
+            </div><!-- /row -->
 
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>

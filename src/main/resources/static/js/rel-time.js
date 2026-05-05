@@ -55,5 +55,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         apply();
         setInterval(apply, 30000);
+        document.querySelectorAll('.rel-badge[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
     });
 })();

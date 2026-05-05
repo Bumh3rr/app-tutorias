@@ -1,702 +1,1028 @@
-# App Tutorias — Documentación del Proyecto
+# Sistema de Tutorías — Documentación del Proyecto
 
-Sistema de gestión de tutorías para el Tecnológico de Chilpancingo, construido con Spring Boot 3.5.13 y MySQL.
+## Stack Tecnológico
 
----
+| Capa | Tecnología |
+|---|---|
+| Backend | Spring Boot 3.5.13 · Java 17 |
+| Persistencia | Spring Data JPA · Hibernate · MySQL |
+| Vistas | Thymeleaf 3.1.3 · Bootstrap 5.3 · Inter font |
+| Validación | Jakarta Validation (Bean Validation 3) |
+| Utilidades | Lombok · Spring DevTools · Spring Multipart |
+| Build | Maven |
 
-## Tecnologías
-
-| Componente      | Tecnología                          |
-|-----------------|-------------------------------------|
-| Backend         | Java 17 + Spring Boot 3.5.13        |
-| Persistencia    | Spring Data JPA + Hibernate + MySQL |
-| Vistas          | Thymeleaf + Bootstrap 5.3.8         |
-| Build           | Maven                               |
-| Boilerplate     | Lombok                              |
-| Archivos        | Almacenamiento local configurable   |
-
-**Configuración clave (`application.properties`):**
-- Puerto: `$PORT` (default 8080)
-- Base de datos: variables de entorno `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DB`, `MYSQL_USER`, `MYSQL_PASSWORD`
-- DDL: `create-drop` (regenera esquema en cada inicio)
-- Zona horaria: `America/Mexico_City`
-- Subida de archivos: máx 10 MB por archivo, 20 MB por request
-- Ruta de archivos locales: `$FILE_UPLOAD_PATH`
+**Paquete base:** `com.bumh3r`  
+**Puerto por defecto:** `8080`
 
 ---
 
-## Arquitectura General
+## Estructura de Paquetes
 
 ```
-Controller → Service (Interface + Impl) → Repository (JpaRepository) → Entidad (JPA)
-                                                                          ↕
-                                                               MySQL Database
+com.bumh3r/
+├── controller/          17 controladores MVC
+├── dto/                 2 objetos de transferencia
+├── entity/              14 entidades JPA
+├── repository/          14 interfaces JPA
+├── service/             14 interfaces de servicio
+│   ├── enums/           FileType enum
+│   ├── impl/            14 implementaciones
+│   └── utils/           PaginationUtil
+└── AppTutoriasApplication.java
 ```
-
-**Patrón de soft delete:** todas las entidades tienen campo `activo` (Integer 0/1). Los registros eliminados se marcan con `activo=0` y se excluyen de las búsquedas.
 
 ---
 
 ## Entidades
 
-### Carrera
-**Tabla:** `carrera`
-
-| Campo    | Tipo    | Descripción           |
-|----------|---------|-----------------------|
-| id       | Integer | PK, autoincremental   |
-| nombre   | String  | Nombre de la carrera  |
-| clave    | String  | Clave institucional   |
-| activo   | Integer | Soft delete (0/1)     |
-
-**Relaciones:** 1-N con Tutor, Tutorado, PAT, CoordinadorCarrera
-
----
-
-### Semestre
-**Tabla:** `semestre`
-
-| Campo   | Tipo    | Descripción          |
-|---------|---------|----------------------|
-| id      | Integer | PK, autoincremental  |
-| periodo | String  | Ej: "Enero-Junio"    |
-| anio    | Integer | Año del semestre     |
-| activo  | Integer | Soft delete (0/1)    |
-
-**Relaciones:** 1-N con Tutor, Tutorado, PAT, AsignacionTutorado, CoordinadorCarrera
-
----
-
 ### Tutor
 **Tabla:** `tutor`
 
-| Campo         | Tipo     | Descripción                              |
-|---------------|----------|------------------------------------------|
-| id            | Integer  | PK, autoincremental                      |
-| nombre        | String   | Nombre(s)                                |
-| apellido      | String   | Apellidos                                |
-| numeroControl | String   | Número de control institucional          |
-| email         | String   | Correo electrónico                       |
-| foto          | String   | Nombre del archivo de foto               |
-| aula          | String   | Aula asignada para tutoría               |
-| horario       | String   | Horario de atención                      |
-| diaSemana     | Enum     | LUNES, MARTES, MIERCOLES, JUEVES, VIERNES|
-| activo        | Integer  | Soft delete (0/1)                        |
-
-**Relaciones:**
-- `@ManyToOne` → Carrera (`id_carrera`)
-- `@ManyToOne` → Semestre (`id_semestre`)
-
-**Regla de negocio:** no pueden existir dos tutores con el mismo aula + día + horario activos simultáneamente.
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK, autoincremental |
+| nombre | String | NotBlank, solo letras |
+| apellido | String | NotBlank, solo letras |
+| numeroControl | String | NotBlank, solo dígitos |
+| email | String | NotBlank, formato email |
+| foto | String | Nullable (nombre de archivo) |
+| activo | Integer | 1=activo, 0=inactivo |
+| fechaRegistro | Date | CreationTimestamp, no editable |
 
 ---
 
 ### Tutorado
 **Tabla:** `tutorado`
 
-| Campo         | Tipo    | Descripción                       |
-|---------------|---------|-----------------------------------|
-| id            | Integer | PK, autoincremental               |
-| nombre        | String  | Nombre(s)                         |
-| apellido      | String  | Apellidos                         |
-| numeroControl | String  | Número de control                 |
-| email         | String  | Correo electrónico                |
-| foto          | String  | Nombre del archivo de foto        |
-| grado         | Integer | 1=primer semestre, 2=segundo      |
-| activo        | Integer | Soft delete (0/1)                 |
-
-**Relaciones:**
-- `@ManyToOne` → Carrera (`id_carrera`)
-- `@ManyToOne` → Semestre (`id_semestre`)
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK, autoincremental |
+| nombre | String | NotBlank, solo letras |
+| apellido | String | NotBlank, solo letras |
+| numeroControl | String | NotBlank, solo dígitos |
+| email | String | NotBlank, formato email |
+| foto | String | Nullable |
+| carrera | Carrera | ManyToOne (id_carrera) |
+| grado | Integer | Nullable |
+| activo | Integer | 1=activo, 0=inactivo |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
-### PAT (Plan de Asesorías y Tutorías)
-**Tabla:** `pat`
+### Grupo
+**Tabla:** `grupo`
 
-| Campo       | Tipo    | Descripción                       |
-|-------------|---------|-----------------------------------|
-| id          | Integer | PK, autoincremental               |
-| nombre      | String  | Nombre del PAT                    |
-| descripcion | String  | Descripción                       |
-| foto        | String  | Nombre del archivo de imagen      |
-| esGeneral   | Integer | 1=aplica a todas las carreras     |
-| activo      | Integer | Soft delete (0/1)                 |
-
-**Relaciones:**
-- `@ManyToOne` → Semestre (`id_semestre`)
-- `@ManyToOne` → Carrera (`id_carrera`)
-- 1-N con Actividad
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| nombre | String | NotBlank |
+| tutor | Tutor | ManyToOne (id_tutor), nullable |
+| semestre | Semestre | ManyToOne (id_semestre) |
+| carrera | Carrera | ManyToOne (id_carrera) |
+| aula | String | Nullable |
+| diaSemana | String | Nullable |
+| horario | String | Nullable |
+| activo | Integer | 1=activo |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
-### Actividad
-**Tabla:** `actividad`
+### GrupoTutorado
+**Tabla:** `grupo_tutorado` — Relación muchos-a-muchos entre Grupo y Tutorado
 
-| Campo       | Tipo    | Descripción                  |
-|-------------|---------|------------------------------|
-| id          | Integer | PK, autoincremental          |
-| nombre      | String  | Nombre de la actividad       |
-| descripcion | String  | Descripción                  |
-| fecha       | Date    | Fecha programada             |
-| semana      | Integer | Semana del semestre          |
-| foto        | String  | Nombre del archivo de imagen |
-| activo      | Integer | Soft delete (0/1)            |
-
-**Relaciones:**
-- `@ManyToOne` → PAT (`id_pat`)
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | Integer | PK |
+| grupo | Grupo | ManyToOne (id_grupo) |
+| tutorado | Tutorado | ManyToOne (id_tutorado) |
+| activo | Integer | 1=activo |
 
 ---
 
 ### Sesion
 **Tabla:** `sesion`
 
-| Campo            | Tipo    | Descripción                                |
-|------------------|---------|--------------------------------------------|
-| id               | Integer | PK, autoincremental                        |
-| semana           | Integer | Semana del semestre                        |
-| fechaImparticion | Date    | Fecha en que se impartió                   |
-| estatusRegistro  | String  | Estado: PROGRAMADA, IMPARTIDA, CANCELADA   |
-| activo           | Integer | Soft delete (0/1)                          |
-
-**Relaciones:**
-- `@ManyToOne` → Tutor (`id_tutor`)
-- `@ManyToOne` → Actividad (`id_actividad`)
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| grupo | Grupo | ManyToOne (id_grupo) |
+| actividad | Actividad | ManyToOne (id_actividad) |
+| semana | Integer | NotNull, 1-10 |
+| fechaImparticion | Date | NotNull |
+| estatusRegistro | String | `PENDIENTE` / `REALIZADA` / `CANCELADA` |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
-### AsignacionTutorado
-**Tabla:** `asignacion_tutorado`
+### PAT (Plan de Acción Tutorial)
+**Tabla:** `pat`
 
-| Campo  | Tipo    | Descripción         |
-|--------|---------|---------------------|
-| id     | Integer | PK, autoincremental |
-| activo | Integer | Soft delete (0/1)   |
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| nombre | String | NotBlank |
+| descripcion | String | Nullable |
+| foto | String | Nullable |
+| semestre | Semestre | ManyToOne (id_semestre) |
+| carrera | Carrera | ManyToOne (id_carrera), nullable si esGeneral=1 |
+| esGeneral | Integer | NotNull — 1=general, 0=por carrera |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
-**Relaciones:**
-- `@ManyToOne` → Tutor (`id_tutor`)
-- `@ManyToOne` → Tutorado (`id_tutorado`)
-- `@ManyToOne` → Semestre (`id_semestre`)
+---
 
-**Regla de negocio:** no se puede asignar el mismo tutorado al mismo tutor en el mismo semestre dos veces.
+### Actividad
+**Tabla:** `actividad`
+
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| nombre | String | NotBlank |
+| descripcion | String | Nullable |
+| fecha | Date | NotNull |
+| semana | Integer | NotNull, 1-10 |
+| foto | String | Nullable |
+| pat | PAT | ManyToOne (id_pat) |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
 ### Asistencia
 **Tabla:** `asistencia`
 
-| Campo       | Tipo    | Descripción                              |
-|-------------|---------|------------------------------------------|
-| id          | Integer | PK, autoincremental                      |
-| presente    | Integer | 1=estuvo presente en la sesión           |
-| recuperada  | Integer | 1=asistencia recuperada posteriormente   |
-| activo      | Integer | Soft delete (0/1)                        |
-
-**Relaciones:**
-- `@ManyToOne` → Sesion (`id_sesion`)
-- `@ManyToOne` → Tutorado (`id_tutorado`)
-
-**Regla de negocio:** para acreditar se requiere ≥ 80% de asistencia sobre 10 sesiones (presentes + recuperadas).
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | Integer | PK |
+| sesion | Sesion | ManyToOne (id_sesion) |
+| tutorado | Tutorado | ManyToOne (id_tutorado) |
+| presente | Integer | 1=presente, 0=ausente |
+| recuperada | Integer | 1=asistencia recuperada |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
 ### DeteccionNecesidades
 **Tabla:** `deteccion_necesidades`
 
-| Campo               | Tipo    | Descripción                         |
-|---------------------|---------|-------------------------------------|
-| id                  | Integer | PK, autoincremental                 |
-| necesidadAlgebra    | Integer | 1=detectada                         |
-| necesidadCalculo    | Integer | 1=detectada                         |
-| necesidadDerecho    | Integer | 1=detectada                         |
-| necesidadOtra       | String  | Descripción de otra necesidad       |
-| necesidadEconomica  | Integer | 1=detectada                         |
-| necesidadPsicologica| Integer | 1=detectada                         |
-| observaciones       | String  | Observaciones generales             |
-| fechaAplicacion     | Date    | Fecha de la evaluación              |
-| activo              | Integer | Soft delete (0/1)                   |
-
-**Relaciones:**
-- `@ManyToOne` → Tutorado (`id_tutorado`)
-- `@ManyToOne` → Sesion (`id_sesion`)
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | Integer | PK |
+| tutorado | Tutorado | ManyToOne (id_tutorado) |
+| sesion | Sesion | ManyToOne (id_sesion) |
+| necesidadAlgebra | Integer | 1=necesita apoyo |
+| necesidadCalculo | Integer | 1=necesita apoyo |
+| necesidadDerecho | Integer | 1=necesita apoyo en Intro. Derecho |
+| necesidadOtra | String | Texto libre, nullable |
+| necesidadEconomica | Integer | 1=apoyo economico |
+| necesidadPsicologica | Integer | 1=apoyo psicologico |
+| observaciones | String | Texto libre, nullable |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
 ### EvidenciaSesion
 **Tabla:** `evidencia_sesion`
 
-| Campo              | Tipo    | Descripción                              |
-|--------------------|---------|------------------------------------------|
-| id                 | Integer | PK, autoincremental                      |
-| archivoUrl         | String  | Ruta del archivo subido                  |
-| notasCoordinador   | String  | Notas de revisión del coordinador        |
-| estatusValidacion  | String  | PENDIENTE, VALIDADA, RECHAZADA           |
-| fechaSubida        | Date    | Fecha de carga del archivo               |
-| activo             | Integer | Soft delete (0/1)                        |
-
-**Relaciones:**
-- `@ManyToOne` → Sesion (`id_sesion`)
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | Integer | PK |
+| sesion | Sesion | ManyToOne (id_sesion) |
+| archivoUrl | String | Nombre de archivo almacenado |
+| notasCoordinador | String | Nullable |
+| estatusValidacion | String | `PENDIENTE` / `VALIDADA` / `RECHAZADA` |
+| fechaSubida | Date | Se asigna en el controller |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
 ### ReporteSesion
 **Tabla:** `reporte_sesion`
 
-| Campo                | Tipo    | Descripción                              |
-|----------------------|---------|------------------------------------------|
-| id                   | Integer | PK, autoincremental                      |
-| descripcionActividad | TEXT    | Descripción de lo realizado              |
-| observaciones        | TEXT    | Observaciones del tutor                  |
-| alumnosPresentes     | Integer | Número de alumnos que asistieron         |
-| fechaEntrega         | Date    | Fecha de entrega del reporte             |
-| estatusRevision      | String  | PENDIENTE, EN_REVISION, APROBADO, RECHAZADO |
-| activo               | Integer | Soft delete (0/1)                        |
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | Integer | PK |
+| sesion | Sesion | OneToOne (id_sesion) |
+| descripcionActividad | String | TEXT |
+| observaciones | String | TEXT |
+| alumnosPresentes | Integer | |
+| fechaEntrega | Date | |
+| estatusRevision | String | Estado de revision del reporte |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
-**Relaciones:**
-- `@OneToOne` → Sesion (`id_sesion`)
+---
+
+### Semestre
+**Tabla:** `semestre`
+
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| periodo | String | NotBlank — ej. "Enero-Junio" |
+| anio | Integer | NotNull, 2000-2100 |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
+
+---
+
+### Carrera
+**Tabla:** `carrera`
+
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| nombre | String | NotBlank, solo letras |
+| clave | String | NotBlank, solo letras — ej. "ISC" |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
 ### CoordinadorCarrera
 **Tabla:** `coordinador_carrera`
 
-| Campo         | Tipo    | Descripción                  |
-|---------------|---------|------------------------------|
-| id            | Integer | PK, autoincremental          |
-| nombre        | String  | Nombre(s)                    |
-| apellido      | String  | Apellidos                    |
-| numeroControl | String  | Número de control            |
-| email         | String  | Correo electrónico           |
-| foto          | String  | Nombre del archivo de foto   |
-| cargo         | String  | Cargo institucional          |
-| activo        | Integer | Soft delete (0/1)            |
-
-**Relaciones:**
-- `@ManyToOne` → Carrera (`id_carrera`)
-- `@ManyToOne` → Semestre (`id_semestre`)
-
----
-
-### DTO: ResumenAsistenciaDTO
-Objeto de transferencia para la vista de resumen de asistencia.
-
-| Campo               | Tipo    | Descripción                          |
-|---------------------|---------|--------------------------------------|
-| idTutorado          | Integer | ID del tutorado                      |
-| nombreTutorado      | String  | Nombre completo                      |
-| totalSesiones       | long    | Total de sesiones del semestre (=10) |
-| asistenciasPresente | long    | Sesiones con presente=1              |
-| asistenciasRecuperadas | long | Sesiones con recuperada=1            |
-| totalAcreditadas    | long    | Presentes + Recuperadas              |
-| porcentaje          | double  | (totalAcreditadas / 10) * 100        |
-| acreditado          | boolean | true si porcentaje >= 80.0           |
+| Campo | Tipo | Restricciones |
+|---|---|---|
+| id | Integer | PK |
+| nombre | String | NotBlank, solo letras |
+| apellido | String | NotBlank, solo letras |
+| numeroControl | String | NotBlank |
+| email | String | NotBlank, formato email |
+| foto | String | Nullable |
+| cargo | String | Nullable |
+| carrera | Carrera | ManyToOne (id_carrera) |
+| semestre | Semestre | ManyToOne (id_semestre) |
+| activo | Integer | |
+| fechaRegistro | Date | CreationTimestamp |
 
 ---
 
-## Diagrama de Relaciones
+## DTOs
 
-```
-Carrera ──────┬──── Tutor ─────────────┬──── Sesion ───────────┬──── Asistencia
-              │                        │         │              │
-              ├──── Tutorado ──────────┤         ├──── EvidenciaSesion
-              │                        │         │
-              ├──── PAT ──── Actividad ─┘         └──── ReporteSesion
-              │
-              └──── CoordinadorCarrera
+### ResumenAsistenciaDTO
 
-Semestre ─────┬──── Tutor
-              ├──── Tutorado
-              ├──── PAT
-              ├──── AsignacionTutorado
-              └──── CoordinadorCarrera
-
-AsignacionTutorado: Tutor + Tutorado + Semestre (N:M con metadata)
-Asistencia: Sesion + Tutorado
-DeteccionNecesidades: Sesion + Tutorado
-```
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| idTutorado | Integer | ID del tutorado |
+| nombreTutorado | String | Nombre completo |
+| totalSesiones | long | Sesiones en las que estuvo inscrito |
+| asistenciasPresente | long | Sesiones donde presente=1 |
+| asistenciasRecuperadas | long | Sesiones donde recuperada=1 |
+| totalAcreditadas | long | presente + recuperadas |
+| porcentaje | double | (totalAcreditadas / totalSesiones) x 100 |
+| acreditado | boolean | porcentaje >= 80 |
 
 ---
 
-## Repositorios
-
-Todos extienden `JpaRepository<Entidad, Integer>` y se ubican en `com.bumh3r.repository`.
-
-| Repositorio                     | Métodos destacados                                                              |
-|---------------------------------|---------------------------------------------------------------------------------|
-| `ICarreraRepository`            | `findByActivo(Integer)`                                                         |
-| `ISemestreRepository`           | `findByActivo(Integer)`                                                         |
-| `ITutorRepository`              | `findByActivo*` paginado, `existsByAulaAndDiaSemanaAndHorarioAndActivo*`        |
-| `ITutoradoRepository`           | `findByActivo*` paginado, filtro por semestre y carrera                         |
-| `IPATRepository`                | `findByActivoAndEsGeneral*`, `findByActivoAndCarreraAndSemestre*`                |
-| `IActividadRepository`          | `findByActivoAndFecha*`, `findByActivoAndFechaBetween*`, `findByActivoAndPat*`  |
-| `ISesionRepository`             | `findByActivoAndTutor*`, `findByActivoAndSemana*`, `existsByTutorAndSemana*`    |
-| `IAsignacionTutoradoRepository` | `findByActivoAndTutorAndSemestre*`, `existsByTutoradoAndSemestreAndActivo`      |
-| `IAsistenciaRepository`         | `countByTutoradoAndPresenteAndActivo`, `existsBySesionAndTutoradoAndActivo`     |
-| `IDeteccionNecesidadesRepository`| `findByActivoAndNecesidadAlgebra*`, `existsByTutoradoAndSesionAndActivo`       |
-| `IEvidenciaSesionRepository`    | `findByActivoAndEstatusValidacion*`, `existsBySesionAndActivo`                  |
-| `IReporteSesionRepository`      | `findBySesionAndActivo` (Optional), `existsBySesionAndActivo`                   |
-| `ICoordinadorCarreraRepository` | `findByActivoAndCarreraAndSemestre*`                                            |
+## Modulos — Rutas y Atributos de Modelo
 
 ---
 
-## Servicios
+### Dashboard (`/`)
+**Controlador:** `MainController`
+**Vista:** `index.html`
 
-Todos siguen el patrón Interface + Implementación en `com.bumh3r.service` y `com.bumh3r.service.impl`.
-
-### CarreraService
-- `obtenerTodasCarreras()` → `List<Carrera>`
-- `guardarCarrera(Carrera)`, `actualizarCarrera(id, Carrera)`, `obtenerCarrera(id)`, `eliminarCarrera(id)`
-
-### SemestreService
-- CRUD completo idéntico al patrón de CarreraService
-
-### TutorService
-- CRUD completo
-- `obtenerTodosTutoresPaginado(page, size, sortBy, sort)` → `Page<Tutor>`
-- `buscarTutoresPorSemestrePaginado(idSemestre, ...)` → `Page<Tutor>`
-- `buscarTutoresPorSemestreYCarreraPaginado(idSemestre, idCarrera, ...)` → `Page<Tutor>`
-
-### TutoradoService
-- CRUD completo
-- `obtenerTodosTutoradosPaginado(...)`, `buscarTutoradosPorSemestreYCarreraPaginado(...)` → `Page<Tutorado>`
-
-### PATService
-- CRUD completo
-- `obtenerPATGenerales()` → `List<PAT>`
-- `buscarPATporCarreraYSemestre(idCarrera, idSemestre)` → `List<PAT>`
-- Variantes paginadas de cada búsqueda
-
-### ActividadService
-- CRUD completo
-- `buscarActividadesPorFecha(Date)`, `buscarActividadesPorRangoFechas(inicio, fin)`, `buscarActividadesPorPAT(idPat)`
-- Variantes paginadas
-
-### SesionService
-- CRUD completo
-- `buscarSesionesPorTutor(idTutor)`, `buscarSesionesPorSemana(semana)`, `buscarSesionesPorTutorYSemana(...)`, `buscarSesionesPorEstatus(estatus)`
-
-### AsignacionTutoradoService
-- CRUD completo
-- `buscarAsignacionesPorTutorYSemestre(idTutor, idSemestre)`, `buscarAsignacionesPorSemestre(idSemestre)`
-
-### AsistenciaService
-- CRUD completo
-- `registrarAsistenciaMasiva(idSesion, idsTutoradosPresentes[])` — actualiza/crea registros en bloque
-- `calcularResumenAsistencia(idTutorado)` → `ResumenAsistenciaDTO`
-- Constantes: `TOTAL_SESIONES=10`, `PORCENTAJE_MINIMO=80.0`
-
-### DeteccionNecesidadesService
-- CRUD completo
-- `buscarPorTutorado(idTutorado)`, `buscarPorSesion(idSesion)`
-- `buscarPorNecesidadAlgebra()`, `...Calculo()`, `...Economica()`, `...Psicologica()`
-
-### EvidenciaSesionService
-- CRUD completo
-- `validarEvidencia(id, notas)` — cambia estatus a VALIDADA
-- `rechazarEvidencia(id, notas)` — cambia estatus a RECHAZADA
-
-### ReporteSesionService
-- CRUD completo
-- `obtenerReportePorSesion(idSesion)` → `ReporteSesion`
-- `buscarPorEstatus(estatus)` → `List<ReporteSesion>`
-
-### CoordinadorCarreraService
-- CRUD completo
-- `buscarPorCarrera(idCarrera)`, `buscarPorSemestre(idSemestre)`, `buscarPorCarreraYSemestre(...)`
-
-### FileStoreService
-- `save(MultipartFile, FileType)` → `String` (nombre del archivo con UUID)
-- `delete(ruta, FileType)` → `void`
-- `getUrlBase()` → `String`
-- Organiza archivos en subdirectorios por `FileType`: TUTOR, TUTORADO, PAT, ACTIVIDAD, ASIGNACION, EVIDENCIA, COORDINADOR
-
-### Utilidades
-- `PaginationUtil.getPageable(page, pageSize, sortBy, sort)` → `Pageable`
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| totalTutores | int | Conteo total de tutores |
+| totalTutorados | int | Conteo total de tutorados |
+| totalActividades | int | Conteo total de actividades |
+| totalGrupos | int | Conteo total de grupos |
+| proximasActividades | List\<Actividad\> | Proximas 5 actividades ordenadas por fecha |
+| msg_error | String | Mensaje de error si el dashboard falla |
 
 ---
 
-## Controladores
+### Modulo Tutor (`/tutor`)
+**Controlador:** `TutorController`
 
-Todos en `com.bumh3r.controller`. Rutas base y sus vistas:
+#### Lista — `GET /tutor`
+**Vista:** `tutor/viewListaTutor.html`
 
-### MainController — `/`
-| Método | Ruta | Vista          | Descripción                              |
-|--------|------|----------------|------------------------------------------|
-| GET    | `/`  | `index`        | Dashboard con 5 estadísticas + próximas actividades |
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutores | List\<Tutor\> | Pagina actual de tutores |
+| paginaActual | int | Numero de pagina (0-indexed) |
+| totalElementos | long | Total de registros |
+| totalPaginas | int | Total de paginas |
+| pageSize | int | Elementos por pagina |
+| sortBy | String | Campo de ordenacion (`id`, `nombre`, `numeroControl`) |
+| sort | String | Direccion (`asc`/`desc`) |
+| mapSort | Map\<String,String\> | Opciones de ordenacion para el select |
+| tipoBusqueda | String | Tipo de filtro activo (`todos`, `nombre`) |
+| q | String | Texto de busqueda |
+| filtro | String | Descripcion del filtro activo (null si ninguno) |
+| msg_error | String | Error de busqueda |
 
----
+#### Agregar — `GET /tutor/agregar`
+**Vista:** `tutor/viewFormTutor.html`
 
-### CarreraController — `/carrera`
-| Método | Ruta                  | Vista                       |
-|--------|-----------------------|-----------------------------|
-| GET    | `/`                   | `carrera/viewListaCarrera`  |
-| GET    | `/agregar`            | `carrera/viewFormCarrera`   |
-| POST   | `/guardar`            | redirect `/carrera`         |
-| GET    | `/ver/{id}`           | `carrera/viewInfoCarrera`   |
-| GET    | `/actualizar/{id}`    | `carrera/viewFormCarrera`   |
-| POST   | `/actualizar/{id}`    | redirect `/carrera`         |
-| GET    | `/delete/{id}`        | redirect `/carrera`         |
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutor | Tutor | Objeto nuevo vacio |
+| isEdit | boolean | `false` |
 
----
+#### Guardar — `POST /tutor/guardar`
+Redirige a `/tutor`. En error vuelve al form con los mismos atributos mas `msg_error`.
+Acepta `fotoFile` (MultipartFile) para subir foto.
 
-### SemestreController — `/semestre`
-Mismo patrón CRUD que CarreraController.
+#### Ver detalle — `GET /tutor/ver/{id}`
+**Vista:** `tutor/viewInfoTutor.html`
 
----
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutor | Tutor | Entidad completa |
+| grupos | List\<Grupo\> | Grupos asignados al tutor |
+| alumnosPorGrupo | Map\<Integer,Long\> | Mapa grupoId -> cantidad de tutorados |
+| sesionesPorGrupo | Map\<Integer,Long\> | Mapa grupoId -> cantidad de sesiones |
+| totalAlumnos | long | Suma total de tutorados en todos sus grupos |
+| totalSesiones | long | Suma total de sesiones en todos sus grupos |
 
-### TutorController — `/tutor`
-| Método | Ruta               | Vista                    | Params                                          |
-|--------|--------------------|--------------------------|--------------------------------------------------|
-| GET    | `/`                | `tutor/viewListaTutor`   | `idSemestre`, `idCarrera`, `page`, `pageSize`, `sortBy`, `sort` |
-| GET    | `/agregar`         | `tutor/viewFormTutor`    | carga carreras, semestres, días semana           |
-| POST   | `/guardar`         | redirect `/tutor`        | valida unicidad aula+día+horario                 |
-| GET    | `/ver/{id}`        | `tutor/viewInfoTutor`    |                                                  |
-| GET    | `/actualizar/{id}` | `tutor/viewFormTutor`    |                                                  |
-| POST   | `/actualizar/{id}` | redirect `/tutor`        | valida unicidad excluyendo el tutor actual       |
-| GET    | `/delete/{id}`     | redirect `/tutor`        |                                                  |
+#### Actualizar — `GET /tutor/actualizar/{id}`
+**Vista:** `tutor/viewFormTutor.html`
 
----
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutor | Tutor | Entidad cargada desde BD |
+| isEdit | boolean | `true` |
 
-### TutoradoController — `/tutorado`
-Mismo patrón que TutorController con filtros por semestre y carrera.
+#### Confirmar eliminar — `GET /tutor/delete/{id}`
+**Vista:** `tutor/viewConfirmDeleteTutor.html`
 
----
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutor | Tutor | Entidad a eliminar |
 
-### PATController — `/pat`
-| Método | Ruta               | Vista               | Params                               |
-|--------|--------------------|---------------------|--------------------------------------|
-| GET    | `/`                | `pat/viewListaPAT`  | `idCarrera`, `idSemestre`, `soloGenerales`, paginación |
-| GET    | `/agregar`         | `pat/viewFormPAT`   |                                      |
-| POST   | `/guardar`         | redirect `/pat`     |                                      |
-| GET    | `/ver/{id}`        | `pat/viewInfoPAT`   |                                      |
-| GET    | `/actualizar/{id}` | `pat/viewFormPAT`   |                                      |
-| POST   | `/actualizar/{id}` | redirect `/pat`     |                                      |
-| GET    | `/delete/{id}`     | redirect `/pat`     |                                      |
-
----
-
-### ActividadController — `/actividad`
-| Método | Ruta               | Vista                       | Params                                                |
-|--------|--------------------|-----------------------------|-------------------------------------------------------|
-| GET    | `/`                | `actividad/viewListaActividad` | `tipoBusqueda` (fecha/rango/pat/todos), `fecha`, `fechaInicio`, `fechaFin`, `idPat` |
-| GET    | `/agregar`         | `actividad/viewFormActividad` | carga PATs                                           |
-| POST   | `/guardar`         | redirect `/actividad`       | valida fecha futura                                   |
-| GET    | `/ver/{id}`        | `actividad/viewInfoActividad` |                                                      |
-| GET    | `/actualizar/{id}` | `actividad/viewFormActividad` |                                                      |
-| POST   | `/actualizar/{id}` | redirect `/actividad`       |                                                      |
-| GET    | `/delete/{id}`     | redirect `/actividad`       |                                                      |
+#### Eliminar — `POST /tutor/confirm/delete/{id}`
+Redirige a `/tutor`.
 
 ---
 
-### SesionController — `/sesion`
-| Método | Ruta               | Vista                   | Params                                               |
-|--------|--------------------|-------------------------|------------------------------------------------------|
-| GET    | `/`                | `sesion/viewListaSesion` | `tipoBusqueda` (tutor/semana/tutorSemana/estatus/todos), `idTutor`, `semana`, `estatus` |
-| GET    | `/agregar`         | `sesion/viewFormSesion` | carga tutores y actividades                          |
-| POST   | `/guardar`         | redirect `/sesion`      |                                                      |
-| GET    | `/ver/{id}`        | `sesion/viewInfoSesion` |                                                      |
-| GET    | `/actualizar/{id}` | `sesion/viewFormSesion` |                                                      |
-| POST   | `/actualizar/{id}` | redirect `/sesion`      |                                                      |
-| GET    | `/delete/{id}`     | redirect `/sesion`      |                                                      |
+### Modulo Tutorado (`/tutorado`)
+**Controlador:** `TutoradoController`
+
+#### Lista — `GET /tutorado`
+**Vista:** `tutorado/viewListaTutorado.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutorados | List\<Tutorado\> | Pagina actual |
+| paginaActual | int | |
+| totalPaginas | int | |
+| totalElementos | long | |
+| pageSize | int | |
+| carreras | List\<Carrera\> | Para filtro por carrera |
+| idCarreraSeleccionada | Integer | Carrera seleccionada en el filtro |
+| sortBy | String | Campo de ordenacion |
+| sort | String | Direccion |
+| mapSort | Map\<String,String\> | Opciones de ordenacion |
+| tipoBusqueda | String | `todos` / `nombre` |
+| q | String | Texto de busqueda |
+| filtro | String | Descripcion del filtro activo |
+
+#### Agregar — `GET /tutorado/agregar`
+**Vista:** `tutorado/viewFormTutorado.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutorado | Tutorado | Objeto vacio |
+| carreras | List\<Carrera\> | Para el select de carrera |
+| isEdit | boolean | `false` |
+
+#### Ver detalle — `GET /tutorado/ver/{id}`
+**Vista:** `tutorado/viewInfoTutorado.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutorado | Tutorado | Entidad completa |
+| gruposTutorado | List\<GrupoTutorado\> | Grupos a los que pertenece |
+| detecciones | List\<DeteccionNecesidades\> | Historial de detecciones del tutorado |
+| resumen | ResumenAsistenciaDTO | Resumen de asistencia calculado |
+
+#### Actualizar — `GET /tutorado/actualizar/{id}`
+**Vista:** `tutorado/viewFormTutorado.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutorado | Tutorado | Entidad cargada |
+| carreras | List\<Carrera\> | Para el select |
+| isEdit | boolean | `true` |
+
+#### Confirmar eliminar — `GET /tutorado/delete/{id}`
+**Vista:** `tutorado/viewConfirmDeleteTutorado.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| tutorado | Tutorado | Entidad a eliminar |
 
 ---
 
-### AsignacionTutoradoController — `/asignacion`
-CRUD completo. Valida duplicados tutor+tutorado+semestre. Carga listas de tutores, tutorados y semestres.
+### Modulo Grupo (`/grupo`)
+**Controlador:** `GrupoController`
+
+#### Lista — `GET /grupo`
+**Vista:** `grupo/viewListaGrupo.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupos | List\<Grupo\> | Pagina actual |
+| paginaActual | int | |
+| totalPaginas | int | |
+| totalElementos | long | |
+| pageSize | int | |
+| sort / sortBy | String | Ordenacion (campos validos: `id`, `nombre`) |
+| tutores | List\<Tutor\> | Para filtro por tutor |
+| semestres | List\<Semestre\> | Para filtro por semestre |
+| carreras | List\<Carrera\> | Para filtro por carrera |
+| idSemestreSeleccionado | Integer | |
+| idTutorSeleccionado | Integer | |
+| idCarreraSeleccionada | Integer | |
+| q | String | Busqueda por nombre |
+| conteoAlumnos | Map\<Integer,Long\> | grupoId -> cantidad de tutorados |
+| tipoBusqueda | String | `todos` / `nombre` / `semestre` / `tutorSemestre` / `carreraSemestre` |
+| filtro | String | |
+
+#### Agregar — `GET /grupo/agregar`
+**Vista:** `grupo/viewFormGrupo.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Objeto vacio |
+| semestres | List\<Semestre\> | |
+| carreras | List\<Carrera\> | |
+| isEdit | boolean | `false` |
+
+#### Ver detalle — `GET /grupo/ver/{id}`
+**Vista:** `grupo/viewInfoGrupo.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Entidad con tutor, semestre y carrera |
+| tutorados | List\<GrupoTutorado\> | Tutorados asignados al grupo |
+| sesiones | List\<Sesion\> | Sesiones del grupo (con actividad embebida) |
+
+#### Actualizar — `GET /grupo/actualizar/{id}`
+**Vista:** `grupo/viewFormGrupo.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Entidad cargada |
+| semestres | List\<Semestre\> | |
+| carreras | List\<Carrera\> | |
+| isEdit | boolean | `true` |
+
+#### Confirmar eliminar — `GET /grupo/delete/{id}`
+**Vista:** `grupo/viewConfirmDeleteGrupo.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Entidad a eliminar |
+
+#### Asignar Tutorados — `GET /grupo/asignar/{idGrupo}`
+**Vista:** `grupo/viewAsignarTutorados.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Grupo destino |
+| tutoradosDisponibles | List\<Tutorado\> | Tutorados sin asignacion a este grupo |
+
+#### Vista Asignar Tutor — `GET /grupo/asignar-tutor`
+**Vista:** `grupo/viewAsignarTutor.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupos | List\<Grupo\> | Grupos paginados (por defecto sin tutor) |
+| paginaActual / totalPaginas / totalElementos / pageSize | | Paginacion |
+| sort / sortBy | String | |
+| tipoBusqueda | String | `sinTutor` / `sinTutorNombre` / `sinTutorSemestre` / `sinTutorCarrera` / `todos` |
+| q | String | |
+| semestres | List\<Semestre\> | |
+| carreras | List\<Carrera\> | |
+| idSemestreSeleccionado / idCarreraSeleccionada | Integer | |
+| conteoAlumnos | Map\<Integer,Long\> | |
+
+#### Form Asignar Tutor — `GET /grupo/asignar-tutor/{idGrupo}`
+**Vista:** `grupo/viewFormAsignarTutor.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| grupo | Grupo | Grupo a asignar |
+| tutores | List\<Tutor\> | Todos los tutores disponibles |
 
 ---
 
-### AsistenciaController — `/asistencia`
-| Método | Ruta                       | Vista                           | Descripción                                 |
-|--------|----------------------------|---------------------------------|---------------------------------------------|
-| GET    | `/`                        | `asistencia/viewListaAsistencia`| Filtros: por sesión, por tutorado, todos    |
-| GET    | `/agregar`                 | `asistencia/viewFormAsistencia` | Formulario individual                       |
-| POST   | `/guardar`                 | redirect `/asistencia`          |                                             |
-| GET    | `/registrar/{idSesion}`    | `asistencia/viewRegistrarAsistencia` | Lista de tutorados con checkbox presente |
-| POST   | `/registrarMasivo/{idSesion}` | redirect `/asistencia`       | Array de IDs de tutorados presentes         |
-| GET    | `/ver/{id}`                | vista detalle                   |                                             |
-| GET    | `/actualizar/{id}`         | `asistencia/viewFormAsistencia` |                                             |
-| POST   | `/actualizar/{id}`         | redirect `/asistencia`          |                                             |
-| GET    | `/resumen/{idTutorado}`    | `asistencia/viewResumenAsistencia` | Muestra ResumenAsistenciaDTO             |
+### Modulo Sesion (`/sesion`)
+**Controlador:** `SesionController`
+
+#### Lista — `GET /sesion`
+**Vista:** `sesion/viewListaSesion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| sesiones | List\<Sesion\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | Campos validos: `id`, `semana` |
+| grupos | List\<Grupo\> | Para filtro |
+| idGrupoSeleccionado | Integer | |
+| semanaSeleccionada | Integer | |
+| estatusSeleccionado | String | |
+| tipoBusqueda | String | `todos` / `grupo` / `semana` / `grupoSemana` / `estatus` |
+| filtro | String | |
+
+#### Agregar / Actualizar — `GET /sesion/agregar` y `GET /sesion/actualizar/{id}`
+**Vista:** `sesion/viewFormSesion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| sesion | Sesion | Nuevo o cargado |
+| grupos | List\<Grupo\> | Para el select |
+| actividades | List\<Actividad\> | Para el select |
+| isEdit | boolean | `false` / `true` |
+
+#### Ver detalle — `GET /sesion/ver/{id}`
+**Vista:** `sesion/viewInfoSesion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| sesion | Sesion | Entidad con grupo y actividad |
+
+#### Confirmar eliminar — `GET /sesion/delete/{id}`
+**Vista:** `sesion/viewConfirmDeleteSesion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| sesion | Sesion | Entidad a eliminar |
 
 ---
 
-### DeteccionNecesidadesController — `/deteccion`
-CRUD completo. Formulario con checkboxes para necesidades académicas (álgebra, cálculo, derecho) y socioemocionales (económica, psicológica) más campo libre.
+### Modulo PAT (`/pat`)
+**Controlador:** `PATController`
+
+#### Lista — `GET /pat`
+**Vista:** `pat/viewListaPAT.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| pats | List\<PAT\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| carreras | List\<Carrera\> | Para filtro |
+| semestres | List\<Semestre\> | Para filtro |
+| idCarreraSeleccionada / idSemestreSeleccionado | Integer | |
+| soloGenerales | Boolean | Filtro de solo PAT generales |
+| sortBy / sort / mapSort | | Ordenacion |
+| filtro | String | |
+
+#### Agregar / Actualizar — `GET /pat/agregar` y `GET /pat/actualizar/{id}`
+**Vista:** `pat/viewFormPAT.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| pat | PAT | Nuevo o cargado |
+| carreras | List\<Carrera\> | |
+| semestres | List\<Semestre\> | |
+| isEdit | boolean | |
+
+Acepta `fotoFile` (MultipartFile).
+
+#### Ver detalle — `GET /pat/ver/{id}`
+**Vista:** `pat/viewInfoPAT.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| pat | PAT | Entidad con semestre y carrera |
+
+#### Confirmar eliminar — `GET /pat/delete/{id}`
+**Vista:** `pat/viewConfirmDeletePAT.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| pat | PAT | Entidad a eliminar |
 
 ---
 
-### EvidenciaSesionController — `/evidencia`
-| Método | Ruta            | Vista                       | Descripción                          |
-|--------|-----------------|-----------------------------|--------------------------------------|
-| GET    | `/`             | `evidencia/viewListaEvidencia` | Filtros: por sesión, por estatus  |
-| GET    | `/agregar`      | `evidencia/viewFormEvidencia` | Input file para subir evidencia    |
-| POST   | `/guardar`      | redirect `/evidencia`       |                                      |
-| POST   | `/validar/{id}` | redirect                    | Marca como VALIDADA con notas        |
-| POST   | `/rechazar/{id}`| redirect                    | Marca como RECHAZADA con notas       |
-| GET    | `/descargar/{id}`| —                          | Descarga el archivo adjunto          |
+### Modulo Actividad (`/actividad`)
+**Controlador:** `ActividadController`
+
+#### Lista — `GET /actividad`
+**Vista:** `actividad/viewListaActividad.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| actividades | List\<Actividad\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| pats | List\<PAT\> | Para filtro por PAT |
+| idPatSeleccionado | Integer | |
+| fechaSeleccionada / fechaInicio / fechaFin | String | Para filtros de fecha |
+| tipoBusqueda | String | `todos` / `nombre` / `fecha` / `rango` / `pat` |
+| q | String | |
+| sortBy / sort / mapSort | | Ordenacion |
+| filtro | String | |
+
+#### Vista Agregar Lote — `GET /actividad/agregar`
+**Vista:** `actividad/viewAgregarActividades.html`
+*(Builder visual de actividades para un PAT)*
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| pats | List\<PAT\> | Para el selector de PAT |
+| preselectedPatId | Integer | PAT preseleccionado (desde URL) |
+
+#### Form Actividad — `GET /actividad/actualizar/{id}`
+**Vista:** `actividad/viewFormActividad.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| actividad | Actividad | Entidad cargada |
+| pats | List\<PAT\> | Para el select |
+| isEdit | boolean | `true` |
+
+Acepta `fotoFile` (MultipartFile).
+
+#### Ver detalle — `GET /actividad/ver/{id}`
+**Vista:** `actividad/viewInfoActividad.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| actividad | Actividad | Entidad con PAT embebido |
+
+#### Confirmar eliminar — `GET /actividad/delete/{id}`
+**Vista:** `actividad/viewConfirmDeleteActividad.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| actividad | Actividad | Entidad a eliminar |
+
+#### APIs REST (JSON) del Builder
+
+| Ruta | Metodo | Descripcion |
+|---|---|---|
+| `/actividad/api/por-pat/{idPat}` | GET | Lista actividades de un PAT ordenadas por semana |
+| `/actividad/api/guardar-lote` | POST | Guarda un lote de actividades para un PAT |
+| `/actividad/api/actualizar/{id}` | PUT | Actualiza nombre/descripcion/semana de una actividad |
+| `/actividad/api/eliminar/{id}` | DELETE | Elimina una actividad |
 
 ---
 
-### ReporteSesionController — `/reporte`
-CRUD completo con campos: descripción de actividad, observaciones, número de alumnos presentes, fecha de entrega.
-Estados del reporte: `PENDIENTE`, `EN_REVISION`, `APROBADO`, `RECHAZADO`.
+### Modulo Asistencia (`/asistencia`)
+**Controlador:** `AsistenciaController`
+
+#### Lista — `GET /asistencia`
+**Vista:** `asistencia/viewListaAsistencia.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| asistencias | List\<Asistencia\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | |
+| sesiones | List\<Sesion\> | Para filtro |
+| tutorados | List\<Tutorado\> | Para filtro |
+| idSesionSeleccionada / idTutoradoSeleccionado | Integer | |
+| tipoBusqueda | String | `todos` / `sesion` / `tutorado` |
+| filtro | String | |
+
+#### Registrar Asistencia Masiva — `GET /asistencia/registrar/{idSesion}`
+**Vista:** `asistencia/viewRegistrarAsistencia.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| sesion | Sesion | Sesion a la que se registra asistencia |
+| grupoTutorados | List\<GrupoTutorado\> | Tutorados del grupo de la sesion |
+| mapaAsistencias | Map\<Integer,Asistencia\> | tutoradoId -> asistencia existente |
+
+#### Resumen de Asistencia — `GET /asistencia/resumen/{idTutorado}`
+**Vista:** `asistencia/viewResumenAsistencia.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| resumen | ResumenAsistenciaDTO | Estadisticas calculadas |
+| historial | List\<Asistencia\> | Registro detallado sesion por sesion |
+| msg_error | String | Si hay error en el calculo |
+
+#### Agregar / Actualizar — `GET /asistencia/agregar` y `GET /asistencia/actualizar/{id}`
+**Vista:** `asistencia/viewFormAsistencia.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| asistencia | Asistencia | Nueva o cargada |
+| sesiones | List\<Sesion\> | Para el select |
+| tutorados | List\<Tutorado\> | Para el select |
+| isEdit | boolean | |
+
+#### Confirmar eliminar — `GET /asistencia/delete/{id}`
+**Vista:** `asistencia/viewConfirmDeleteAsistencia.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| asistencia | Asistencia | Entidad a eliminar |
 
 ---
 
-### CoordinadorCarreraController — `/coordinador`
-CRUD completo con carga de foto y asignación a carrera y semestre.
+### Modulo Deteccion de Necesidades (`/deteccion`)
+**Controlador:** `DeteccionNecesidadesController`
+
+#### Lista — `GET /deteccion`
+**Vista:** `deteccion/viewListaDeteccion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| detecciones | List\<DeteccionNecesidades\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | |
+| tutorados | List\<Tutorado\> | Para filtro |
+| sesiones | List\<Sesion\> | Para filtro |
+| idTutoradoSeleccionado / idSesionSeleccionada | Integer | |
+| tipoBusqueda | String | `todos` / `tutorado` / `sesion` / `necesidad` |
+| filtro | String | |
+
+#### Agregar / Actualizar — `GET /deteccion/agregar` y `GET /deteccion/actualizar/{id}`
+**Vista:** `deteccion/viewFormDeteccion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| deteccion | DeteccionNecesidades | Nueva (pre-llenada si viene de URL) o cargada |
+| tutorados | List\<Tutorado\> | Para el select |
+| sesiones | List\<Sesion\> | Para el select |
+| isEdit | boolean | |
+
+`agregar` acepta `?idTutorado=` y `?idSesion=` para prellenar.
+
+#### Ver detalle — `GET /deteccion/ver/{id}`
+**Vista:** `deteccion/viewInfoDeteccion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| deteccion | DeteccionNecesidades | Entidad con tutorado y sesion |
+
+#### Confirmar eliminar — `GET /deteccion/delete/{id}`
+**Vista:** `deteccion/viewConfirmDeleteDeteccion.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| deteccion | DeteccionNecesidades | Entidad a eliminar |
 
 ---
 
-## Vistas
+### Modulo Evidencia de Sesion (`/evidencia`)
+**Controlador:** `EvidenciaSesionController`
 
-Todas en `src/main/resources/templates/`. Usa Thymeleaf + Bootstrap 5.3.8 con tema oscuro (`data-bs-theme="dark"`).
+#### Lista — `GET /evidencia`
+**Vista:** `evidencia/viewListaEvidencia.html`
 
-### Fragmentos reutilizables
-**`fragments/fragment.html`** — sidebar de navegación con las secciones:
-- Principal (Dashboard)
-- Catálogos (Carreras, Semestres)
-- Recursos (Tutores, Tutorados, Coordinadores)
-- PAT (PATs, Actividades)
-- Tutorías (Asignaciones, Sesiones)
-- Seguimiento (Asistencia, Detección de Necesidades, Evidencias, Reportes)
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| evidencias | List\<EvidenciaSesion\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | |
+| sesiones | List\<Sesion\> | Para filtro |
+| idSesionSeleccionada | Integer | |
+| tipoBusqueda | String | `todos` / `sesion` |
+| filtro | String | |
 
-### index.html — Dashboard
-- Tarjetas: total de tutores, tutorados, actividades y asignaciones activas
-- Tabla de próximas 5 actividades ordenadas por fecha
+#### Agregar / Actualizar — `GET /evidencia/agregar` y `GET /evidencia/actualizar/{id}`
+**Vista:** `evidencia/viewFormEvidencia.html`
 
-### Carpeta `carrera/`
-| Archivo                      | Contenido                              |
-|------------------------------|----------------------------------------|
-| `viewListaCarrera.html`      | Tabla de carreras activas, botón agregar |
-| `viewFormCarrera.html`       | Formulario crear/editar (nombre, clave) |
-| `viewInfoCarrera.html`       | Detalle de carrera                     |
-| `viewConfirmDeleteCarrera.html` | Confirmación de eliminación          |
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| evidencia | EvidenciaSesion | Nueva (prellenada si `?idSesion=`) o cargada |
+| sesiones | List\<Sesion\> | Para el select |
+| isEdit | boolean | |
 
-### Carpeta `semestre/`
-| Archivo                       | Contenido                               |
-|-------------------------------|-----------------------------------------|
-| `viewListaSemestre.html`      | Tabla de semestres                      |
-| `viewFormSemestre.html`       | Formulario (período, año)               |
-| `viewInfoSemestre.html`       | Detalles del semestre                   |
-| `viewConfirmDeleteSemestre.html` | Confirmación                         |
+Acepta `archivoFile` (MultipartFile).
 
-### Carpeta `tutor/`
-| Archivo                     | Contenido                                                         |
-|-----------------------------|-------------------------------------------------------------------|
-| `viewListaTutor.html`       | Tabla paginada con filtros por semestre/carrera y ordenamiento    |
-| `viewFormTutor.html`        | Nombre, apellido, número control, email, foto, aula, día, horario, carrera, semestre |
-| `viewInfoTutor.html`        | Detalle completo con foto                                         |
-| `viewConfirmDeleteTutor.html` | Confirmación                                                    |
+#### Ver detalle — `GET /evidencia/ver/{id}`
+**Vista:** `evidencia/viewInfoEvidencia.html`
 
-### Carpeta `tutorado/`
-Similar a `tutor/` con campo `grado`.
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| evidencia | EvidenciaSesion | Entidad completa |
 
-### Carpeta `pat/`
-| Archivo                  | Contenido                                               |
-|--------------------------|---------------------------------------------------------|
-| `viewListaPAT.html`      | Tabla paginada, filtros: solo generales, por carrera+semestre |
-| `viewFormPAT.html`       | Nombre, descripción, foto, esGeneral, carrera, semestre |
-| `viewInfoPAT.html`       | Detalle                                                 |
-| `viewConfirmDeletePAT.html` | Confirmación                                         |
+Acciones adicionales desde esta vista:
+- `POST /evidencia/validar/{id}` — cambia `estatusValidacion` a `VALIDADA`, acepta `?notas=`
+- `POST /evidencia/rechazar/{id}` — cambia `estatusValidacion` a `RECHAZADA`, acepta `?notas=`
 
-### Carpeta `actividad/`
-| Archivo                       | Contenido                                                  |
-|-------------------------------|------------------------------------------------------------|
-| `viewListaActividad.html`     | Tabla paginada, búsqueda: fecha exacta, rango, por PAT     |
-| `viewFormActividad.html`      | Nombre, descripción, fecha, semana, foto, PAT              |
-| `viewInfoActividad.html`      | Detalle                                                    |
-| `viewConfirmDeleteActividad.html` | Confirmación                                           |
+#### Confirmar eliminar — `GET /evidencia/delete/{id}`
+**Vista:** `evidencia/viewConfirmDeleteEvidencia.html`
 
-### Carpeta `sesion/`
-| Archivo                     | Contenido                                                   |
-|-----------------------------|-------------------------------------------------------------|
-| `viewListaSesion.html`      | Tabla con búsqueda por tutor, semana, tutor+semana, estatus |
-| `viewFormSesion.html`       | Tutor, actividad, semana, fecha impartición, estatus        |
-| `viewInfoSesion.html`       | Detalle                                                     |
-| `viewConfirmDeleteSesion.html` | Confirmación                                             |
-
-### Carpeta `asignacion/`
-| Archivo                        | Contenido                            |
-|--------------------------------|--------------------------------------|
-| `viewListaAsignacion.html`     | Tabla de asignaciones tutor-tutorado |
-| `viewFormAsignacion.html`      | Tutor, tutorado, semestre            |
-| `viewInfoAsignacion.html`      | Detalle                              |
-| `viewConfirmDeleteAsignacion.html` | Confirmación                     |
-
-### Carpeta `asistencia/`
-| Archivo                          | Contenido                                                    |
-|----------------------------------|--------------------------------------------------------------|
-| `viewListaAsistencia.html`       | Tabla con filtros por sesión o tutorado                      |
-| `viewFormAsistencia.html`        | Formulario individual (sesión, tutorado, presente, recuperada)|
-| `viewRegistrarAsistencia.html`   | Lista de tutorados con checkbox para marcar presentes masivamente |
-| `viewResumenAsistencia.html`     | ResumenAsistenciaDTO: estadísticas, porcentaje, estado de acreditación |
-| `viewConfirmDeleteAsistencia.html` | Confirmación                                               |
-
-### Carpeta `deteccion/`
-| Archivo                       | Contenido                                                         |
-|-------------------------------|-------------------------------------------------------------------|
-| `viewListaDeteccion.html`     | Tabla de detecciones                                              |
-| `viewFormDeteccion.html`      | Checkboxes para necesidades + campo libre + observaciones         |
-| `viewInfoDeteccion.html`      | Detalle                                                           |
-| `viewConfirmDeleteDeteccion.html` | Confirmación                                                  |
-
-### Carpeta `evidencia/`
-| Archivo                        | Contenido                                                   |
-|--------------------------------|-------------------------------------------------------------|
-| `viewListaEvidencia.html`      | Tabla con filtro por sesión y estatus de validación         |
-| `viewFormEvidencia.html`       | Input file para subir evidencia, selección de sesión        |
-| `viewInfoEvidencia.html`       | Detalle con estatus de validación y notas del coordinador   |
-| `viewConfirmDeleteEvidencia.html` | Confirmación                                             |
-
-### Carpeta `reporte/`
-| Archivo                       | Contenido                                                    |
-|-------------------------------|--------------------------------------------------------------|
-| `viewListaReporte.html`       | Tabla de reportes con estatus                                |
-| `viewFormReporte.html`        | Descripción actividad, observaciones, alumnos presentes      |
-| `viewInfoReporte.html`        | Detalle completo                                             |
-| `viewConfirmDeleteReporte.html` | Confirmación                                               |
-
-### Carpeta `coordinador/`
-| Archivo                           | Contenido                                    |
-|-----------------------------------|----------------------------------------------|
-| `viewListaCoordinador.html`       | Tabla de coordinadores                       |
-| `viewFormCoordinador.html`        | Datos personales + cargo + carrera + semestre|
-| `viewInfoCoordinador.html`        | Detalle con foto                             |
-| `viewConfirmDeleteCoordinador.html` | Confirmación                               |
-
-### Patrones comunes en vistas
-- Alertas para `msg_success` y `msg_error` pasados por el controlador
-- Filtros activos mostrados con badge informativo
-- Tablas con acciones: Ver, Editar, Eliminar en cada fila
-- Subida de archivos: acepta JPG/PNG, máx 10 MB, con vista previa en edición
-- Date pickers nativos de HTML5
-- Selects poblados desde el modelo para relaciones (carrera, semestre, tutor, etc.)
-- Campos `hidden` para IDs en formularios de edición
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| evidencia | EvidenciaSesion | Entidad a eliminar |
 
 ---
 
-## Recursos Estáticos
+### Modulo Reporte de Sesion (`/reporte`)
+**Controlador:** `ReporteSesionController`
 
-```
-src/main/resources/static/
-├── styles/
-│   └── sidebar.css       # Layout del sidebar, tema oscuro, animaciones
-└── images/
-    └── logo.png          # Logo institucional (Tecnológico)
-```
+#### Lista — `GET /reporte`
+**Vista:** `reporte/viewListaReporte.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| reportes | List\<ReporteSesion\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | |
+| estatusSeleccionado | String | Filtro de estatus |
+| tipoBusqueda | String | `todos` / `estatus` |
+| filtro | String | |
+
+#### Agregar / Actualizar — `GET /reporte/agregar` y `GET /reporte/actualizar/{id}`
+**Vista:** `reporte/viewFormReporte.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| reporte | ReporteSesion | Nuevo (prellenado si `?idSesion=`) o cargado |
+| sesiones | List\<Sesion\> | Para el select |
+| isEdit | boolean | |
+
+#### Ver detalle — `GET /reporte/ver/{id}` y `GET /reporte/sesion/{idSesion}`
+**Vista:** `reporte/viewInfoReporte.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| reporte | ReporteSesion | Entidad con sesion embebida |
+
+`/reporte/sesion/{idSesion}` redirige a `agregar?idSesion=` si no existe reporte para esa sesion.
+
+#### Confirmar eliminar — `GET /reporte/delete/{id}`
+**Vista:** `reporte/viewConfirmDeleteReporte.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| reporte | ReporteSesion | Entidad a eliminar |
 
 ---
 
-## Resumen de Conteo
+### Modulo Semestre (`/semestre`)
+**Controlador:** `SemestreController`
 
-| Capa          | Cantidad |
-|---------------|----------|
-| Entidades     | 12       |
-| DTOs          | 1        |
-| Repositorios  | 12       |
-| Servicios     | 14       |
-| Controladores | 13       |
-| Vistas HTML   | ~56      |
-| Rutas totales | ~90+     |
+#### Lista — `GET /semestre`
+**Vista:** `semestre/viewListaSemestre.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| semestres | List\<Semestre\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | Campos validos: `id`, `anio`, `periodo` |
+
+#### Agregar / Actualizar — `GET /semestre/agregar` y `GET /semestre/actualizar/{id}`
+**Vista:** `semestre/viewFormSemestre.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| semestre | Semestre | Nuevo o cargado |
+| isEdit | boolean | |
+
+#### Ver detalle — `GET /semestre/ver/{id}`
+**Vista:** `semestre/viewInfoSemestre.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| semestre | Semestre | Entidad cargada |
+
+#### Confirmar eliminar — `GET /semestre/delete/{id}`
+**Vista:** `semestre/viewConfirmDeleteSemestre.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| semestre | Semestre | Entidad a eliminar |
+
+---
+
+### Modulo Carrera (`/carrera`)
+**Controlador:** `CarreraController`
+
+#### Lista — `GET /carrera`
+**Vista:** `carrera/viewListaCarrera.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| carreras | List\<Carrera\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | Campos validos: `id`, `nombre`, `clave` |
+
+#### Agregar / Actualizar — `GET /carrera/agregar` y `GET /carrera/actualizar/{id}`
+**Vista:** `carrera/viewFormCarrera.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| carrera | Carrera | Nueva o cargada |
+| isEdit | boolean | |
+
+#### Ver detalle — `GET /carrera/ver/{id}`
+**Vista:** `carrera/viewInfoCarrera.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| carrera | Carrera | Entidad cargada |
+
+#### Confirmar eliminar — `GET /carrera/delete/{id}`
+**Vista:** `carrera/viewConfirmDeleteCarrera.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| carrera | Carrera | Entidad a eliminar |
+
+---
+
+### Modulo Coordinador de Carrera (`/coordinador`)
+**Controlador:** `CoordinadorCarreraController`
+
+#### Lista — `GET /coordinador`
+**Vista:** `coordinador/viewListaCoordinador.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| coordinadores | List\<CoordinadorCarrera\> | Pagina actual |
+| paginaActual / totalPaginas / totalElementos / pageSize | | |
+| sort / sortBy | String | Campos validos: `id`, `nombre` |
+| carreras | List\<Carrera\> | Para filtro |
+| semestres | List\<Semestre\> | Para filtro |
+| idCarreraSeleccionada / idSemestreSeleccionado | Integer | |
+| tipoBusqueda | String | `todos` / `nombre` / `carrera` / `semestre` / `carreraSemestre` |
+| q | String | |
+| filtro | String | |
+
+#### Agregar / Actualizar — `GET /coordinador/agregar` y `GET /coordinador/actualizar/{id}`
+**Vista:** `coordinador/viewFormCoordinador.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| coordinador | CoordinadorCarrera | Nuevo o cargado |
+| carreras | List\<Carrera\> | |
+| semestres | List\<Semestre\> | |
+| isEdit | boolean | |
+
+Acepta `fotoFile` (MultipartFile).
+
+#### Ver detalle — `GET /coordinador/ver/{id}`
+**Vista:** `coordinador/viewInfoCoordinador.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| coordinador | CoordinadorCarrera | Entidad con carrera y semestre |
+
+#### Confirmar eliminar — `GET /coordinador/delete/{id}`
+**Vista:** `coordinador/viewConfirmDeleteCoordinador.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| coordinador | CoordinadorCarrera | Entidad a eliminar |
+
+---
+
+### Modulo Historial de Tutorias (`/historial`)
+**Controlador:** `HistorialController`
+
+#### Vista unica — `GET /historial`
+**Vista:** `historial/viewHistorialTutorias.html`
+
+| Atributo | Tipo | Descripcion |
+|---|---|---|
+| historial | List\<GrupoTutorado\> | Registros de asignacion paginados |
+| totalPaginas / totalElementos / paginaActual / pageSize | | |
+| q | String | Busqueda por nombre de tutorado o tutor |
+| idSemestreSeleccionado / idCarreraSeleccionada | Integer | Filtros |
+| semestres | List\<Semestre\> | Para el select de filtro |
+| carreras | List\<Carrera\> | Para el select de filtro |
+
+---
+
+## Convenciones del Proyecto
+
+### Mensajes Flash
+Todas las operaciones de guardado/actualizacion/eliminacion usan `RedirectAttributes`:
+- `msg_success` — operacion exitosa (verde)
+- `msg_error` — error de operacion (rojo)
+
+### Paginacion
+La mayoria de listas soporta: `page`, `pageSize`, `sort` (`asc`/`desc`), `sortBy`.
+Implementada con Spring Data `Pageable` + `Page<T>`.
+
+### Subida de Archivos
+Los modulos Tutor, Tutorado, PAT, Actividad, Coordinador y Evidencia aceptan un `MultipartFile` via `FileStoreService`. El tipo de carpeta lo determina el enum `FileType` (`TUTOR`, `TUTORADO`, `PAT`, `ACTIVIDAD`, `COORDINADOR`, `EVIDENCIA`).
+
+### Busqueda por Tipo (`tipoBusqueda`)
+El patron estandar en los listados es un `<select>` con `tipoBusqueda` + campos especificos que se activan segun la opcion seleccionada. El controlador evalua la combinacion y llama al metodo de servicio correspondiente.
+
+### Estatus de Registros
+- Sesion: `PENDIENTE` / `REALIZADA` / `CANCELADA`
+- Evidencia: `PENDIENTE` / `VALIDADA` / `RECHAZADA`
+- Campo `activo` = 1 en todos los registros activos (borrado logico preparado)
+
+### Regla del 80% de Asistencia
+Calculada en `AsistenciaServiceImpl.calcularResumenAsistencia(idTutorado)`.
+Un tutorado acredita si `(presente + recuperadas) / totalSesiones >= 0.80`.
+
+### Notas Thymeleaf — Errores Conocidos
+- La variable de iteracion `gt` en `th:each` esta reservada por Thymeleaf como alias del operador `>`. Usar siempre nombres alternativos (`memb`, `item`, `elem`).
+- Acceso a lista por indice: usar `#lists.get(lista, 0)` en lugar de `lista[0]`.
+- Ternarios: siempre dentro de un solo `${}` — `${A == 'X' ? 'y' : 'z'}`.
+- Proyecciones SpEL `lista.![campo]` solo pueden acceder a propiedades del objeto de la coleccion, no a variables del modelo externo.
+
+---
+
+*Generado el 2026-05-05*

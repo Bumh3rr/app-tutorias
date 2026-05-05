@@ -3,156 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle Detección</title>
+    <title th:text="'Detección #' + ${deteccion.id} + ' | Sistema Tutorías'">Detección | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .dt-hero  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .dt-left  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .dt-right { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.13s both; }
+
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Avatar hero ── */
+        .avatar-hero {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.1);
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .avatar-hero:hover {
+            border-color: rgba(255,255,255,0.25);
+            transform: scale(1.04);
+        }
+
+        /* ── Info chips ── */
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.5);
+        }
+        .info-chip svg { opacity: 0.6; flex-shrink: 0; }
+
+        /* ── Need cards ── */
+        .need-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 12px;
+            border-radius: 10px;
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1);
+        }
+        .need-card:hover { transform: translateY(-2px); }
+        .need-card--alert {
+            background: rgba(220,53,69,0.08);
+            border-color: rgba(220,53,69,0.25);
+        }
+        .need-card--alert:hover { border-color: rgba(220,53,69,0.4); }
+        .need-card--ok {
+            background: rgba(34,197,94,0.06);
+            border-color: rgba(34,197,94,0.18);
+        }
+
+        .need-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .need-icon--alert { background: rgba(220,53,69,0.14); }
+        .need-icon--ok    { background: rgba(34,197,94,0.12); }
+
+        .need-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+        }
+
+        /* ── Content blocks ── */
+        .content-block {
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.7);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .content-block.highlight-amber {
+            background: rgba(255,193,7,0.07);
+            border-color: rgba(255,193,7,0.22);
+            border-left: 3px solid rgba(255,193,7,0.5);
+        }
+
+        /* ── Nav link items ── */
+        .nav-link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: inherit;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link-item:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.14);
+            transform: translateX(3px);
+            color: inherit;
+        }
+        .nav-link-item .link-chevron { opacity: 0.25; margin-left: auto; transition: opacity 0.15s ease; }
+        .nav-link-item:hover .link-chevron { opacity: 0.7; }
+
+        /* ── Summary stat ── */
+        .stat-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-align: center;
+            flex: 1;
+        }
+        .stat-chip .stat-num {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .stat-chip .stat-num.alert-num { color: rgba(220,53,69,0.85); }
+        .stat-chip .stat-label { font-size: 11px; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.06em; }
+    </style>
 </head>
 <body>
 
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
-            <div class="form-card w-100 mx-auto" style="max-width: 580px;">
+        <main class="app-main">
 
-                    <h4 class="mb-1">Detección de Necesidades</h4>
-                    <p class="text-secondary-emphasis small mb-4">Resultado del instrumento aplicado</p>
+            <!-- Alerta -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-                    <!-- Info tutorado -->
-                    <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
-                         style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                        <img th:if="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
-                             th:src="@{/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
-                             alt="Foto"
-                             class="avatar avatar-xl">
-                        <img th:unless="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
-                             th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${deteccion.tutorado.nombre}+${deteccion.tutorado.apellido}|}"
-                             alt="Sin foto"
-                             class="avatar avatar-xl">
-                        <div>
-                            <h5 class="mb-0 fw-semibold"
-                                th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.nombre} + ' ' + ${deteccion.tutorado.apellido} : 'Sin tutorado'">
-                            </h5>
-                            <small class="text-secondary font-monospace"
-                                   th:text="'ID: #' + ${deteccion.tutorado.id}"></small>
-                            <br>
-                            <small class="text-secondary"
-                                   th:text="${deteccion.tutorado != null} ?  'No. Control: ' + ${deteccion.tutorado.numeroControl} : ''"></small>
+            <!-- Header -->
+            <div class="page-header dt-hero">
+                <div>
+                    <a th:href="@{/deteccion}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Detecciones
+                    </a>
+                    <h3 class="mb-1">Detección de Necesidades</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Resultado del instrumento aplicado al tutorado.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill px-3 py-2" style="font-size:12px;"
+                          th:text="${deteccion.activo == 1} ? 'Activo' : 'Inactivo'"
+                          th:classappend="${deteccion.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                    </span>
+                    <a th:href="@{/deteccion/actualizar/{id}(id=${deteccion.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/deteccion/delete/{id}(id=${deteccion.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
+
+            <!-- Hero: identidad del tutorado -->
+            <div class="glass-surface dt-hero mb-4">
+                <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                    <!-- Avatar -->
+                    <img th:if="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
+                         th:src="@{/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
+                         alt="Foto tutorado"
+                         class="avatar-hero">
+                    <img th:unless="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
+                         th:src="@{|https://ui-avatars.com/api/?size=144&background=random&color=fff&rounded=true&bold=true&name=${deteccion.tutorado != null ? deteccion.tutorado.nombre + '+' + deteccion.tutorado.apellido : 'S+N'}|}"
+                         alt="Avatar"
+                         class="avatar-hero">
+
+                    <!-- Nombre y contexto -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h4 class="mb-0 fw-bold"
+                                th:text="${deteccion.tutorado != null} ? ${deteccion.tutorado.nombre} + ' ' + ${deteccion.tutorado.apellido} : 'Sin tutorado'"></h4>
                         </div>
-
+                        <div class="mb-2">
+                            <span class="text-body-secondary small font-monospace"
+                                  th:if="${deteccion.tutorado != null}"
+                                  th:text="'No. Control: ' + ${deteccion.tutorado.numeroControl}"
+                                  style="opacity:0.55;"></span>
+                        </div>
+                        <!-- Meta chips -->
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="info-chip" th:if="${deteccion.sesion != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span th:text="'Semana ' + ${deteccion.sesion.semana}"></span>
+                                <span th:if="${deteccion.sesion.fechaImparticion != null}"
+                                      th:text="'· ' + ${#dates.format(deteccion.sesion.fechaImparticion, 'dd/MM/yyyy')}"
+                                      style="opacity:0.6;"></span>
+                            </span>
+                            <span class="info-chip" th:if="${deteccion.sesion != null and deteccion.sesion.grupo != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <span th:text="${deteccion.sesion.grupo.nombre}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${deteccion.id != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                <span th:text="'Detección #' + ${deteccion.id}"></span>
+                            </span>
+                        </div>
                     </div>
 
-                    <!-- Datos generales -->
-                    <div class="vstack gap-0 mb-4">
-                        <div class="detail-row">
-                            <span class="detail-label">ID</span>
-                            <span class="detail-value" th:text="${deteccion.id}"></span>
+                </div>
+            </div>
+
+            <!-- Dos columnas -->
+            <div class="row g-4">
+
+                <!-- Columna izquierda: necesidades -->
+                <div class="col-lg-8 d-flex flex-column gap-4">
+
+                    <!-- Necesidades académicas -->
+                    <div class="glass-surface dt-left">
+                        <p class="section-title">Necesidades Académicas</p>
+                        <div class="row g-3">
+
+                            <!-- Álgebra -->
+                            <div class="col-sm-4">
+                                <div class="need-card"
+                                     th:classappend="${deteccion.necesidadAlgebra == 1} ? 'need-card--alert' : 'need-card--ok'">
+                                    <div class="need-icon"
+                                         th:classappend="${deteccion.necesidadAlgebra == 1} ? 'need-icon--alert' : 'need-icon--ok'">
+                                        <!-- Alert icon -->
+                                        <svg th:if="${deteccion.necesidadAlgebra == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(220,53,69,0.9)" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <!-- Check icon -->
+                                        <svg th:unless="${deteccion.necesidadAlgebra == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.8)" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="need-label">Álgebra</span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadAlgebra == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                          th:classappend="${deteccion.necesidadAlgebra == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Cálculo -->
+                            <div class="col-sm-4">
+                                <div class="need-card"
+                                     th:classappend="${deteccion.necesidadCalculo == 1} ? 'need-card--alert' : 'need-card--ok'">
+                                    <div class="need-icon"
+                                         th:classappend="${deteccion.necesidadCalculo == 1} ? 'need-icon--alert' : 'need-icon--ok'">
+                                        <svg th:if="${deteccion.necesidadCalculo == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(220,53,69,0.9)" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <svg th:unless="${deteccion.necesidadCalculo == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.8)" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="need-label">Cálculo</span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadCalculo == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                          th:classappend="${deteccion.necesidadCalculo == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Intro. Derecho -->
+                            <div class="col-sm-4">
+                                <div class="need-card"
+                                     th:classappend="${deteccion.necesidadDerecho == 1} ? 'need-card--alert' : 'need-card--ok'">
+                                    <div class="need-icon"
+                                         th:classappend="${deteccion.necesidadDerecho == 1} ? 'need-icon--alert' : 'need-icon--ok'">
+                                        <svg th:if="${deteccion.necesidadDerecho == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(220,53,69,0.9)" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <svg th:unless="${deteccion.necesidadDerecho == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.8)" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="need-label">Intro. Derecho</span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadDerecho == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                          th:classappend="${deteccion.necesidadDerecho == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="detail-row">
+
+                        <!-- Otra materia -->
+                        <div class="mt-3" th:if="${deteccion.necesidadOtra != null and !deteccion.necesidadOtra.isEmpty()}">
+                            <p class="mb-2" style="font-size:12px; opacity:0.45; font-weight:600; text-transform:uppercase; letter-spacing:0.07em;">Otra materia con dificultad</p>
+                            <div class="content-block highlight-amber">
+                                <span th:text="${deteccion.necesidadOtra}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Apoyo integral -->
+                    <div class="glass-surface dt-left" style="animation-delay:0.1s;">
+                        <p class="section-title">Apoyo Integral</p>
+                        <div class="row g-3">
+
+                            <!-- Económico -->
+                            <div class="col-sm-6">
+                                <div class="need-card"
+                                     th:classappend="${deteccion.necesidadEconomica == 1} ? 'need-card--alert' : 'need-card--ok'">
+                                    <div class="need-icon"
+                                         th:classappend="${deteccion.necesidadEconomica == 1} ? 'need-icon--alert' : 'need-icon--ok'">
+                                        <svg th:if="${deteccion.necesidadEconomica == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(220,53,69,0.9)" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <svg th:unless="${deteccion.necesidadEconomica == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.8)" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="need-label">Apoyo Económico</span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadEconomica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                          th:classappend="${deteccion.necesidadEconomica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Psicológico -->
+                            <div class="col-sm-6">
+                                <div class="need-card"
+                                     th:classappend="${deteccion.necesidadPsicologica == 1} ? 'need-card--alert' : 'need-card--ok'">
+                                    <div class="need-icon"
+                                         th:classappend="${deteccion.necesidadPsicologica == 1} ? 'need-icon--alert' : 'need-icon--ok'">
+                                        <svg th:if="${deteccion.necesidadPsicologica == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(220,53,69,0.9)" stroke-width="2">
+                                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                        </svg>
+                                        <svg th:unless="${deteccion.necesidadPsicologica == 1}"
+                                             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.8)" stroke-width="2">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="need-label">Apoyo Psicológico</span>
+                                    <span class="badge rounded-pill"
+                                          th:text="${deteccion.necesidadPsicologica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
+                                          th:classappend="${deteccion.necesidadPsicologica == 1} ? 'badge-inactive' : 'bg-secondary'">
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="glass-surface dt-left" style="animation-delay:0.15s;"
+                         th:if="${deteccion.observaciones != null and !deteccion.observaciones.isEmpty()}">
+                        <p class="section-title">Observaciones del tutor</p>
+                        <div class="content-block" th:text="${deteccion.observaciones}"></div>
+                    </div>
+
+                </div>
+
+                <!-- Columna derecha: metadatos + acciones -->
+                <div class="col-lg-4 d-flex flex-column gap-4">
+
+                    <!-- Registro -->
+                    <div class="glass-surface dt-right">
+                        <p class="section-title">Registro</p>
+
+                        <div class="detail-row" th:if="${deteccion.sesion != null}">
                             <span class="detail-label">Sesión</span>
-                            <span class="detail-value"
-                                  th:text="${deteccion.sesion != null} ? 'Semana ' + ${deteccion.sesion.semana} : 'Sin sesión'"></span>
+                            <span class="detail-value">
+                                <a th:href="@{/sesion/ver/{id}(id=${deteccion.sesion.id})}"
+                                   class="text-decoration-none"
+                                   th:text="'Semana ' + ${deteccion.sesion.semana}"
+                                   style="color: var(--bs-primary); transition: opacity 0.15s;"
+                                   onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">
+                                </a>
+                            </span>
                         </div>
+                        <div class="detail-row" th:unless="${deteccion.sesion != null}">
+                            <span class="detail-label">Sesión</span>
+                            <span class="badge rounded-pill badge-sin-asignar">Sin asignar</span>
+                        </div>
+
                         <div class="detail-row" th:if="${deteccion.fechaRegistro != null}">
                             <span class="detail-label">Registrado</span>
                             <span class="detail-value">
                                 <div th:data-ts="${deteccion.fechaRegistro.time}">
-                                    <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
                                     <small class="d-block text-body-secondary mt-1"
                                            th:text="${#dates.format(deteccion.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                                 </div>
                             </span>
                         </div>
-                    </div>
 
-                    <!-- Necesidades académicas -->
-                    <h6 class="text-body-secondary mb-2">Necesidades Académicas</h6>
-                    <div class="row g-2 mb-4">
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 text-center"
-                                 th:style="${deteccion.necesidadAlgebra == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
-                                <div class="fw-medium mb-1">Álgebra</div>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.necesidadAlgebra == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
-                                      th:classappend="${deteccion.necesidadAlgebra == 1} ? 'badge-inactive' : 'bg-secondary'">
-                                </span>
-                            </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ID interno</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="'#' + ${deteccion.id}"></span>
                         </div>
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 text-center"
-                                 th:style="${deteccion.necesidadCalculo == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
-                                <div class="fw-medium mb-1">Cálculo</div>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.necesidadCalculo == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
-                                      th:classappend="${deteccion.necesidadCalculo == 1} ? 'badge-inactive' : 'bg-secondary'">
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="p-3 rounded-3 text-center"
-                                 th:style="${deteccion.necesidadDerecho == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
-                                <div class="fw-medium mb-1">Intro. Derecho</div>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.necesidadDerecho == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
-                                      th:classappend="${deteccion.necesidadDerecho == 1} ? 'badge-inactive' : 'bg-secondary'">
-                                </span>
-                            </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Estado</span>
+                            <span class="badge rounded-pill"
+                                  th:text="${deteccion.activo == 1} ? 'Activo' : 'Inactivo'"
+                                  th:classappend="${deteccion.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Otra materia -->
-                    <div class="mb-4" th:if="${deteccion.necesidadOtra != null and !deteccion.necesidadOtra.isEmpty()}">
-                        <h6 class="text-body-secondary mb-2">Otra materia con dificultad</h6>
-                        <div class="p-3 rounded-3"
-                             style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3);">
-                            <span class="fw-medium" th:text="${deteccion.necesidadOtra}"></span>
+                    <!-- Acciones -->
+                    <div class="glass-surface dt-right" style="animation-delay:0.18s;">
+                        <p class="section-title">Acciones</p>
+                        <div class="d-flex flex-column gap-2">
+                            <a th:href="@{/deteccion/actualizar/{id}(id=${deteccion.id})}"
+                               class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Editar detección
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/deteccion/delete/{id}(id=${deteccion.id})}"
+                               class="nav-link-item" style="color: rgba(248,113,113,0.7);">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14H6L5 6"/>
+                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                                Eliminar detección
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Necesidades integrales -->
-                    <h6 class="text-body-secondary mb-2">Apoyo Integral</h6>
-                    <div class="row g-2 mb-4">
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-3 text-center"
-                                 th:style="${deteccion.necesidadEconomica == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
-                                <div class="fw-medium mb-1">Apoyo Económico</div>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.necesidadEconomica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
-                                      th:classappend="${deteccion.necesidadEconomica == 1} ? 'badge-inactive' : 'bg-secondary'">
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="p-3 rounded-3 text-center"
-                                 th:style="${deteccion.necesidadPsicologica == 1} ? 'background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.3);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);'">
-                                <div class="fw-medium mb-1">Apoyo Psicológico</div>
-                                <span class="badge rounded-pill"
-                                      th:text="${deteccion.necesidadPsicologica == 1} ? 'Requiere apoyo' : 'Sin necesidad'"
-                                      th:classappend="${deteccion.necesidadPsicologica == 1} ? 'badge-inactive' : 'bg-secondary'">
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+            </div><!-- /row -->
 
-                    <!-- Observaciones -->
-                    <div class="mb-4"
-                         th:if="${deteccion.observaciones != null and !deteccion.observaciones.isEmpty()}">
-                        <h6 class="text-body-secondary mb-2">Observaciones del tutor</h6>
-                        <div class="p-3 rounded-3"
-                             style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                            <p class="mb-0 text-body-secondary small" th:text="${deteccion.observaciones}"></p>
-                        </div>
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="d-flex gap-2 mt-2">
-                        <a th:href="@{/deteccion/actualizar/{id}(id=${deteccion.id})}"
-                           class="btn btn-primary w-100">Editar</a>
-                        <a th:href="@{/deteccion}" class="btn btn-secondary w-100">Volver</a>
-                    </div>
-
-            </div>
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
     </div>

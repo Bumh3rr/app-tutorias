@@ -4,6 +4,8 @@ import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Tutor;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.GrupoService;
+import com.bumh3r.service.GrupoTutoradoService;
+import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutorService;
 import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
@@ -30,6 +32,10 @@ public class TutorController {
     private TutorService tutorService;
     @Autowired
     private GrupoService grupoService;
+    @Autowired
+    private GrupoTutoradoService grupoTutoradoService;
+    @Autowired
+    private SesionService sesionService;
     @Autowired
     private FileStoreService fileStoreService;
 
@@ -117,9 +123,21 @@ public class TutorController {
     public String obtenerVistaVerTutor(@PathVariable Integer id, Model model) {
         Tutor tutor = this.tutorService.obtenerTutor(id);
         List<Grupo> grupos = this.grupoService.buscarPorTutor(id);
+        java.util.Map<Integer, Long> alumnosPorGrupo = this.grupoTutoradoService.contarAlumnosPorGrupo();
+        java.util.Map<Integer, Long> sesionesPorGrupo = new java.util.HashMap<>();
+        for (Grupo g : grupos) {
+            long count = this.sesionService.buscarSesionesPorGrupo(g.getId()).size();
+            sesionesPorGrupo.put(g.getId(), count);
+        }
+        long totalAlumnos = grupos.stream().mapToLong(g -> alumnosPorGrupo.getOrDefault(g.getId(), 0L)).sum();
+        long totalSesiones = sesionesPorGrupo.values().stream().mapToLong(Long::longValue).sum();
         log.info("Tutor: {}", tutor);
         model.addAttribute("tutor", tutor);
         model.addAttribute("grupos", grupos);
+        model.addAttribute("alumnosPorGrupo", alumnosPorGrupo);
+        model.addAttribute("sesionesPorGrupo", sesionesPorGrupo);
+        model.addAttribute("totalAlumnos", totalAlumnos);
+        model.addAttribute("totalSesiones", totalSesiones);
         return "tutor/viewInfoTutor";
     }
 

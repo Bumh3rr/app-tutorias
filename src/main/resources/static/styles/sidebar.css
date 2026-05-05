@@ -62,6 +62,16 @@ body {
     to   { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Global utility animation class */
+.fade-in-up {
+    animation: fadeSlide 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 /* ══════════════════════════════════════
    LAYOUT
 ══════════════════════════════════════ */
@@ -160,7 +170,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-decoration: none;
-    transition: background 0.15s, opacity 0.15s, color 0.15s;
+    transition: background 0.18s ease, opacity 0.18s ease, color 0.18s ease, transform 0.15s ease;
     border-radius: 0;
     opacity: 0.65;
     position: relative;
@@ -181,6 +191,7 @@ body {
     background: rgba(255,255,255,0.05);
     opacity: 1;
     color: var(--bs-body-color);
+    transform: translateX(2px);
 }
 
 .nav-item.active-route {
@@ -203,10 +214,11 @@ body {
 .nav-children {
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.25s cubic-bezier(.4,0,.2,1);
+    opacity: 0;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 
-.nav-children.open { max-height: 320px; }
+.nav-children.open { max-height: 320px; opacity: 1; }
 
 .nav-child {
     display: flex;
@@ -324,6 +336,7 @@ body {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
     padding: 20px 24px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 /* Stat card */
@@ -493,7 +506,7 @@ body {
     font-size: 13.5px;
     font-weight: 500;
     padding: 8px 18px;
-    transition: all 0.15s cubic-bezier(.4,0,.2,1);
+    transition: all 0.18s ease;
     position: relative;
     overflow: hidden;
 }
@@ -538,6 +551,7 @@ body {
     padding: 5px 10px;
     border-radius: 6px;
     letter-spacing: 0.02em;
+    transition: opacity 0.2s ease;
 }
 
 .badge-active {
@@ -557,6 +571,12 @@ body {
     background-color: rgba(255,255,255,0.1) !important;
     color: rgba(255,255,255,0.7) !important;
     border: 1px solid rgba(255,255,255,0.2);
+}
+
+.badge-pendiente {
+    background-color: rgba(99,102,241,0.14) !important;
+    color: #a5b4fc !important;
+    border: 1px solid rgba(99,102,241,0.25);
 }
 
 /* Relative-time badges */

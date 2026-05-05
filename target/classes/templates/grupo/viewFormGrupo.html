@@ -22,7 +22,7 @@
                     <h3 class="mb-1" th:text="${isEdit} ? 'Editar Grupo' : 'Agregar Grupo'"></h3>
                     <p class="text-body-secondary fs-6 mb-0">
                         Configura un grupo de tutoría asignando su nombre, semestre, carrera, aula y horario.
-                        La asignación del tutor se gestiona desde el módulo <strong>Asignar Tutor</strong>.
+                        La asignación del tutor se gestiona desde el módulo <a th:href="@{/grupo/asignar-tutor}">Asignar Tutor</a>.
                     </p>
                 </div>
                 <p class="text-body-secondary small mb-4">

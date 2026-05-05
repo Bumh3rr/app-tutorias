@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +97,13 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
             map.put((Integer) row[0], (Long) row[1]);
         }
         return map;
+    }
+
+    @Override
+    public Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        String query = (q == null || q.isBlank()) ? "" : q.trim();
+        return this.iGrupoTutoradoRepository.buscarHistorial(query, idSemestre, idCarrera, pageable);
     }
 
     @Override

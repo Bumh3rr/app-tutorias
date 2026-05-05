@@ -3,10 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumen de Asistencia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title th:text="${resumen != null} ? 'Asistencia · ' + ${resumen.nombreTutorado} + ' | Sistema Tutorías' : 'Resumen de Asistencia'">Resumen de Asistencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        @keyframes growBar  { to { width: var(--pct); } }
+        @keyframes scaleIn  { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulseGlow{ 0%,100% { box-shadow: 0 0 0 0 var(--glow-color); } 60% { box-shadow: 0 0 0 10px transparent; } }
+
+        .ar-hero  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .ar-card  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .ar-stats { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.10s both; }
+        .ar-bar   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.15s both; }
+        .ar-table { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.20s both; }
+
+        /* ── Result hero ── */
+        .result-hero {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 28px 24px;
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+        .result-hero--success {
+            background: rgba(34,197,94,0.07);
+            border: 1px solid rgba(34,197,94,0.2);
+        }
+        .result-hero--danger {
+            background: rgba(220,53,69,0.07);
+            border: 1px solid rgba(220,53,69,0.2);
+        }
+
+        .result-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: scaleIn 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.35s both;
+        }
+        .result-icon--success {
+            background: rgba(34,197,94,0.15);
+            --glow-color: rgba(34,197,94,0.3);
+            animation: scaleIn 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.35s both,
+                       pulseGlow 2.4s ease 1s infinite;
+        }
+        .result-icon--danger {
+            background: rgba(220,53,69,0.15);
+            --glow-color: rgba(220,53,69,0.3);
+            animation: scaleIn 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.35s both,
+                       pulseGlow 2.4s ease 1s infinite;
+        }
+
+        .result-pct {
+            font-size: clamp(38px, 5.5vw, 54px);
+            font-weight: 800;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+        .result-status {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* ── Stat cards ── */
+        .stat-card {
+            padding: 20px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.05);
+        }
+        .stat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        .stat-num {
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 5px;
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-label {
+            font-size: 11.5px;
+            font-weight: 500;
+            opacity: 0.45;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Animated progress bar ── */
+        .progress-track {
+            height: 20px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 99px;
+            position: relative;
+            overflow: visible;
+            margin-bottom: 6px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            width: 0;
+            position: relative;
+            animation: growBar 1.5s cubic-bezier(0.4,0,0.2,1) 0.6s forwards;
+        }
+        .progress-fill--success {
+            background: linear-gradient(90deg, rgba(34,197,94,0.55), rgba(34,197,94,0.95));
+            box-shadow: 0 0 16px rgba(34,197,94,0.28);
+        }
+        .progress-fill--danger {
+            background: linear-gradient(90deg, rgba(220,53,69,0.55), rgba(220,53,69,0.95));
+            box-shadow: 0 0 16px rgba(220,53,69,0.28);
+        }
+        /* Glow dot at tip of fill */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 6px rgba(255,255,255,0.5);
+        }
+
+        /* 80% threshold marker */
+        .threshold-marker {
+            position: absolute;
+            left: 80%;
+            top: -8px;
+            bottom: -8px;
+            width: 2px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+        .threshold-marker::before {
+            content: '80% mín.';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            white-space: nowrap;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tick marks below progress */
+        .progress-ticks {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 0;
+            margin-top: 8px;
+        }
+        .progress-ticks span {
+            font-size: 10.5px;
+            opacity: 0.35;
+            font-weight: 500;
+            width: 28px;
+            text-align: center;
+        }
+        .progress-ticks span:first-child { text-align: left; }
+        .progress-ticks span:last-child  { text-align: right; }
+
+        /* Fraction label */
+        .fraction-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+        }
+        .fraction-label strong {
+            color: rgba(255,255,255,0.8);
+            font-weight: 600;
+        }
+
+        /* ── History table row tints ── */
+        .row-presente  { background: rgba(34,197,94,0.04) !important; }
+        .row-recuperada{ background: rgba(255,193,7,0.04) !important; }
+        .row-ausente   { background: rgba(220,53,69,0.03) !important; }
+
+        /* ── Section title ── */
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+    </style>
 </head>
 <body>
 
@@ -15,101 +226,184 @@
     <div class="app-content">
         <main class="app-main">
 
-            <div class="page-header">
-                <div>
-                    <h3 class="mb-1">Resumen de Asistencia</h3>
-                    <p class="text-body-secondary fs-6 mb-0"
-                       th:text="${resumen != null} ? ${resumen.nombreTutorado} : ''"></p>
-                </div>
-            </div>
-
-            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <!-- Alerta -->
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4">
                 <span th:text="${msg_error}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Header -->
+            <div class="page-header ar-hero">
+                <div>
+                    <a th:href="@{/asistencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6; transition:opacity 0.15s ease;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Asistencia
+                    </a>
+                    <h3 class="mb-1">Resumen de Asistencia</h3>
+                    <p class="text-body-secondary fs-6 mb-0"
+                       th:text="${resumen != null} ? ${resumen.nombreTutorado} : 'Cargando...'"></p>
+                </div>
+            </div>
+
             <div th:if="${resumen != null}">
 
-                <!-- Tarjeta resultado acreditación -->
-                <div class="card border-0 mb-4 p-4"
-                     th:classappend="${resumen.acreditado} ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'"
-                     style="border-radius: var(--bs-border-radius-lg);">
-                    <div class="d-flex align-items-center gap-4">
-                        <div class="text-center">
-                            <div class="display-4 fw-semibold"
-                                 th:text="${resumen.porcentaje} + '%'"
-                                 th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
+                <!-- ── Resultado hero + stats ── -->
+                <div class="row g-4 mb-4">
+
+                    <!-- Result card -->
+                    <div class="col-lg-5 ar-card">
+                        <div class="result-hero h-100"
+                             th:classappend="${resumen.acreditado} ? 'result-hero--success' : 'result-hero--danger'">
+
+                            <!-- Icon -->
+                            <div class="result-icon"
+                                 th:classappend="${resumen.acreditado} ? 'result-icon--success' : 'result-icon--danger'">
+                                <!-- Check icon -->
+                                <svg th:if="${resumen.acreditado}"
+                                     width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                     stroke="rgba(34,197,94,0.95)" stroke-width="2.5" stroke-linecap="round">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <!-- X icon -->
+                                <svg th:unless="${resumen.acreditado}"
+                                     width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                     stroke="rgba(220,53,69,0.95)" stroke-width="2.5" stroke-linecap="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
                             </div>
-                            <small class="text-body-secondary">asistencia</small>
+
+                            <!-- Text -->
+                            <div class="flex-grow-1">
+                                <div class="result-pct"
+                                     id="pct-num"
+                                     th:data-pct="${resumen.porcentaje}"
+                                     th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
+                                    0%
+                                </div>
+                                <div class="result-status"
+                                     th:text="${resumen.acreditado} ? 'Acreditado' : 'No acreditado'"
+                                     th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
+                                </div>
+                                <p class="text-body-secondary small mb-0 mt-2">
+                                    Se requiere mínimo <strong>80%</strong> de asistencia para acreditar.
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="mb-1"
-                                th:text="${resumen.acreditado} ? 'ACREDITADO' : 'NO ACREDITADO'"
-                                th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'">
-                            </h4>
-                            <p class="text-body-secondary mb-0">
-                                Se requiere mínimo 80% de asistencia para acreditar.
-                            </p>
+                    </div>
+
+                    <!-- Stats grid -->
+                    <div class="col-lg-7 ar-stats">
+                        <div class="row g-3 h-100">
+
+                            <!-- Total sesiones -->
+                            <div class="col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon" style="background: rgba(255,255,255,0.06);">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="stat-num" th:text="${resumen.totalSesiones}"></div>
+                                    <div class="stat-label">Sesiones totales</div>
+                                </div>
+                            </div>
+
+                            <!-- Presentes -->
+                            <div class="col-6">
+                                <div class="stat-card" style="border-color: rgba(34,197,94,0.2);">
+                                    <div class="stat-icon" style="background: rgba(34,197,94,0.1);">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.9)" stroke-width="2.5" stroke-linecap="round">
+                                            <polyline points="20 6 9 17 4 12"/>
+                                        </svg>
+                                    </div>
+                                    <div class="stat-num text-success" th:text="${resumen.asistenciasPresente}"></div>
+                                    <div class="stat-label">Presentes</div>
+                                </div>
+                            </div>
+
+                            <!-- Recuperadas -->
+                            <div class="col-6">
+                                <div class="stat-card" style="border-color: rgba(255,193,7,0.2);">
+                                    <div class="stat-icon" style="background: rgba(255,193,7,0.1);">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,193,7,0.9)" stroke-width="2">
+                                            <polyline points="1 4 1 10 7 10"/>
+                                            <path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="stat-num text-warning" th:text="${resumen.asistenciasRecuperadas}"></div>
+                                    <div class="stat-label">Recuperadas</div>
+                                </div>
+                            </div>
+
+                            <!-- Total acreditadas -->
+                            <div class="col-6">
+                                <div class="stat-card"
+                                     th:style="${resumen.acreditado} ? 'border-color: rgba(34,197,94,0.2);' : 'border-color: rgba(220,53,69,0.18);'">
+                                    <div class="stat-icon"
+                                         th:style="${resumen.acreditado} ? 'background: rgba(34,197,94,0.1);' : 'background: rgba(220,53,69,0.1);'">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                             th:attr="stroke=${resumen.acreditado} ? 'rgba(34,197,94,0.9)' : 'rgba(220,53,69,0.9)'"
+                                             stroke-width="2">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="stat-num"
+                                         th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'"
+                                         th:text="${resumen.totalAcreditadas}">
+                                    </div>
+                                    <div class="stat-label">Acreditadas</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
 
-                <!-- Estadísticas -->
-                <div class="row g-3 mb-4">
-                    <div class="col-6 col-md-3">
-                        <div class="glass-surface text-center p-3">
-                            <p class="text-body-secondary small mb-1">Total sesiones</p>
-                            <h3 class="fw-semibold mb-0" th:text="${resumen.totalSesiones}"></h3>
-                        </div>
+                <!-- ── Barra de progreso animada ── -->
+                <div class="glass-surface ar-bar mb-4">
+                    <p class="section-title">Progreso de asistencia</p>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fraction-label">
+                            <strong th:text="${resumen.totalAcreditadas}"></strong>
+                            de
+                            <strong th:text="${resumen.totalSesiones}"></strong>
+                            sesiones acreditadas
+                        </span>
+                        <span class="badge rounded-pill px-3 py-2"
+                              style="font-size: 13px; font-weight: 700;"
+                              th:text="${resumen.porcentaje} + '%'"
+                              th:classappend="${resumen.acreditado} ? 'badge-active' : 'badge-inactive'">
+                        </span>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <div class="glass-surface text-center p-3">
-                            <p class="text-body-secondary small mb-1">Presentes</p>
-                            <h3 class="fw-semibold mb-0 text-success"
-                                th:text="${resumen.asistenciasPresente}"></h3>
+
+                    <!-- Track -->
+                    <div class="progress-track">
+                        <div class="progress-fill"
+                             th:classappend="${resumen.acreditado} ? 'progress-fill--success' : 'progress-fill--danger'"
+                             th:style="'--pct: ' + ${resumen.porcentaje} + '%;'">
                         </div>
+                        <!-- 80% threshold marker -->
+                        <div class="threshold-marker"></div>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <div class="glass-surface text-center p-3">
-                            <p class="text-body-secondary small mb-1">Recuperadas</p>
-                            <h3 class="fw-semibold mb-0 text-warning"
-                                th:text="${resumen.asistenciasRecuperadas}"></h3>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="glass-surface text-center p-3">
-                            <p class="text-body-secondary small mb-1">Total acreditadas</p>
-                            <h3 class="fw-semibold mb-0"
-                                th:text="${resumen.totalAcreditadas}"></h3>
-                        </div>
+
+                    <!-- Tick labels -->
+                    <div class="progress-ticks">
+                        <span>0%</span>
+                        <span>25%</span>
+                        <span>50%</span>
+                        <span>75%</span>
+                        <span>100%</span>
                     </div>
                 </div>
 
-                <!-- Barra de progreso -->
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between mb-1">
-                        <small class="text-body-secondary">Progreso de asistencia</small>
-                        <small class="text-body-secondary">Mínimo requerido: 80%</small>
-                    </div>
-                    <div class="progress" style="height: 12px; border-radius: 8px;">
-                        <div class="progress-bar"
-                             role="progressbar"
-                             th:style="'width: ' + ${resumen.porcentaje} + '%'"
-                             th:classappend="${resumen.acreditado} ? 'bg-success' : 'bg-danger'"
-                             th:attr="aria-valuenow=${resumen.porcentaje}"
-                             aria-valuemin="0" aria-valuemax="100">
-                        </div>
-                    </div>
-                    <!-- Marcador del 80% -->
-                    <div class="position-relative" style="height: 4px;">
-                        <div style="position:absolute; left:80%; top:-16px; width:2px; height:28px;
-                                    background: rgba(255,255,255,0.3);"></div>
-                    </div>
-                </div>
+                <!-- ── Historial de sesiones ── -->
+                <div class="glass-surface ar-table" th:if="${historial != null and !#lists.isEmpty(historial)}">
+                    <p class="section-title">Historial de sesiones</p>
 
-                <!-- Historial de sesiones -->
-                <h5 class="mb-3">Historial de sesiones</h5>
-                <div th:if="${historial != null and !#lists.isEmpty(historial)}">
                     <div class="table-wrapper">
                         <table class="table">
                             <thead>
@@ -123,15 +417,20 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="asistencia : ${historial}">
-                                <td th:text="${asistencia.sesion != null} ? 'Sesión #' + ${asistencia.sesion.id} : '---'"></td>
+                            <tr th:each="asistencia : ${historial}"
+                                th:classappend="${asistencia.presente == 1 ? 'row-presente' : (asistencia.recuperada == 1 ? 'row-recuperada' : 'row-ausente')}">
                                 <td>
-                                    <span class="badge bg-secondary"
+                                    <span class="text-body-secondary font-monospace small"
+                                          th:text="${asistencia.sesion != null} ? '#' + ${asistencia.sesion.id} : '---'">
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary rounded-pill"
                                           th:text="${asistencia.sesion != null} ? 'Semana ' + ${asistencia.sesion.semana} : '---'">
                                     </span>
                                 </td>
-                                <td th:text="${asistencia.sesion != null and asistencia.sesion.fechaImparticion != null} ?
-                                 ${#dates.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
+                                <td class="text-body-secondary"
+                                    th:text="${asistencia.sesion != null and asistencia.sesion.fechaImparticion != null} ? ${#dates.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')} : '---'">
                                 </td>
                                 <td>
                                     <span class="badge rounded-pill"
@@ -146,23 +445,17 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <!-- Solo mostrar botón si está ausente y no recuperada -->
                                     <form th:if="${asistencia.presente == 0 and asistencia.recuperada == 0}"
                                           th:action="@{/asistencia/recuperar/{id}(id=${asistencia.id})}"
                                           method="post" style="display:inline;">
-                                        <input type="hidden" name="idTutorado"
-                                               th:value="${resumen.idTutorado}">
+                                        <input type="hidden" name="idTutorado" th:value="${resumen.idTutorado}">
                                         <button type="submit" class="btn btn-sm btn-warning"
-                                                onclick="return confirm('¿Marcar esta asistencia como recuperada?')">
+                                                onclick="return confirm('¿Marcar esta sesión como recuperada?')">
                                             Recuperar
                                         </button>
                                     </form>
-                                    <!-- Si ya está recuperada mostrar badge -->
                                     <span th:if="${asistencia.recuperada == 1}"
-                                          class="badge bg-warning text-dark">
-                                        Recuperada
-                                    </span>
-                                    <!-- Si está presente no mostrar nada -->
+                                          class="badge bg-warning text-dark rounded-pill">Recuperada</span>
                                     <span th:if="${asistencia.presente == 1}"
                                           class="text-body-secondary small">—</span>
                                 </td>
@@ -172,10 +465,13 @@
                     </div>
                 </div>
 
-            </div>
+            </div><!-- /resumen -->
 
             <div class="mt-4">
-                <a th:href="@{/asistencia}" class="btn btn-secondary">Volver</a>
+                <a th:href="@{/asistencia}" class="btn btn-outline-secondary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><polyline points="15 18 9 12 15 6"/></svg>
+                    Volver
+                </a>
             </div>
 
         </main>
@@ -185,5 +481,26 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const el = document.getElementById('pct-num');
+        if (!el) return;
+        const target = parseFloat(el.dataset.pct) || 0;
+        const duration = 1400;
+        const start = performance.now();
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+        setTimeout(function () {
+            function step(ts) {
+                const elapsed = ts - start;
+                const t = Math.min(elapsed / duration, 1);
+                el.textContent = Math.round(target * easeOutCubic(t)) + '%';
+                if (t < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }, 500); // sync with bar animation delay
+    });
+</script>
 </body>
 </html>

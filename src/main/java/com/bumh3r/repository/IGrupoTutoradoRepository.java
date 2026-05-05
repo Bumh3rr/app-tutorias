@@ -3,6 +3,8 @@ package com.bumh3r.repository;
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +27,30 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
 
     @Query("SELECT gt.grupo.id, COUNT(gt) FROM GrupoTutorado gt WHERE gt.activo = 1 GROUP BY gt.grupo.id")
     List<Object[]> countActivoByGrupo();
+
+    @Query(value = """
+        SELECT gt FROM GrupoTutorado gt
+        WHERE (:q IS NULL OR :q = ''
+               OR LOWER(gt.tutorado.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
+               OR LOWER(gt.tutorado.apellido) LIKE LOWER(CONCAT('%', :q, '%'))
+               OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
+        AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
+        AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
+        """,
+        countQuery = """
+        SELECT COUNT(gt) FROM GrupoTutorado gt
+        WHERE (:q IS NULL OR :q = ''
+               OR LOWER(gt.tutorado.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
+               OR LOWER(gt.tutorado.apellido) LIKE LOWER(CONCAT('%', :q, '%'))
+               OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
+        AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
+        AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
+        """)
+    Page<GrupoTutorado> buscarHistorial(
+            @Param("q") String q,
+            @Param("idSemestre") Integer idSemestre,
+            @Param("idCarrera") Integer idCarrera,
+            Pageable pageable);
 
     @Query("""
         SELECT t FROM Tutorado t

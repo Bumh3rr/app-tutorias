@@ -66,7 +66,8 @@
                                class="form-control"
                                th:field="*{anio}"
                                th:classappend="${#fields.hasErrors('anio')} ? 'is-invalid'"
-                               placeholder="ej. 2025">
+                               placeholder="ej. 2025"
+                               min="2000" max="2100">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('anio')}" th:errors="*{anio}"></div>
                     </div>
 

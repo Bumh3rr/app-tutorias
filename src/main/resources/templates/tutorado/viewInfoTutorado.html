@@ -3,83 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle Tutorado</title>
+    <title th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido} + ' | Sistema Tutorías'">Detalle Tutorado</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .td-hero   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) both; }
+        .td-left   { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.07s both; }
+        .td-right  { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.13s both; }
+        .td-bottom { animation: fadeInUp 0.32s cubic-bezier(0.4,0,0.2,1) 0.18s both; }
+
+        .section-title {
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.4;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ── Avatar ── */
+        .avatar-hero {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.1);
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .avatar-hero:hover { border-color: rgba(255,255,255,0.28); transform: scale(1.04); }
+
+        /* ── Info chips ── */
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.5);
+        }
+        .info-chip svg { opacity: 0.6; flex-shrink: 0; }
+
+        /* ── Mini stats ── */
+        .stat-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-align: center;
+            flex: 1;
+        }
+        .stat-mini .num { font-size: 22px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
+        .stat-mini .lbl { font-size: 10px; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+        /* ── Attendance ring ── */
+        @keyframes growBar { to { width: var(--pct); } }
+        .attendance-bar-track {
+            height: 10px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 99px;
+            position: relative;
+            overflow: visible;
+        }
+        .attendance-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            width: 0;
+            animation: growBar 1.3s cubic-bezier(0.4,0,0.2,1) 0.5s forwards;
+        }
+        .attendance-bar-fill--ok   { background: linear-gradient(90deg,rgba(34,197,94,.5),rgba(34,197,94,.95)); box-shadow:0 0 10px rgba(34,197,94,.25); }
+        .attendance-bar-fill--fail { background: linear-gradient(90deg,rgba(220,53,69,.5),rgba(220,53,69,.95)); box-shadow:0 0 10px rgba(220,53,69,.25); }
+        .attendance-bar-fill::after {
+            content:''; position:absolute; right:-4px; top:50%; transform:translateY(-50%);
+            width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.9);
+        }
+        .threshold-mark {
+            position: absolute;
+            left: 80%; top: -5px; bottom: -5px;
+            width: 2px; background: rgba(255,255,255,0.3); border-radius:2px;
+        }
+        .threshold-mark::before {
+            content:'80%'; position:absolute; bottom:calc(100% + 3px); left:50%;
+            transform:translateX(-50%); font-size:9px; color:rgba(255,255,255,0.4);
+            white-space:nowrap; font-weight:600;
+        }
+
+        /* ── Group card ── */
+        .group-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .group-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); transform: translateX(3px); color: inherit; }
+        .group-icon {
+            width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+            background: rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.2);
+            display:flex; align-items:center; justify-content:center;
+        }
+        .tutor-mini-avatar {
+            width: 26px; height: 26px; border-radius: 50%; object-fit: cover;
+            border: 1.5px solid rgba(255,255,255,0.1); flex-shrink: 0;
+        }
+
+        /* ── Need chips ── */
+        .need-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .need-chip--alert { background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.25); color:rgba(248,113,113,0.9); }
+        .need-chip--ok    { background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.18); color:rgba(74,222,128,0.8); }
+
+        /* ── Nav link items ── */
+        .nav-link-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+            color: inherit; text-decoration: none; font-size: 13px; font-weight: 500;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+        }
+        .nav-link-item:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.14); transform:translateX(3px); color:inherit; }
+        .nav-link-item .link-chevron { opacity:0.25; margin-left:auto; transition:opacity 0.15s; }
+        .nav-link-item:hover .link-chevron { opacity:0.7; }
+    </style>
 </head>
 <body>
 
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
-        <main class="app-main d-flex justify-content-center align-items-start">
+        <main class="app-main">
 
-            <div class="card bg-body-secondary w-100" style="max-width: 540px;">
-                <div class="card-body p-4">
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-                    <!-- Foto y nombre -->
-                    <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3"
-                         style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                        <img th:if="${tutorado.foto != null}"
-                             th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
-                             alt="Foto"
-                             class="avatar avatar-xl">
-                        <img th:unless="${tutorado.foto != null}"
-                             th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
-                             alt="Sin foto"
-                             class="avatar avatar-xl">
-                        <div>
-                            <h5 class="mb-1 fw-semibold"
-                                th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido}"></h5>
-                            <small class="text-secondary font-monospace"
-                                   th:text="'ID: #' + ${tutorado.id}"></small>
+            <!-- Header -->
+            <div class="page-header td-hero">
+                <div>
+                    <a th:href="@{/tutorado}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                       style="opacity:0.6;transition:opacity 0.15s;"
+                       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        Tutorados
+                    </a>
+                    <h3 class="mb-1">Detalle de Tutorado</h3>
+                    <p class="text-body-secondary fs-6 mb-0">Perfil académico del tutorado.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill px-3 py-2" style="font-size:12px;"
+                          th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
+                          th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                    </span>
+                    <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="glass-surface td-hero mb-4">
+                <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                    <!-- Avatar -->
+                    <img th:if="${tutorado.foto != null}"
+                         th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
+                         alt="Foto tutorado" class="avatar-hero">
+                    <img th:unless="${tutorado.foto != null}"
+                         th:src="@{|https://ui-avatars.com/api/?size=160&background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
+                         alt="Avatar" class="avatar-hero">
+
+                    <!-- Nombre + chips -->
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0 fw-bold" th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido}"></h4>
+                        <div class="mb-2">
+                            <span class="text-body-secondary small font-monospace"
+                                  th:text="'No. Control: ' + ${tutorado.numeroControl}"
+                                  style="opacity:0.55;"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="info-chip" th:if="${tutorado.carrera != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                <span th:text="${tutorado.carrera.nombre}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${tutorado.grado != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                                <span th:text="'Grado ' + ${tutorado.grado}"></span>
+                            </span>
+                            <span class="info-chip">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                <span th:text="${tutorado.email}"></span>
+                            </span>
+                            <span class="info-chip" th:if="${gruposTutorado != null}">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <span th:text="${#lists.size(gruposTutorado)} + ' grupo(s)'"></span>
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Datos -->
-                    <div class="vstack gap-0">
+                    <!-- Mini stats -->
+                    <div class="d-flex gap-2 align-self-start flex-shrink-0">
+                        <div class="stat-mini">
+                            <span class="num" th:text="${gruposTutorado != null} ? ${#lists.size(gruposTutorado)} : 0"></span>
+                            <span class="lbl">Grupos</span>
+                        </div>
+                        <div class="stat-mini"
+                             th:if="${resumen != null}">
+                            <span class="num"
+                                  th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'"
+                                  th:text="${resumen.porcentaje} + '%'"></span>
+                            <span class="lbl">Asistencia</span>
+                        </div>
+                        <div class="stat-mini" th:if="${detecciones != null}">
+                            <span class="num" th:text="${#lists.size(detecciones)}"></span>
+                            <span class="lbl">Detecciones</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Fila superior -->
+            <div class="row g-4 mb-4">
+
+                <!-- Datos personales -->
+                <div class="col-lg-4">
+                    <div class="glass-surface td-left h-100">
+                        <p class="section-title">Datos personales</p>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Nombre completo</span>
+                            <span class="detail-value fw-medium"
+                                  th:text="${tutorado.nombre} + ' ' + ${tutorado.apellido}"></span>
+                        </div>
                         <div class="detail-row">
                             <span class="detail-label">No. Control</span>
-                            <span class="detail-value" th:text="${tutorado.numeroControl}"></span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="${tutorado.numeroControl}"></span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Email</span>
-                            <span class="detail-value" th:text="${tutorado.email}"></span>
+                            <span class="detail-value">
+                                <a th:href="'mailto:' + ${tutorado.email}"
+                                   class="text-decoration-none"
+                                   th:text="${tutorado.email}"
+                                   style="color:inherit; transition:color 0.15s;"
+                                   onmouseover="this.style.color='var(--bs-primary)'" onmouseout="this.style.color='inherit'">
+                                </a>
+                            </span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Carrera</span>
-                            <span class="detail-value"
-                                  th:text="${tutorado.carrera != null} ? ${tutorado.carrera.nombre} : 'Sin asignar'"></span>
+                            <span class="detail-value" th:if="${tutorado.carrera != null}"
+                                  th:text="${tutorado.carrera.nombre}"></span>
+                            <span th:unless="${tutorado.carrera != null}"
+                                  class="badge rounded-pill badge-sin-asignar">Sin asignar</span>
+                        </div>
+                        <div class="detail-row" th:if="${tutorado.grado != null}">
+                            <span class="detail-label">Grado</span>
+                            <span class="detail-value" th:text="${tutorado.grado}"></span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Estado</span>
-                            <span class="detail-value">
-                                <span class="badge rounded-pill"
-                                      th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
-                                      th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
-                                </span>
+                            <span class="badge rounded-pill"
+                                  th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
+                                  th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
                             </span>
                         </div>
                         <div class="detail-row" th:if="${tutorado.fechaRegistro != null}">
                             <span class="detail-label">Registrado</span>
                             <span class="detail-value">
                                 <div th:data-ts="${tutorado.fechaRegistro.time}">
-                                    <span class="rel-badge badge rounded-pill badge-sin-asignar">...</span>
+                                    <span class="rel-badge badge rounded-pill badge-sin-asignar"
+                                          data-bs-toggle="tooltip" data-bs-placement="top"
+                                          th:title="${#dates.format(tutorado.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
                                     <small class="d-block text-body-secondary mt-1"
                                            th:text="${#dates.format(tutorado.fechaRegistro, 'dd/MM/yyyy hh:mm a')}"></small>
                                 </div>
                             </span>
                         </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ID interno</span>
+                            <span class="detail-value font-monospace text-body-secondary"
+                                  th:text="'#' + ${tutorado.id}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asistencia + necesidades -->
+                <div class="col-lg-4 d-flex flex-column gap-4">
+
+                    <!-- Resumen de asistencia -->
+                    <div class="glass-surface td-left" style="animation-delay:0.05s;" th:if="${resumen != null}">
+                        <p class="section-title">Asistencia</p>
+
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold" style="font-size:28px; font-variant-numeric:tabular-nums;"
+                                  th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'"
+                                  th:text="${resumen.porcentaje} + '%'"></span>
+                            <span class="badge rounded-pill px-3"
+                                  th:text="${resumen.acreditado} ? 'Acreditado' : 'No acreditado'"
+                                  th:classappend="${resumen.acreditado} ? 'badge-active' : 'badge-inactive'">
+                            </span>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="attendance-bar-track mb-1">
+                            <div class="attendance-bar-fill"
+                                 th:classappend="${resumen.acreditado} ? 'attendance-bar-fill--ok' : 'attendance-bar-fill--fail'"
+                                 th:style="'--pct: ' + ${resumen.porcentaje} + '%;'">
+                            </div>
+                            <div class="threshold-mark"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3" style="font-size:10px;opacity:0.35;">
+                            <span>0%</span><span>50%</span><span>100%</span>
+                        </div>
+
+                        <!-- Stats row -->
+                        <div class="d-flex gap-2">
+                            <div class="stat-mini">
+                                <span class="num" th:text="${resumen.totalSesiones}"></span>
+                                <span class="lbl">Sesiones</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="num text-success" th:text="${resumen.asistenciasPresente}"></span>
+                                <span class="lbl">Presentes</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="num text-warning" th:text="${resumen.asistenciasRecuperadas}"></span>
+                                <span class="lbl">Recup.</span>
+                            </div>
+                        </div>
+
+                        <a th:href="@{/asistencia/resumen/{id}(id=${tutorado.id})}"
+                           class="nav-link-item mt-3">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                            Ver resumen completo
+                            <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
                     </div>
 
-                    <!-- Botones -->
-                    <div class="d-flex gap-2 mt-4">
-                        <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}"
-                           class="btn btn-primary w-100">Editar</a>
-                        <a th:href="@{/tutorado}" class="btn btn-secondary w-100">Volver</a>
+                    <!-- Sin datos de asistencia -->
+                    <div class="glass-surface td-left" style="animation-delay:0.05s;" th:unless="${resumen != null}">
+                        <p class="section-title">Asistencia</p>
+                        <div class="text-center py-3" style="opacity:0.4;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                            <small>Sin datos de asistencia</small>
+                        </div>
                     </div>
 
+                    <!-- Necesidades detectadas -->
+                    <div class="glass-surface td-left" style="animation-delay:0.09s;">
+                        <p class="section-title">Necesidades detectadas
+                            <span class="ms-1 badge bg-secondary rounded-pill"
+                                  style="font-size:9px; vertical-align:middle;"
+                                  th:if="${detecciones != null}"
+                                  th:text="${#lists.size(detecciones)}">
+                            </span>
+                        </p>
+
+                        <div th:if="${detecciones != null and !#lists.isEmpty(detecciones)}">
+                            <!-- Resumen de áreas con necesidad en la detección más reciente -->
+                            <div th:with="det=${#lists.get(detecciones, 0)}">
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <!-- Solo muestra chip si hay necesidad -->
+                                    <span th:if="${det.necesidadAlgebra == 1}"     class="need-chip need-chip--alert">Álgebra</span>
+                                    <span th:if="${det.necesidadCalculo == 1}"     class="need-chip need-chip--alert">Cálculo</span>
+                                    <span th:if="${det.necesidadDerecho == 1}"     class="need-chip need-chip--alert">Intro. Derecho</span>
+                                    <span th:if="${det.necesidadEconomica == 1}"   class="need-chip need-chip--alert">Apoyo económico</span>
+                                    <span th:if="${det.necesidadPsicologica == 1}" class="need-chip need-chip--alert">Apoyo psicológico</span>
+                                    <span th:if="${det.necesidadOtra != null and !det.necesidadOtra.isEmpty()}"
+                                          class="need-chip need-chip--alert"
+                                          th:text="${det.necesidadOtra}"></span>
+                                    <!-- Si no hay ninguna necesidad -->
+                                    <span th:if="${det.necesidadAlgebra != 1 and det.necesidadCalculo != 1
+                                                  and det.necesidadDerecho != 1 and det.necesidadEconomica != 1
+                                                  and det.necesidadPsicologica != 1
+                                                  and (det.necesidadOtra == null or det.necesidadOtra.isEmpty())}"
+                                          class="need-chip need-chip--ok">Sin necesidades detectadas</span>
+                                </div>
+                                <small class="text-body-secondary" style="opacity:0.5; font-size:11px;">
+                                    Basado en la detección más reciente
+                                    <span th:if="${det.fechaRegistro != null}"
+                                          th:text="'· ' + ${#dates.format(det.fechaRegistro, 'dd/MM/yyyy')}"></span>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div th:unless="${detecciones != null and !#lists.isEmpty(detecciones)}"
+                             class="text-center py-3" style="opacity:0.4;">
+                            <small>Sin detecciones registradas</small>
+                        </div>
+
+                        <a th:href="@{/deteccion}" class="nav-link-item mt-3">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            Ver detecciones
+                            <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+
+                </div>
+
+                <!-- Acciones -->
+                <div class="col-lg-4">
+                    <div class="glass-surface td-right h-100">
+                        <p class="section-title">Acciones rápidas</p>
+                        <div class="d-flex flex-column gap-2">
+                            <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Editar tutorado
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/asistencia/resumen/{id}(id=${tutorado.id})}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                                Resumen de asistencia
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/deteccion}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                                Detección de necesidades
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/historial}" class="nav-link-item">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+                                </svg>
+                                Historial de tutorías
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                            <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}"
+                               class="nav-link-item" style="color:rgba(248,113,113,0.7);">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14H6L5 6"/>
+                                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                                Eliminar tutorado
+                                <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Grupos del tutorado -->
+            <div class="glass-surface td-bottom">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <p class="section-title mb-0">Grupos de tutoría
+                        <span class="ms-1 badge bg-secondary rounded-pill"
+                              style="font-size:9px; vertical-align:middle;"
+                              th:if="${gruposTutorado != null}"
+                              th:text="${#lists.size(gruposTutorado)}">
+                        </span>
+                    </p>
+                    <a th:href="@{/historial}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                        Ver historial completo
+                    </a>
+                </div>
+
+                <div th:if="${gruposTutorado != null and !#lists.isEmpty(gruposTutorado)}"
+                     class="row g-3">
+                    <div th:each="memb : ${gruposTutorado}" class="col-md-6 col-lg-4">
+                        <a th:href="@{/grupo/ver/{id}(id=${memb.grupo.id})}" class="group-card">
+                            <div class="group-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.8">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="fw-semibold text-truncate" style="font-size:13.5px;"
+                                     th:text="${memb.grupo.nombre}"></div>
+                                <!-- Tutor row -->
+                                <div th:if="${memb.grupo.tutor != null}"
+                                     class="d-flex align-items-center gap-1 mt-1">
+                                    <img th:if="${memb.grupo.tutor.foto != null}"
+                                         th:src="@{/tutor/{foto}(foto=${memb.grupo.tutor.foto})}"
+                                         class="tutor-mini-avatar" alt="">
+                                    <div th:unless="${memb.grupo.tutor.foto != null}"
+                                         style="width:18px;height:18px;border-radius:50%;background:rgba(99,102,241,0.2);flex-shrink:0;"></div>
+                                    <span class="text-body-secondary text-truncate" style="font-size:11.5px;"
+                                          th:text="${memb.grupo.tutor.nombre} + ' ' + ${memb.grupo.tutor.apellido}"></span>
+                                </div>
+                                <!-- Semestre + horario -->
+                                <div class="text-body-secondary text-truncate mt-1" style="font-size:11px; opacity:0.55;">
+                                    <span th:if="${memb.grupo.semestre != null}"
+                                          th:text="${memb.grupo.semestre.periodo} + ' ' + ${memb.grupo.semestre.anio}"></span>
+                                    <span th:if="${memb.grupo.horario != null}"
+                                          th:text="' · ' + ${memb.grupo.horario}"></span>
+                                </div>
+                            </div>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.2;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div th:unless="${gruposTutorado != null and !#lists.isEmpty(gruposTutorado)}"
+                     class="text-center py-4" style="opacity:0.4;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <small>No pertenece a ningún grupo aún</small>
                 </div>
             </div>
 
@@ -91,5 +560,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    });
+</script>
 </body>
 </html>

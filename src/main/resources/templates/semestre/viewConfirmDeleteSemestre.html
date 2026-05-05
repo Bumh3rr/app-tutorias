@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eliminar Semestre</title>
+    <title>Desactivar Semestre | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
@@ -17,11 +17,11 @@
 
             <div class="card danger-card w-100" style="max-width: 480px;" th:if="${semestre.id} != null">
                 <div class="card-body p-4">
-                    <h3 class="text-center mb-2">Confirmar Eliminación</h3>
-                    <p class="text-center text-muted mb-4">¿Está seguro de que desea eliminar este semestre?</p>
+                    <h3 class="text-center mb-2">Desactivar Semestre</h3>
+                    <p class="text-center text-muted mb-4">El registro será <strong>desactivado</strong> y dejará de aparecer en el sistema. Esta acción puede revertirse desde la base de datos.</p>
 
                     <div class="alert alert-warning">
-                        <strong>Semestre a eliminar:</strong>
+                        <strong>Semestre a desactivar:</strong>
                         <div class="mt-2">
                             <p class="mb-1"><strong>ID:</strong> <span th:text="${semestre.id}"></span></p>
                             <p class="mb-1"><strong>Periodo:</strong> <span th:text="${semestre.periodo}"></span></p>
@@ -32,7 +32,7 @@
                     <div class="d-flex gap-2 mt-3">
                         <button type="button" class="btn btn-danger flex-grow-1"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal">
-                            Eliminar
+                            Sí, desactivar
                         </button>
                         <a th:href="@{/semestre}" class="btn btn-secondary flex-grow-1">Cancelar</a>
                     </div>
@@ -49,7 +49,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">¿Confirmar eliminación?</h5>
+                <h5 class="modal-title">¿Confirmar desactivación?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -58,7 +58,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <form th:action="@{/semestre/confirm/delete/{id}(id=${semestre.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                    <button type="submit" class="btn btn-danger">Sí, desactivar</button>
                 </form>
             </div>
         </div>
