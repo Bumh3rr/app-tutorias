@@ -23,10 +23,12 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
 
     long countByTutoradoAndActivo(Tutorado tutorado, Integer activo);
 
+    @Query("SELECT gt.grupo.id, COUNT(gt) FROM GrupoTutorado gt WHERE gt.activo = 1 GROUP BY gt.grupo.id")
+    List<Object[]> countActivoByGrupo();
+
     @Query("""
         SELECT t FROM Tutorado t
         WHERE t.carrera.id = :idCarrera
-        AND t.semestre.id = :idSemestre
         AND t.activo = 1
         AND (SELECT COUNT(gt) FROM GrupoTutorado gt
              WHERE gt.tutorado = t AND gt.activo = 1) < 2
@@ -36,6 +38,5 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
     """)
     List<Tutorado> findTutoradosDisponibles(
             @Param("idCarrera") Integer idCarrera,
-            @Param("idSemestre") Integer idSemestre,
             @Param("idGrupo") Integer idGrupo);
 }

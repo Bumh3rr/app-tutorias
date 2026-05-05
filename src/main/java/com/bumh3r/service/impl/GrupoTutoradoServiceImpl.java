@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Primary
@@ -84,17 +86,26 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
     }
 
     @Override
+    public Map<Integer, Long> contarAlumnosPorGrupo() {
+        List<Object[]> rows = this.iGrupoTutoradoRepository.countActivoByGrupo();
+        Map<Integer, Long> map = new HashMap<>();
+        for (Object[] row : rows) {
+            map.put((Integer) row[0], (Long) row[1]);
+        }
+        return map;
+    }
+
+    @Override
     public List<Tutorado> obtenerTutoradosDisponibles(Integer idGrupo) {
         Grupo grupo = this.iGrupoRepository.findById(idGrupo)
                 .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
 
-        if (grupo.getCarrera() == null || grupo.getSemestre() == null) {
+        if (grupo.getCarrera() == null) {
             return List.of();
         }
 
         return this.iGrupoTutoradoRepository.findTutoradosDisponibles(
                 grupo.getCarrera().getId(),
-                grupo.getSemestre().getId(),
                 idGrupo);
     }
 }

@@ -55,10 +55,6 @@
                                 data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" th:classappend="${tipoBusqueda == 'semestreCarrera'} ? 'active'"
-                                data-bs-toggle="tab" data-bs-target="#tab-semestre-carrera">Por Semestre y Carrera</button>
-                    </li>
-                    <li class="nav-item">
                         <button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'"
                                 data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button>
                     </li>
@@ -87,38 +83,6 @@
                         </form>
                     </div>
 
-                    <!-- Tab por semestre y carrera -->
-                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semestreCarrera'} ? 'show active'" id="tab-semestre-carrera">
-                        <form method="get" th:action="@{/tutorado}">
-                            <input type="hidden" name="tipoBusqueda" value="semestreCarrera">
-                            <div class="row g-2">
-                                <div class="col-md-4">
-                                    <select name="idSemestre" class="form-select" required>
-                                        <option value="">Semestre...</option>
-                                        <option th:each="s : ${semestres}"
-                                                th:value="${s.id}"
-                                                th:text="${s.periodo} + ' ' + ${s.anio}"
-                                                th:selected="${s.id == idSemestreSeleccionado}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <select name="idCarrera" class="form-select" required>
-                                        <option value="">Carrera...</option>
-                                        <option th:each="c : ${carreras}"
-                                                th:value="${c.id}"
-                                                th:text="${c.nombre}"
-                                                th:selected="${c.id == idCarreraSeleccionada}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
                 </div>
             </div>
 
@@ -136,7 +100,7 @@
                         <thead>
                         <tr>
                             <th class="sort-th">
-                                <a th:href="@{/tutorado(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                                <a th:href="@{/tutorado(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada})}">
                                     ID
                                     <span th:if="${sortBy == 'id'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'id'}" class="sort-arrow-idle">↕</span>
@@ -144,21 +108,20 @@
                             </th>
                             <th>Foto</th>
                             <th class="sort-th">
-                                <a th:href="@{/tutorado(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                                <a th:href="@{/tutorado(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada})}">
                                     Nombre
                                     <span th:if="${sortBy == 'nombre'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'nombre'}" class="sort-arrow-idle">↕</span>
                                 </a>
                             </th>
                             <th class="sort-th">
-                                <a th:href="@{/tutorado(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                                <a th:href="@{/tutorado(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada})}">
                                     No. Control
                                     <span th:if="${sortBy == 'numeroControl'}" class="sort-arrow" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     <span th:unless="${sortBy == 'numeroControl'}" class="sort-arrow-idle">↕</span>
                                 </a>
                             </th>
                             <th>Carrera</th>
-                            <th>Semestre</th>
                             <th>Estado</th>
                             <th>Registrado</th>
                             <th>Acciones</th>
@@ -183,12 +146,6 @@
                                     <span class="badge rounded-pill"
                                           th:text="${tutorado.carrera != null} ?${tutorado.carrera.nombre} : 'Sin asignar'"
                                           th:classappend="${tutorado.carrera != null} ? '' : 'badge rounded-pill badge-sin-asignar'">
-                                    </span>
-                            </td>
-                            <td>
-                                    <span class="badge rounded-pill"
-                                          th:text="${tutorado.semestre != null} ?${tutorado.semestre.periodo} + ' ' + ${tutorado.semestre.anio} : 'Sin asignar'"
-                                          th:classappend="${tutorado.semestre != null} ? '' : 'badge rounded-pill badge-sin-asignar'">
                                     </span>
                             </td>
                             <td>
@@ -236,7 +193,7 @@
                         <!-- Anterior -->
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/tutorado(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/tutorado(page=${paginaActual - 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idCarrera=${idCarreraSeleccionada})}">
                                 &laquo;
                             </a>
                         </li>
@@ -247,14 +204,14 @@
                             th:classappend="${i == paginaActual} ? 'active'">
                             <a class="page-link"
                                th:text="${i + 1}"
-                               th:href="@{/tutorado(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/tutorado(page=${i}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idCarrera=${idCarreraSeleccionada})}">
                             </a>
                         </li>
 
                         <!-- Siguiente -->
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/tutorado(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idSemestre=${idSemestreSeleccionado}, idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/tutorado(page=${paginaActual + 1}, pageSize=${pageSize}, sort=${sort}, sortBy=${sortBy}, tipoBusqueda=${tipoBusqueda}, q=${q}, idCarrera=${idCarreraSeleccionada})}">
                                 &raquo;
                             </a>
                         </li>

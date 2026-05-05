@@ -3,6 +3,7 @@ package com.bumh3r.service;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
 import java.util.List;
+import java.util.Map;
 
 public interface GrupoTutoradoService {
     List<GrupoTutorado> obtenerTodosGrupoTutorados();
@@ -11,4 +12,5 @@ public interface GrupoTutoradoService {
     List<GrupoTutorado> buscarPorGrupo(Integer idGrupo);
     List<GrupoTutorado> buscarTutoriasPorTutorado(Integer idTutorado);
     List<Tutorado> obtenerTutoradosDisponibles(Integer idGrupo);
+    Map<Integer, Long> contarAlumnosPorGrupo();
 }

@@ -47,35 +47,34 @@ INSERT INTO tutor (nombre, apellido, numero_control, email, foto, activo, fecha_
 -- ─────────────────────────────────────────────────────────────
 --  4. TUTORADOS  (id 1-21)
 -- ─────────────────────────────────────────────────────────────
-INSERT INTO tutorado (nombre, apellido, numero_control, email, foto, grado, id_carrera, id_semestre, activo, fecha_registro) VALUES
--- Semestre Enero-Junio 2026 — ISC (5 alumnos)
-('Ana Laura',   'Reyes Morales',    '24400001', 'ana.reyes@tecnm.mx',        NULL, 1, 1, 3, 1, '2026-01-13 10:00:00'),  -- 1
-('Juan Pablo',  'Gómez Vargas',     '24400002', 'juan.gomez@tecnm.mx',       NULL, 1, 1, 3, 1, '2026-01-13 10:02:00'),  -- 2
-('María José',  'Hernández Ruiz',   '24400003', 'maria.hernandez@tecnm.mx',  NULL, 1, 1, 3, 1, '2026-01-13 10:04:00'),  -- 3
-('Luis Ángel',  'Flores Ortiz',     '24400004', 'luis.flores@tecnm.mx',      NULL, 1, 1, 3, 1, '2026-01-13 10:06:00'),  -- 4
-('Gabriela',    'Luna Paredes',     '24400005', 'gabriela.luna@tecnm.mx',    NULL, 1, 1, 3, 1, '2026-01-13 10:08:00'),  -- 5
--- Semestre Enero-Junio 2026 — ISC grupo B (Lorena)
-('Marco',       'Ávila Sánchez',    '24400006', 'marco.avila@tecnm.mx',      NULL, 1, 1, 3, 1, '2026-01-13 10:10:00'),  -- 6
-('Itzel',       'Bravo Castillo',   '24400007', 'itzel.bravo@tecnm.mx',      NULL, 1, 1, 3, 1, '2026-01-13 10:12:00'),  -- 7
-('Renata',      'Domínguez Peña',   '24400008', 'renata.dominguez@tecnm.mx', NULL, 1, 1, 3, 1, '2026-01-13 10:14:00'),  -- 8
--- Semestre Enero-Junio 2026 — IGE (Patricia)
-('Sofía',       'Castro Blanco',    '24400009', 'sofia.castro@tecnm.mx',     NULL, 1, 2, 3, 1, '2026-01-13 10:20:00'),  -- 9
-('Diego',       'Ríos Aguilar',     '24400010', 'diego.rios@tecnm.mx',       NULL, 1, 2, 3, 1, '2026-01-13 10:22:00'),  -- 10
-('Valeria',     'Mora Espinoza',    '24400011', 'valeria.mora@tecnm.mx',     NULL, 1, 2, 3, 1, '2026-01-13 10:24:00'),  -- 11
--- Semestre Enero-Junio 2026 — IC (Roberto)
-('Alejandro',   'Núñez Bravo',      '24400012', 'alejandro.nunez@tecnm.mx',  NULL, 1, 3, 3, 1, '2026-01-13 10:30:00'),  -- 12
-('Fernanda',    'Salinas Torres',   '24400013', 'fernanda.salinas@tecnm.mx', NULL, 1, 3, 3, 1, '2026-01-13 10:32:00'),  -- 13
-('Omar',        'Gutiérrez Lima',   '24400014', 'omar.gutierrez@tecnm.mx',   NULL, 1, 3, 3, 1, '2026-01-13 10:34:00'),  -- 14
--- Semestre Enero-Junio 2026 — CONT (Miguel)
-('Daniela',     'Vázquez Serna',    '24400015', 'daniela.vazquez@tecnm.mx',  NULL, 1, 4, 3, 1, '2026-01-13 10:40:00'),  -- 15
-('Ricardo',     'Peña Sandoval',    '24400016', 'ricardo.pena@tecnm.mx',     NULL, 1, 4, 3, 1, '2026-01-13 10:42:00'),  -- 16
--- Semestre Enero-Junio 2026 — INF (Rosario)
-('Paola',       'Estrada Ramos',    '24400017', 'paola.estrada@tecnm.mx',    NULL, 1, 5, 3, 1, '2026-01-13 10:50:00'),  -- 17
-('Iván',        'Cervantes Díaz',   '24400018', 'ivan.cervantes@tecnm.mx',   NULL, 1, 5, 3, 1, '2026-01-13 10:52:00'),  -- 18
--- Semestre Agosto-Diciembre 2025
-('Jorge',       'Medina Campos',    '24100001', 'jorge.medina@tecnm.mx',     NULL, 2, 1, 2, 1, '2025-08-01 09:00:00'),  -- 19
-('Karla',       'Soto Villanueva',  '24100002', 'karla.soto@tecnm.mx',       NULL, 2, 2, 2, 1, '2025-08-01 09:05:00'),  -- 20
-('Emmanuel',    'Cruz Mendoza',     '24100003', 'emmanuel.cruz@tecnm.mx',    NULL, 2, 3, 2, 1, NOW());                   -- 21 ← reciente
+INSERT INTO tutorado (nombre, apellido, numero_control, email, foto, grado, id_carrera, activo, fecha_registro) VALUES
+-- ISC
+('Ana Laura',   'Reyes Morales',    '24400001', 'ana.reyes@tecnm.mx',        NULL, 1, 1, 1, '2026-01-13 10:00:00'),  -- 1
+('Juan Pablo',  'Gómez Vargas',     '24400002', 'juan.gomez@tecnm.mx',       NULL, 1, 1, 1, '2026-01-13 10:02:00'),  -- 2
+('María José',  'Hernández Ruiz',   '24400003', 'maria.hernandez@tecnm.mx',  NULL, 1, 1, 1, '2026-01-13 10:04:00'),  -- 3
+('Luis Ángel',  'Flores Ortiz',     '24400004', 'luis.flores@tecnm.mx',      NULL, 1, 1, 1, '2026-01-13 10:06:00'),  -- 4
+('Gabriela',    'Luna Paredes',     '24400005', 'gabriela.luna@tecnm.mx',    NULL, 1, 1, 1, '2026-01-13 10:08:00'),  -- 5
+('Marco',       'Ávila Sánchez',    '24400006', 'marco.avila@tecnm.mx',      NULL, 1, 1, 1, '2026-01-13 10:10:00'),  -- 6
+('Itzel',       'Bravo Castillo',   '24400007', 'itzel.bravo@tecnm.mx',      NULL, 1, 1, 1, '2026-01-13 10:12:00'),  -- 7
+('Renata',      'Domínguez Peña',   '24400008', 'renata.dominguez@tecnm.mx', NULL, 1, 1, 1, '2026-01-13 10:14:00'),  -- 8
+-- IGE
+('Sofía',       'Castro Blanco',    '24400009', 'sofia.castro@tecnm.mx',     NULL, 1, 2, 1, '2026-01-13 10:20:00'),  -- 9
+('Diego',       'Ríos Aguilar',     '24400010', 'diego.rios@tecnm.mx',       NULL, 1, 2, 1, '2026-01-13 10:22:00'),  -- 10
+('Valeria',     'Mora Espinoza',    '24400011', 'valeria.mora@tecnm.mx',     NULL, 1, 2, 1, '2026-01-13 10:24:00'),  -- 11
+-- IC
+('Alejandro',   'Núñez Bravo',      '24400012', 'alejandro.nunez@tecnm.mx',  NULL, 1, 3, 1, '2026-01-13 10:30:00'),  -- 12
+('Fernanda',    'Salinas Torres',   '24400013', 'fernanda.salinas@tecnm.mx', NULL, 1, 3, 1, '2026-01-13 10:32:00'),  -- 13
+('Omar',        'Gutiérrez Lima',   '24400014', 'omar.gutierrez@tecnm.mx',   NULL, 1, 3, 1, '2026-01-13 10:34:00'),  -- 14
+-- CONT
+('Daniela',     'Vázquez Serna',    '24400015', 'daniela.vazquez@tecnm.mx',  NULL, 1, 4, 1, '2026-01-13 10:40:00'),  -- 15
+('Ricardo',     'Peña Sandoval',    '24400016', 'ricardo.pena@tecnm.mx',     NULL, 1, 4, 1, '2026-01-13 10:42:00'),  -- 16
+-- INF
+('Paola',       'Estrada Ramos',    '24400017', 'paola.estrada@tecnm.mx',    NULL, 1, 5, 1, '2026-01-13 10:50:00'),  -- 17
+('Iván',        'Cervantes Díaz',   '24400018', 'ivan.cervantes@tecnm.mx',   NULL, 1, 5, 1, '2026-01-13 10:52:00'),  -- 18
+-- Otros semestres / carreras
+('Jorge',       'Medina Campos',    '24100001', 'jorge.medina@tecnm.mx',     NULL, 2, 1, 1, '2025-08-01 09:00:00'),  -- 19
+('Karla',       'Soto Villanueva',  '24100002', 'karla.soto@tecnm.mx',       NULL, 2, 2, 1, '2025-08-01 09:05:00'),  -- 20
+('Emmanuel',    'Cruz Mendoza',     '24100003', 'emmanuel.cruz@tecnm.mx',    NULL, 2, 3, 1, NOW());                   -- 21 ← reciente
 
 -- ─────────────────────────────────────────────────────────────
 --  5. COORDINADORES DE CARRERA

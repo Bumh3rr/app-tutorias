@@ -23,4 +23,12 @@ public interface GrupoService {
     Page<Grupo> buscarPorTutorYSemestrePage(Integer idTutor, Integer idSemestre, Pageable pageable);
     Page<Grupo> buscarPorCarreraYSemestrePage(Integer idCarrera, Integer idSemestre, Pageable pageable);
     Page<Grupo> buscarPorNombrePage(String q, Pageable pageable);
+
+    // Módulo asignar tutor
+    void asignarTutor(Integer idGrupo, Integer idTutor);
+    void quitarTutor(Integer idGrupo);
+    Page<Grupo> obtenerGruposSinTutorPage(Pageable pageable);
+    Page<Grupo> buscarSinTutorPorNombrePage(String q, Pageable pageable);
+    Page<Grupo> buscarSinTutorPorSemestrePage(Integer idSemestre, Pageable pageable);
+    Page<Grupo> buscarSinTutorPorCarreraPage(Integer idCarrera, Pageable pageable);
 }

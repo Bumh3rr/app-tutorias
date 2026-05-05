@@ -61,18 +61,11 @@
                 </div>
             </div>
 
-            <!-- Alerta si ya tiene asistencias registradas -->
-            <div th:if="${asistenciasExistentes != null and !#lists.isEmpty(asistenciasExistentes)}"
-                 class="alert alert-warning mb-4">
-                <strong>Atención:</strong> Esta sesión ya tiene asistencias registradas.
-                Si continúas, solo se agregarán los tutorados que aún no tengan registro.
-            </div>
-
             <!-- Formulario de asistencia masiva -->
             <form th:action="@{/asistencia/registrar/{id}(id=${sesion.id})}" method="post">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Lista de tutorados</h5>
+                    <h5 class="mb-0">Tutorados del grupo</h5>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-sm btn-outline-success" onclick="marcarTodos()">
                             Marcar todos
@@ -83,7 +76,7 @@
                     </div>
                 </div>
 
-                <div th:if="${tutorados != null and !#lists.isEmpty(tutorados)}">
+                <div th:if="${grupoTutorados != null and !#lists.isEmpty(grupoTutorados)}">
                     <div class="table-wrapper mb-4">
                         <table class="table">
                             <thead>
@@ -95,17 +88,21 @@
                                 <th>Tutorado</th>
                                 <th>No. Control</th>
                                 <th>Carrera</th>
-                                <th>Estado</th>
+                                <th>Asistencia</th>
                                 <th>Detección</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="tutorado : ${tutorados}">
+                            <tr th:each="gt : ${grupoTutorados}"
+                                th:with="tutorado=${gt.tutorado}, asistencia=${mapaAsistencias[gt.tutorado.id]}">
                                 <td>
+                                    <!-- Si ya tiene asistencia registrada, la casilla queda deshabilitada -->
                                     <input type="checkbox"
                                            class="form-check-input check-tutorado"
                                            name="idsTutoradosPresentes"
-                                           th:value="${tutorado.id}">
+                                           th:value="${tutorado.id}"
+                                           th:checked="${asistencia != null and asistencia.presente == 1}"
+                                           th:disabled="${asistencia != null}">
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
@@ -123,10 +120,15 @@
                                 <td class="text-body-secondary" th:text="${tutorado.numeroControl}"></td>
                                 <td th:text="${tutorado.carrera != null} ? ${tutorado.carrera.nombre} : 'Sin carrera'"></td>
                                 <td>
-                                    <span class="badge rounded-pill"
-                                          th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
-                                          th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
+                                    <!-- Ya registrada: mostrar badge del estado -->
+                                    <span th:if="${asistencia != null}"
+                                          class="badge rounded-pill"
+                                          th:text="${asistencia.presente == 1} ? 'Presente' : (${asistencia.recuperada == 1} ? 'Recuperada' : 'Falta')"
+                                          th:classappend="${asistencia.presente == 1} ? 'badge-active' : (${asistencia.recuperada == 1} ? 'bg-warning text-dark' : 'badge-inactive')">
                                     </span>
+                                    <!-- Sin registro aún: indicador neutro -->
+                                    <span th:unless="${asistencia != null}"
+                                          class="badge bg-secondary rounded-pill">Sin registro</span>
                                 </td>
                                 <td>
                                     <a th:href="@{/deteccion/agregar(idTutorado=${tutorado.id}, idSesion=${sesion.id})}"
@@ -140,9 +142,9 @@
                     </div>
                 </div>
 
-                <div th:unless="${tutorados != null and !#lists.isEmpty(tutorados)}"
+                <div th:unless="${grupoTutorados != null and !#lists.isEmpty(grupoTutorados)}"
                      class="alert alert-info mb-4">
-                    No hay tutorados registrados en el sistema.
+                    Este grupo no tiene tutorados asignados.
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
@@ -163,16 +165,16 @@
 <script th:src="@{/js/sidebar.js}"></script>
 <script>
     function toggleTodos(checkbox) {
-        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = checkbox.checked);
+        document.querySelectorAll('.check-tutorado:not([disabled])').forEach(c => c.checked = checkbox.checked);
     }
 
     function marcarTodos() {
-        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = true);
+        document.querySelectorAll('.check-tutorado:not([disabled])').forEach(c => c.checked = true);
         document.getElementById('checkAll').checked = true;
     }
 
     function desmarcarTodos() {
-        document.querySelectorAll('.check-tutorado').forEach(c => c.checked = false);
+        document.querySelectorAll('.check-tutorado:not([disabled])').forEach(c => c.checked = false);
         document.getElementById('checkAll').checked = false;
     }
 </script>

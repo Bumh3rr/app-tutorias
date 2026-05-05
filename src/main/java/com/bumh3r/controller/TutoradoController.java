@@ -1,11 +1,9 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Carrera;
-import com.bumh3r.entity.Semestre;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.FileStoreService;
-import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.TutoradoService;
 import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
@@ -34,8 +32,6 @@ public class TutoradoController {
     @Autowired
     private CarreraService carreraService;
     @Autowired
-    private SemestreService semestreService;
-    @Autowired
     private FileStoreService fileStoreService;
 
     private final Logger log = LoggerFactory.getLogger(TutoradoController.class);
@@ -44,7 +40,6 @@ public class TutoradoController {
     public String obtenerVistaListaTutorados(
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
-            @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
@@ -53,16 +48,12 @@ public class TutoradoController {
             Model model) {
 
         Page<Tutorado> paginaTutorados;
-        List<Semestre> semestres = this.semestreService.obtenerTodosSemestres();
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
 
         try {
             if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
                 paginaTutorados = this.tutoradoService.buscarPorNombre(q, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Nombre: " + q);
-            } else if ("semestreCarrera".equals(tipoBusqueda) && idSemestre != null && idCarrera != null) {
-                paginaTutorados = this.tutoradoService.buscarTutoradosPorSemestreYCarreraPaginado(idSemestre, idCarrera, page, pageSize, sortBy, sort);
-                model.addAttribute("filtro", "Semestre y carrera seleccionados");
             } else {
                 paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
@@ -82,9 +73,7 @@ public class TutoradoController {
         model.addAttribute("totalPaginas", paginaTutorados.getTotalPages());
         model.addAttribute("totalElementos", paginaTutorados.getTotalElements());
         model.addAttribute("pageSize", pageSize);
-        model.addAttribute("semestres", semestres);
         model.addAttribute("carreras", carreras);
-        model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sort", sort);
@@ -99,7 +88,6 @@ public class TutoradoController {
     public String obtenerVistaAgregarTutorado(Model model) {
         model.addAttribute("tutorado", new Tutorado());
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-        model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("isEdit", false);
         return "tutorado/viewFormTutorado";
     }
@@ -114,7 +102,6 @@ public class TutoradoController {
         tutorado.setFoto(tutorado.getFoto() != null && !tutorado.getFoto().isEmpty() ? tutorado.getFoto() : null);
         if (result.hasErrors()) {
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("isEdit", false);
             return "tutorado/viewFormTutorado";
         }
@@ -129,7 +116,6 @@ public class TutoradoController {
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el tutorado: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("isEdit", false);
             return "tutorado/viewFormTutorado";
         }
@@ -150,7 +136,6 @@ public class TutoradoController {
         log.info("Tutorado a actualizar: {}", tutorado);
         model.addAttribute("tutorado", tutorado);
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-        model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("isEdit", true);
         return "tutorado/viewFormTutorado";
     }
@@ -165,7 +150,6 @@ public class TutoradoController {
             RedirectAttributes attributes) {
         if (result.hasErrors()) {
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("isEdit", true);
             return "tutorado/viewFormTutorado";
         }
@@ -181,7 +165,6 @@ public class TutoradoController {
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el tutorado: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
-            model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("isEdit", true);
             return "tutorado/viewFormTutorado";
         }

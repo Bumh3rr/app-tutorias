@@ -43,4 +43,16 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
 
     @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(g.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Grupo> searchByName(@Param("q") String q, Pageable pageable);
+
+    // Grupos sin tutor asignado
+    Page<Grupo> findByActivoAndTutorIsNull(Integer activo, Pageable pageable);
+
+    @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND g.tutor IS NULL AND (:q IS NULL OR :q = '' OR LOWER(g.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
+    Page<Grupo> searchSinTutorByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND g.tutor IS NULL AND g.semestre.id = :idSemestre")
+    Page<Grupo> findSinTutorBySemestre(@Param("idSemestre") Integer idSemestre, Pageable pageable);
+
+    @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND g.tutor IS NULL AND g.carrera.id = :idCarrera")
+    Page<Grupo> findSinTutorByCarrera(@Param("idCarrera") Integer idCarrera, Pageable pageable);
 }

@@ -2,13 +2,14 @@ package com.bumh3r.controller;
 
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
-import com.bumh3r.entity.Tutor;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.TutorService;
+
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping(value = "grupo")
@@ -83,6 +85,8 @@ public class GrupoController {
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
         }
 
+        Map<Integer, Long> conteoAlumnos = this.grupoTutoradoService.contarAlumnosPorGrupo();
+
         model.addAttribute("grupos", pageResult.getContent());
         model.addAttribute("paginaActual", pageResult.getNumber());
         model.addAttribute("totalPaginas", pageResult.getTotalPages());
@@ -97,35 +101,16 @@ public class GrupoController {
         model.addAttribute("idTutorSeleccionado", idTutor);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("q", q);
+        model.addAttribute("conteoAlumnos", conteoAlumnos);
         return "grupo/viewListaGrupo";
     }
 
     @GetMapping(value = "agregar")
-    public String obtenerVistaAgregarGrupo(
-            @RequestParam(value = "idTutor", required = false) Integer idTutor,
-            Model model) {
-
-        Grupo grupo = new Grupo();
-        boolean tutorLocked = false;
-        Tutor tutorFijo = null;
-
-        if (idTutor != null) {
-            tutorFijo = this.tutorService.obtenerTutor(idTutor);
-            if (tutorFijo != null) {
-                Tutor ref = new Tutor();
-                ref.setId(idTutor);
-                grupo.setTutor(ref);
-                tutorLocked = true;
-            }
-        }
-
-        model.addAttribute("grupo", grupo);
-        model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
+    public String obtenerVistaAgregarGrupo(Model model) {
+        model.addAttribute("grupo", new Grupo());
         model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
         model.addAttribute("isEdit", false);
-        model.addAttribute("tutorLocked", tutorLocked);
-        model.addAttribute("tutorFijo", tutorFijo);
         return "grupo/viewFormGrupo";
     }
 
@@ -138,12 +123,9 @@ public class GrupoController {
             result.rejectValue("carrera", "required", "La carrera es obligatoria");
         }
         if (result.hasErrors()) {
-            model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("isEdit", false);
-            model.addAttribute("tutorLocked", false);
-            model.addAttribute("tutorFijo", null);
             return "grupo/viewFormGrupo";
         }
         try {
@@ -152,12 +134,9 @@ public class GrupoController {
             attributes.addFlashAttribute("msg_success", "Grupo guardado correctamente");
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el grupo: " + e.getMessage());
-            model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("isEdit", false);
-            model.addAttribute("tutorLocked", false);
-            model.addAttribute("tutorFijo", null);
             return "grupo/viewFormGrupo";
         }
         return "redirect:/grupo";
@@ -178,12 +157,9 @@ public class GrupoController {
         Grupo grupo = this.grupoService.obtenerGrupo(id);
         log.info("Grupo a actualizar: {}", grupo);
         model.addAttribute("grupo", grupo);
-        model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
         model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
         model.addAttribute("isEdit", true);
-        model.addAttribute("tutorLocked", false);
-        model.addAttribute("tutorFijo", null);
         return "grupo/viewFormGrupo";
     }
 
@@ -201,12 +177,9 @@ public class GrupoController {
             result.rejectValue("carrera", "required", "La carrera es obligatoria");
         }
         if (result.hasErrors()) {
-            model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("isEdit", true);
-            model.addAttribute("tutorLocked", false);
-            model.addAttribute("tutorFijo", null);
             return "grupo/viewFormGrupo";
         }
         try {
@@ -215,12 +188,9 @@ public class GrupoController {
             attributes.addFlashAttribute("msg_success", "Grupo actualizado correctamente");
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el grupo: " + e.getMessage());
-            model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
             model.addAttribute("isEdit", true);
-            model.addAttribute("tutorLocked", false);
-            model.addAttribute("tutorFijo", null);
             return "grupo/viewFormGrupo";
         }
         return "redirect:/grupo";
@@ -279,5 +249,113 @@ public class GrupoController {
             attributes.addFlashAttribute("msg_error", "Error al asignar tutorados: " + e.getMessage());
         }
         return "redirect:/grupo/ver/" + idGrupo;
+    }
+
+    // ── Módulo Asignar Tutor ──────────────────────────────────────────────────
+
+    @GetMapping(value = "asignar-tutor")
+    public String obtenerVistaAsignarTutor(
+            @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
+            @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+            @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "sinTutor") String tipoBusqueda,
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", required = false, defaultValue = "asc") String sort,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "nombre") String sortBy,
+            Model model) {
+
+        List<String> validSortFields = List.of("id", "nombre");
+        if (!validSortFields.contains(sortBy)) sortBy = "nombre";
+        if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "asc";
+
+        Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+
+        org.springframework.data.domain.Page<Grupo> pageResult;
+        try {
+            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
+                pageResult = this.grupoService.buscarPorNombrePage(q, pageable);
+            } else if ("sinTutorNombre".equals(tipoBusqueda) && !q.isBlank()) {
+                pageResult = this.grupoService.buscarSinTutorPorNombrePage(q, pageable);
+            } else if ("sinTutorSemestre".equals(tipoBusqueda) && idSemestre != null) {
+                pageResult = this.grupoService.buscarSinTutorPorSemestrePage(idSemestre, pageable);
+            } else if ("sinTutorCarrera".equals(tipoBusqueda) && idCarrera != null) {
+                pageResult = this.grupoService.buscarSinTutorPorCarreraPage(idCarrera, pageable);
+            } else if ("todos".equals(tipoBusqueda)) {
+                pageResult = this.grupoService.obtenerTodosGruposPage(pageable);
+            } else {
+                pageResult = this.grupoService.obtenerGruposSinTutorPage(pageable);
+                tipoBusqueda = "sinTutor";
+            }
+        } catch (Exception e) {
+            pageResult = this.grupoService.obtenerGruposSinTutorPage(pageable);
+            tipoBusqueda = "sinTutor";
+            model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());
+        }
+
+        Map<Integer, Long> conteoAlumnos = this.grupoTutoradoService.contarAlumnosPorGrupo();
+
+        model.addAttribute("grupos", pageResult.getContent());
+        model.addAttribute("paginaActual", pageResult.getNumber());
+        model.addAttribute("totalPaginas", pageResult.getTotalPages());
+        model.addAttribute("totalElementos", pageResult.getTotalElements());
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("sort", sort);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("q", q);
+        model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
+        model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
+        model.addAttribute("idSemestreSeleccionado", idSemestre);
+        model.addAttribute("idCarreraSeleccionada", idCarrera);
+        model.addAttribute("conteoAlumnos", conteoAlumnos);
+        return "grupo/viewAsignarTutor";
+    }
+
+    @GetMapping(value = "asignar-tutor/{idGrupo}")
+    public String obtenerVistaFormAsignarTutor(@PathVariable Integer idGrupo, Model model) {
+        Grupo grupo = this.grupoService.obtenerGrupo(idGrupo);
+        if (grupo == null) {
+            return "redirect:/grupo/asignar-tutor";
+        }
+        model.addAttribute("grupo", grupo);
+        model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
+        return "grupo/viewFormAsignarTutor";
+    }
+
+    @PostMapping(value = "asignar-tutor/{idGrupo}")
+    public String guardarAsignacionTutor(
+            @PathVariable Integer idGrupo,
+            @RequestParam(value = "idTutor", required = false) Integer idTutor,
+            RedirectAttributes attributes) {
+        if (idTutor == null) {
+            attributes.addFlashAttribute("msg_error", "Debe seleccionar un tutor");
+            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+        }
+        try {
+            this.grupoService.asignarTutor(idGrupo, idTutor);
+            attributes.addFlashAttribute("msg_success", "Tutor asignado correctamente");
+        } catch (NoSuchElementException e) {
+            attributes.addFlashAttribute("msg_error", e.getMessage());
+            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al asignar el tutor: " + e.getMessage());
+            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+        }
+        return "redirect:/grupo/asignar-tutor";
+    }
+
+    @PostMapping(value = "quitar-tutor/{idGrupo}")
+    public String quitarTutorDeGrupo(
+            @PathVariable Integer idGrupo,
+            RedirectAttributes attributes) {
+        try {
+            this.grupoService.quitarTutor(idGrupo);
+            attributes.addFlashAttribute("msg_success", "Tutor removido del grupo correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al quitar el tutor: " + e.getMessage());
+        }
+        return "redirect:/grupo/asignar-tutor";
     }
 }

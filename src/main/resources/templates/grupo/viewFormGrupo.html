@@ -21,7 +21,8 @@
                 <div class="mb-4">
                     <h3 class="mb-1" th:text="${isEdit} ? 'Editar Grupo' : 'Agregar Grupo'"></h3>
                     <p class="text-body-secondary fs-6 mb-0">
-                        Configura un grupo de tutoría asignando su nombre, semestre, carrera y tutor responsable.
+                        Configura un grupo de tutoría asignando su nombre, semestre, carrera, aula y horario.
+                        La asignación del tutor se gestiona desde el módulo <strong>Asignar Tutor</strong>.
                     </p>
                 </div>
                 <p class="text-body-secondary small mb-4">
@@ -55,30 +56,6 @@
                                title="Solo letras, números y puntuación básica"
                                placeholder="ej. Grupo A — ISC 1er Semestre">
                         <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
-                    </div>
-
-                    <!-- Tutor bloqueado: viene pre-seleccionado desde la vista del tutor -->
-                    <div class="mb-3" th:if="${tutorLocked}">
-                        <label class="form-label">Tutor</label>
-                        <input type="text" class="form-control" readonly
-                               th:value="${tutorFijo != null} ? ${tutorFijo.nombre} + ' ' + ${tutorFijo.apellido} : ''">
-                        <input type="hidden" name="tutor.id" th:value="${tutorFijo != null} ? ${tutorFijo.id} : ''">
-                    </div>
-
-                    <!-- Tutor seleccionable con picker -->
-                    <div class="mb-3" th:unless="${tutorLocked}">
-                        <label class="form-label">Tutor</label>
-                        <div class="entity-picker"
-                             data-entity="tutor"
-                             data-placeholder="Sin tutor asignado"
-                             data-clearable="true"
-                             th:data-current-id="${grupo.tutor != null ? grupo.tutor.id : ''}"
-                             th:data-current-text="${grupo.tutor != null ? grupo.tutor.nombre + ' ' + grupo.tutor.apellido : ''}"
-                             th:data-current-sub="${grupo.tutor != null ? grupo.tutor.numeroControl : ''}"
-                             th:data-current-foto="${grupo.tutor != null and grupo.tutor.foto != null ? grupo.tutor.foto : ''}">
-                            <input type="hidden" name="tutor.id"
-                                   th:value="${grupo.tutor != null ? grupo.tutor.id : ''}">
-                        </div>
                     </div>
 
                     <div class="row g-3 mb-3">

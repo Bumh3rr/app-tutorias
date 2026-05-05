@@ -53,11 +53,6 @@
                                   th:text="${tutorado.carrera != null} ? ${tutorado.carrera.nombre} : 'Sin asignar'"></span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Semestre</span>
-                            <span class="detail-value"
-                                  th:text="${tutorado.semestre != null} ? ${tutorado.semestre.periodo} + ' ' + ${tutorado.semestre.anio} : 'Sin asignar'"></span>
-                        </div>
-                        <div class="detail-row">
                             <span class="detail-label">Estado</span>
                             <span class="detail-value">
                                 <span class="badge rounded-pill"

@@ -82,7 +82,7 @@ public class GrupoServiceImpl implements GrupoService {
         }
 
         grupoDB.setNombre(grupo.getNombre());
-        grupoDB.setTutor(grupo.getTutor());
+        // El tutor se gestiona exclusivamente desde el módulo "Asignar Tutor" — no se sobreescribe aquí
         grupoDB.setSemestre(grupo.getSemestre());
         grupoDB.setCarrera(grupo.getCarrera());
         grupoDB.setAula(grupo.getAula());
@@ -170,6 +170,44 @@ public class GrupoServiceImpl implements GrupoService {
     @Override
     public Page<Grupo> buscarPorNombrePage(String q, Pageable pageable) {
         return this.iGrupoRepository.searchByName(q, pageable);
+    }
+
+    @Override
+    public void asignarTutor(Integer idGrupo, Integer idTutor) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        Tutor tutor = this.iTutorRepository.findById(idTutor)
+                .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
+        grupo.setTutor(tutor);
+        this.iGrupoRepository.save(grupo);
+    }
+
+    @Override
+    public void quitarTutor(Integer idGrupo) {
+        Grupo grupo = this.iGrupoRepository.findById(idGrupo)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        grupo.setTutor(null);
+        this.iGrupoRepository.save(grupo);
+    }
+
+    @Override
+    public Page<Grupo> obtenerGruposSinTutorPage(Pageable pageable) {
+        return this.iGrupoRepository.findByActivoAndTutorIsNull(1, pageable);
+    }
+
+    @Override
+    public Page<Grupo> buscarSinTutorPorNombrePage(String q, Pageable pageable) {
+        return this.iGrupoRepository.searchSinTutorByName(q, pageable);
+    }
+
+    @Override
+    public Page<Grupo> buscarSinTutorPorSemestrePage(Integer idSemestre, Pageable pageable) {
+        return this.iGrupoRepository.findSinTutorBySemestre(idSemestre, pageable);
+    }
+
+    @Override
+    public Page<Grupo> buscarSinTutorPorCarreraPage(Integer idCarrera, Pageable pageable) {
+        return this.iGrupoRepository.findSinTutorByCarrera(idCarrera, pageable);
     }
 
     private void resolverRelaciones(Grupo grupo) {

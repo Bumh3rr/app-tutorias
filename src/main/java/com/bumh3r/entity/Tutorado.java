@@ -41,10 +41,6 @@ public class Tutorado {
     @JoinColumn(name = "id_carrera")
     private Carrera carrera;
 
-    @ManyToOne
-    @JoinColumn(name = "id_semestre")
-    private Semestre semestre;
-
     @Column(name = "grado")
     private Integer grado;
 

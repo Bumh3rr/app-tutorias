@@ -122,18 +122,6 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Semestre</label>
-                        <select class="form-select" name="semestre.id"
-                                th:field="*{semestre.id}">
-                            <option value="">Sin asignar</option>
-                            <option th:each="s : ${semestres}"
-                                    th:value="${s.id}"
-                                    th:text="${s.periodo} + ' ' + ${s.anio}">
-                            </option>
-                        </select>
-                    </div>
-
                     <div class="d-flex gap-2 justify-content-end mt-4">
                         <a th:href="@{/tutorado}" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">

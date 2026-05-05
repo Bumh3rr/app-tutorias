@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Tutor a Grupo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .group-card {
+            background: var(--surface-glass, rgba(255,255,255,.04));
+            border: 1px solid var(--border-subtle, rgba(255,255,255,.08));
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color .2s, transform .15s;
+        }
+        .group-card:hover {
+            border-color: rgba(255,255,255,.18);
+            transform: translateY(-2px);
+        }
+        .group-card .tutor-badge {
+            font-size: .75rem;
+        }
+        .filter-tabs .nav-link { border-radius: 8px 8px 0 0; }
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .78rem;
+            padding: .2rem .6rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,.06);
+        }
+        @keyframes fadeSlide {
+            from { opacity:0; transform:translateY(6px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .group-card { animation: fadeSlide .25s ease both; }
+        .group-card:nth-child(1) { animation-delay: .03s; }
+        .group-card:nth-child(2) { animation-delay: .06s; }
+        .group-card:nth-child(3) { animation-delay: .09s; }
+        .group-card:nth-child(4) { animation-delay: .12s; }
+        .group-card:nth-child(5) { animation-delay: .15s; }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <!-- Header -->
+            <div class="page-header">
+                <div>
+                    <h3 class="mb-1">Asignar Tutor a Grupo</h3>
+                    <p class="text-body-secondary fs-6 mb-0">
+                        Gestiona la asignación de tutores a los grupos de tutoría.
+                    </p>
+                </div>
+                <a th:href="@{/grupo}" class="btn btn-outline-secondary">Ver todos los grupos</a>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${msg_error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Filtros con tabs -->
+            <div class="search-filters mb-4 filter-tabs">
+                <h6 class="mb-3">Filtrar Grupos</h6>
+                <ul class="nav nav-tabs mb-0" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                th:classappend="${tipoBusqueda == 'sinTutor'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-sin-tutor">
+                            Sin Tutor
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                th:classappend="${tipoBusqueda == 'todos'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-todos">
+                            Todos
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                th:classappend="${tipoBusqueda == 'sinTutorNombre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-nombre">
+                            Por Nombre
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                th:classappend="${tipoBusqueda == 'sinTutorSemestre'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-semestre">
+                            Por Semestre
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                th:classappend="${tipoBusqueda == 'sinTutorCarrera'} ? 'active'"
+                                data-bs-toggle="tab" data-bs-target="#tab-carrera">
+                            Por Carrera
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content pt-3">
+                    <!-- Tab: Sin tutor -->
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'sinTutor'} ? 'show active'" id="tab-sin-tutor">
+                        <a th:href="@{/grupo/asignar-tutor(tipoBusqueda='sinTutor')}" class="btn btn-primary btn-sm">
+                            Ver grupos sin tutor
+                        </a>
+                    </div>
+
+                    <!-- Tab: Todos -->
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos'} ? 'show active'" id="tab-todos">
+                        <a th:href="@{/grupo/asignar-tutor(tipoBusqueda='todos')}" class="btn btn-primary btn-sm">
+                            Ver todos los grupos
+                        </a>
+                    </div>
+
+                    <!-- Tab: Por Nombre -->
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'sinTutorNombre'} ? 'show active'" id="tab-nombre">
+                        <form method="get" th:action="@{/grupo/asignar-tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="sinTutorNombre">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <input type="text" name="q" class="form-control"
+                                           placeholder="Buscar grupo por nombre..."
+                                           th:value="${q}">
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab: Por Semestre -->
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'sinTutorSemestre'} ? 'show active'" id="tab-semestre">
+                        <form method="get" th:action="@{/grupo/asignar-tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="sinTutorSemestre">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idSemestre" class="form-select" required>
+                                        <option value="">Selecciona un semestre...</option>
+                                        <option th:each="s : ${semestres}"
+                                                th:value="${s.id}"
+                                                th:text="${s.periodo} + ' ' + ${s.anio}"
+                                                th:selected="${s.id == idSemestreSeleccionado}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab: Por Carrera -->
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'sinTutorCarrera'} ? 'show active'" id="tab-carrera">
+                        <form method="get" th:action="@{/grupo/asignar-tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="sinTutorCarrera">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <select name="idCarrera" class="form-select" required>
+                                        <option value="">Selecciona una carrera...</option>
+                                        <option th:each="c : ${carreras}"
+                                                th:value="${c.id}"
+                                                th:text="${c.nombre}"
+                                                th:selected="${c.id == idCarreraSeleccionada}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador y ordenamiento -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-body-secondary" th:if="${totalElementos > 0}"
+                       th:text="${paginaActual * pageSize + 1} + '–' + (${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize}) + ' de ' + ${totalElementos} + ' grupos'">
+                </small>
+                <small class="text-body-secondary" th:unless="${totalElementos > 0}">Sin resultados</small>
+
+                <div class="d-flex gap-2 align-items-center">
+                    <small class="text-body-secondary">Ordenar por:</small>
+                    <a th:href="@{/grupo/asignar-tutor(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}"
+                       class="btn btn-sm"
+                       th:classappend="${sortBy == 'nombre'} ? 'btn-secondary' : 'btn-outline-secondary'">
+                        Nombre
+                        <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                    </a>
+                    <a th:href="@{/grupo/asignar-tutor(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}"
+                       class="btn btn-sm"
+                       th:classappend="${sortBy == 'id'} ? 'btn-secondary' : 'btn-outline-secondary'">
+                        ID
+                        <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tabla de grupos -->
+            <div th:if="${grupos != null and !#lists.isEmpty(grupos)}">
+                <div class="table-wrapper mb-4">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Grupo</th>
+                            <th>Semestre</th>
+                            <th>Carrera</th>
+                            <th>Aula / Horario</th>
+                            <th class="text-center">Alumnos</th>
+                            <th>Tutor Asignado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="grupo : ${grupos}">
+                            <td>
+                                <div class="fw-semibold" th:text="${grupo.nombre}"></div>
+                                <small class="text-body-secondary" th:text="'ID: ' + ${grupo.id}"></small>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill"
+                                      th:if="${grupo.semestre != null}"
+                                      th:text="${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio}">
+                                </span>
+                                <span class="badge rounded-pill badge-sin-asignar" th:unless="${grupo.semestre != null}">
+                                    Sin semestre
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${grupo.carrera != null}" th:text="${grupo.carrera.nombre}"></span>
+                                <span class="text-body-secondary" th:unless="${grupo.carrera != null}">Sin carrera</span>
+                            </td>
+                            <td>
+                                <div th:if="${grupo.aula != null and !grupo.aula.isEmpty()}"
+                                     class="fw-semibold" th:text="${grupo.aula}"></div>
+                                <small class="text-body-secondary"
+                                       th:text="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? ${grupo.diaSemana} + ' ' + ${grupo.horario} : '—'">
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-primary"
+                                      th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0">
+                                </span>
+                            </td>
+                            <td>
+                                <span th:if="${grupo.tutor != null}" class="d-flex align-items-center gap-2">
+                                    <img th:if="${grupo.tutor.foto != null}"
+                                         th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}"
+                                         style="width:28px;height:28px;object-fit:cover;border-radius:50%;" alt="foto">
+                                    <img th:unless="${grupo.tutor.foto != null}"
+                                         th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}"
+                                         style="width:28px;height:28px;object-fit:cover;border-radius:50%;" alt="foto">
+                                    <span th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></span>
+                                </span>
+                                <span class="badge rounded-pill badge-sin-asignar" th:unless="${grupo.tutor != null}">
+                                    Sin tutor
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a th:href="@{/grupo/asignar-tutor/{id}(id=${grupo.id})}"
+                                       class="btn btn-sm btn-primary">
+                                        <span th:text="${grupo.tutor != null} ? 'Cambiar' : 'Asignar'"></span>
+                                    </a>
+                                    <form th:if="${grupo.tutor != null}"
+                                          th:action="@{/grupo/quitar-tutor/{id}(id=${grupo.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('¿Quitar el tutor de este grupo?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div th:if="${totalPaginas > 1}" class="d-flex justify-content-between align-items-center mt-3 px-1">
+                <small class="text-body-secondary" th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}"></small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/grupo/asignar-tutor(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                            th:classappend="${i == paginaActual} ? 'active'">
+                            <a class="page-link" th:text="${i + 1}"
+                               th:href="@{/grupo/asignar-tutor(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/grupo/asignar-tutor(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-body-secondary">Mostrar</small>
+                    <select class="form-select form-select-sm" style="width:auto;"
+                            onchange="cambiarPageSize(this.value)">
+                        <option value="5"  th:selected="${pageSize == 5}">5</option>
+                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                    </select>
+                    <small class="text-body-secondary">por página</small>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${grupos != null and !#lists.isEmpty(grupos)}" class="empty-state">
+                <img th:src="@{/images/utils/img.png}" alt="Sin grupos">
+                <h5>No hay grupos para mostrar</h5>
+                <p th:text="${tipoBusqueda == 'sinTutor'} ? 'Todos los grupos ya tienen un tutor asignado.' : 'No se encontraron grupos con los filtros aplicados.'"></p>
+                <a th:href="@{/grupo/asignar-tutor}" class="btn btn-outline-secondary">Limpiar filtros</a>
+            </div>
+
+        </main>
+        <footer th:replace="~{fragments/fragment::footer}"></footer>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+<script th:src="@{/js/fn_pagination.js}"></script>
+</body>
+</html>

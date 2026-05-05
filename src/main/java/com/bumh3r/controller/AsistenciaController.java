@@ -2,9 +2,11 @@ package com.bumh3r.controller;
 
 import com.bumh3r.dto.ResumenAsistenciaDTO;
 import com.bumh3r.entity.Asistencia;
+import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.AsistenciaService;
+import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutoradoService;
 import org.slf4j.Logger;
@@ -16,7 +18,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "asistencia")
@@ -28,6 +32,8 @@ public class AsistenciaController {
     private SesionService sesionService;
     @Autowired
     private TutoradoService tutoradoService;
+    @Autowired
+    private GrupoTutoradoService grupoTutoradoService;
 
     private static final Logger log = LoggerFactory.getLogger(AsistenciaController.class);
 
@@ -96,14 +102,25 @@ public class AsistenciaController {
             @PathVariable Integer idSesion, Model model) {
 
         Sesion sesion = this.sesionService.obtenerSesion(idSesion);
-        List<Tutorado> tutorados = this.tutoradoService.obtenerTodosTutorados();
+
+        List<GrupoTutorado> grupoTutorados = (sesion != null && sesion.getGrupo() != null)
+                ? this.grupoTutoradoService.buscarPorGrupo(sesion.getGrupo().getId())
+                : List.of();
+
         List<Asistencia> asistenciasExistentes = this.asistenciaService
                 .buscarAsistenciasPorSesion(idSesion);
 
-        log.info("Registrando asistencia para sesion: {}", idSesion);
+        Map<Integer, Asistencia> mapaAsistencias = new HashMap<>();
+        for (Asistencia a : asistenciasExistentes) {
+            if (a.getTutorado() != null) {
+                mapaAsistencias.put(a.getTutorado().getId(), a);
+            }
+        }
+
+        log.info("Registrando asistencia para sesion: {}, tutorados del grupo: {}", idSesion, grupoTutorados.size());
         model.addAttribute("sesion", sesion);
-        model.addAttribute("tutorados", tutorados);
-        model.addAttribute("asistenciasExistentes", asistenciasExistentes);
+        model.addAttribute("grupoTutorados", grupoTutorados);
+        model.addAttribute("mapaAsistencias", mapaAsistencias);
         return "asistencia/viewRegistrarAsistencia";
     }
 
