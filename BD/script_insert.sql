@@ -194,74 +194,74 @@ INSERT INTO sesion (id_grupo, id_actividad, semana, fecha_imparticion, estatus_r
 -- 11. ASISTENCIAS
 -- ─────────────────────────────────────────────────────────────
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(1, 1, 1, 0, 1, '2026-01-23 09:00:00'),
-(1, 2, 1, 0, 1, '2026-01-23 09:01:00'),
-(1, 3, 1, 0, 1, '2026-01-23 09:02:00'),
-(1, 4, 1, 0, 1, '2026-01-23 09:03:00'),
-(1, 5, 1, 0, 1, '2026-01-23 09:04:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(1, 1, 1, 0, '2026-01-23 09:00:00'),
+(1, 2, 1, 0, '2026-01-23 09:01:00'),
+(1, 3, 1, 0, '2026-01-23 09:02:00'),
+(1, 4, 1, 0, '2026-01-23 09:03:00'),
+(1, 5, 1, 0, '2026-01-23 09:04:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(2, 1, 1, 0, 1, '2026-01-30 09:00:00'),
-(2, 2, 0, 0, 1, '2026-01-30 09:01:00'),
-(2, 3, 1, 0, 1, '2026-01-30 09:02:00'),
-(2, 4, 1, 0, 1, '2026-01-30 09:03:00'),
-(2, 5, 1, 0, 1, '2026-01-30 09:04:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(2, 1, 1, 0, '2026-01-30 09:00:00'),
+(2, 2, 0, 0, '2026-01-30 09:01:00'),
+(2, 3, 1, 0, '2026-01-30 09:02:00'),
+(2, 4, 1, 0, '2026-01-30 09:03:00'),
+(2, 5, 1, 0, '2026-01-30 09:04:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(3, 1, 1, 0, 1, '2026-02-06 09:00:00'),
-(3, 2, 0, 1, 1, '2026-02-06 09:01:00'),
-(3, 3, 0, 0, 1, '2026-02-06 09:02:00'),
-(3, 4, 1, 0, 1, '2026-02-06 09:03:00'),
-(3, 5, 1, 0, 1, '2026-02-06 09:04:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(3, 1, 1, 0, '2026-02-06 09:00:00'),
+(3, 2, 0, 1, '2026-02-06 09:01:00'),
+(3, 3, 0, 0, '2026-02-06 09:02:00'),
+(3, 4, 1, 0, '2026-02-06 09:03:00'),
+(3, 5, 1, 0, '2026-02-06 09:04:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(4, 1, 1, 0, 1, '2026-02-13 09:00:00'),
-(4, 2, 1, 0, 1, '2026-02-13 09:01:00'),
-(4, 3, 1, 0, 1, '2026-02-13 09:02:00'),
-(4, 4, 1, 0, 1, '2026-02-13 09:03:00'),
-(4, 5, 1, 0, 1, '2026-02-13 09:04:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(4, 1, 1, 0, '2026-02-13 09:00:00'),
+(4, 2, 1, 0, '2026-02-13 09:01:00'),
+(4, 3, 1, 0, '2026-02-13 09:02:00'),
+(4, 4, 1, 0, '2026-02-13 09:03:00'),
+(4, 5, 1, 0, '2026-02-13 09:04:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(5, 1, 1, 0, 1, '2026-02-20 09:00:00'),
-(5, 2, 1, 0, 1, '2026-02-20 09:01:00'),
-(5, 3, 1, 0, 1, '2026-02-20 09:02:00'),
-(5, 4, 0, 0, 1, '2026-02-20 09:03:00'),
-(5, 5, 1, 0, 1, '2026-02-20 09:04:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(5, 1, 1, 0, '2026-02-20 09:00:00'),
+(5, 2, 1, 0, '2026-02-20 09:01:00'),
+(5, 3, 1, 0, '2026-02-20 09:02:00'),
+(5, 4, 0, 0, '2026-02-20 09:03:00'),
+(5, 5, 1, 0, '2026-02-20 09:04:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(11,  9, 1, 0, 1, '2026-01-23 10:50:00'),
-(11, 10, 1, 0, 1, '2026-01-23 10:51:00'),
-(11, 11, 1, 0, 1, '2026-01-23 10:52:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(11,  9, 1, 0, '2026-01-23 10:50:00'),
+(11, 10, 1, 0, '2026-01-23 10:51:00'),
+(11, 11, 1, 0, '2026-01-23 10:52:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(12,  9, 1, 0, 1, '2026-01-30 10:50:00'),
-(12, 10, 0, 0, 1, '2026-01-30 10:51:00'),
-(12, 11, 1, 0, 1, '2026-01-30 10:52:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(12,  9, 1, 0, '2026-01-30 10:50:00'),
+(12, 10, 0, 0, '2026-01-30 10:51:00'),
+(12, 11, 1, 0, '2026-01-30 10:52:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(13,  9, 1, 0, 1, '2026-02-06 10:50:00'),
-(13, 10, 1, 0, 1, '2026-02-06 10:51:00'),
-(13, 11, 1, 0, 1, '2026-02-06 10:52:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(13,  9, 1, 0, '2026-02-06 10:50:00'),
+(13, 10, 1, 0, '2026-02-06 10:51:00'),
+(13, 11, 1, 0, '2026-02-06 10:52:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(16, 12, 1, 0, 1, '2026-01-23 09:50:00'),
-(16, 13, 1, 0, 1, '2026-01-23 09:51:00'),
-(16, 14, 1, 0, 1, '2026-01-23 09:52:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(16, 12, 1, 0, '2026-01-23 09:50:00'),
+(16, 13, 1, 0, '2026-01-23 09:51:00'),
+(16, 14, 1, 0, '2026-01-23 09:52:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(17, 12, 1, 0, 1, '2026-01-30 09:50:00'),
-(17, 13, 0, 1, 1, '2026-01-30 09:51:00'),
-(17, 14, 1, 0, 1, '2026-01-30 09:52:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(17, 12, 1, 0, '2026-01-30 09:50:00'),
+(17, 13, 0, 1, '2026-01-30 09:51:00'),
+(17, 14, 1, 0, '2026-01-30 09:52:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(19, 19, 1, 0, 1, '2025-08-22 09:00:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(19, 19, 1, 0, '2025-08-22 09:00:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(20, 19, 0, 0, 1, '2025-08-29 09:00:00');
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(20, 19, 0, 0, '2025-08-29 09:00:00');
 
-INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, activo, fecha_registro) VALUES
-(21, 21, 1, 0, 1, NOW());   -- ← reciente
+INSERT INTO asistencia (id_sesion, id_tutorado, presente, recuperada, fecha_registro) VALUES
+(21, 21, 1, 0, NOW());   -- ← reciente
 
 -- ─────────────────────────────────────────────────────────────
 -- 12. EVIDENCIAS DE SESIÓN

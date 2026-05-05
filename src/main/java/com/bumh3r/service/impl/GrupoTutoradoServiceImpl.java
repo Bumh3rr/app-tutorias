@@ -55,7 +55,7 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
 
             long totalGrupos = this.iGrupoTutoradoRepository.countByTutoradoAndActivo(tutorado, 1);
             if (totalGrupos >= 2) {
-                continue;
+                throw new IllegalStateException("El tutorado ya tiene el máximo de 2 asignaciones permitidas.");
             }
 
             GrupoTutorado gt = GrupoTutorado.builder()
@@ -100,10 +100,10 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
     }
 
     @Override
-    public Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, int page, int pageSize) {
+    public Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, Integer idGrupo, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         String query = (q == null || q.isBlank()) ? "" : q.trim();
-        return this.iGrupoTutoradoRepository.buscarHistorial(query, idSemestre, idCarrera, pageable);
+        return this.iGrupoTutoradoRepository.buscarHistorial(query, idSemestre, idCarrera, idGrupo, pageable);
     }
 
     @Override

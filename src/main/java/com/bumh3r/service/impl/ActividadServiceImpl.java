@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -96,12 +97,12 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    public List<Actividad> buscarActividadesPorFecha(Date fecha) {
+    public List<Actividad> buscarActividadesPorFecha(LocalDate fecha) {
         return this.iActividadRepository.findByActivoAndFecha(1, fecha);
     }
 
     @Override
-    public List<Actividad> buscarActividadesPorRangoFechas(Date fechaInicio, Date fechaFin) {
+    public List<Actividad> buscarActividadesPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin) {
         return this.iActividadRepository.findByActivoAndFechaBetween(1, fechaInicio, fechaFin);
     }
 
@@ -119,13 +120,13 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    public Page<Actividad> buscarActividadesPorFechaPaginado(Date fechaDate, Integer page, Integer pageSize, String sortBy, String sort) {
+    public Page<Actividad> buscarActividadesPorFechaPaginado(LocalDate fechaDate, Integer page, Integer pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iActividadRepository.findByActivoAndFecha(1, fechaDate, pageable);
     }
 
     @Override
-    public Page<Actividad> buscarActividadesPorRangoFechasPaginado(Date fInicio, Date fFin, Integer page, Integer pageSize, String sortBy, String sort) {
+    public Page<Actividad> buscarActividadesPorRangoFechasPaginado(LocalDate fInicio, LocalDate fFin, Integer page, Integer pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iActividadRepository.findByActivoAndFechaBetween(1, fInicio, fFin, pageable);
     }

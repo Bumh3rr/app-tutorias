@@ -8,6 +8,10 @@ import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutorService;
 import com.bumh3r.service.enums.FileType;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -195,5 +199,20 @@ public class TutorController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutor: " + e.getMessage());
         }
         return "redirect:/tutor";
+    }
+
+    @GetMapping(value = "pdf/constancia/{id}")
+    public void generarConstanciaTutor(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        Tutor tutor = this.tutorService.obtenerTutor(id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=constancia-tutor-" + id + ".pdf");
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
+        document.add(new Paragraph("Constancia de Participación como Tutor"));
+        document.add(new Paragraph("Tutor: " + tutor.getNombre() + " " + tutor.getApellido()));
+        document.add(new Paragraph("En desarrollo."));
+        document.close();
     }
 }

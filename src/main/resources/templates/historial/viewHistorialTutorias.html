@@ -58,6 +58,25 @@
                                 </option>
                             </select>
                         </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-body-secondary mb-1">Grupo</label>
+                            <select name="idGrupo" class="form-select">
+                                <option value="">Todos los grupos</option>
+                                <option th:each="g : ${grupos}"
+                                        th:value="${g.id}"
+                                        th:text="${g.nombre}"
+                                        th:selected="${g.id == idGrupoSeleccionado}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-body-secondary mb-1">Acreditación</label>
+                            <select name="estatusAcreditacion" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="acreditado" th:selected="${'acreditado' == estatusAcreditacion}">Acreditados</option>
+                                <option value="no_acreditado" th:selected="${'no_acreditado' == estatusAcreditacion}">No acreditados</option>
+                            </select>
+                        </div>
                         <div class="col-md-2 d-flex gap-2">
                             <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
                             <a th:href="@{/historial}" class="btn btn-outline-secondary">
@@ -71,12 +90,15 @@
             </div>
 
             <!-- Filtros activos -->
-            <div th:if="${q != null and !q.isBlank() or idSemestreSeleccionado != null or idCarreraSeleccionada != null}"
+            <div th:if="${(q != null and !q.isBlank()) or idSemestreSeleccionado != null or idCarreraSeleccionada != null or idGrupoSeleccionado != null or (estatusAcreditacion != null and !estatusAcreditacion.isBlank())}"
                  class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge bg-info text-dark" th:if="${q != null and !q.isBlank()}"
                       th:text="'Tutorado: ' + ${q}"></span>
                 <span class="badge bg-secondary" th:if="${idSemestreSeleccionado != null}">Semestre filtrado</span>
                 <span class="badge bg-secondary" th:if="${idCarreraSeleccionada != null}">Carrera filtrada</span>
+                <span class="badge bg-secondary" th:if="${idGrupoSeleccionado != null}">Grupo filtrado</span>
+                <span class="badge bg-secondary" th:if="${estatusAcreditacion != null and !estatusAcreditacion.isBlank()}"
+                      th:text="'Acreditación: ' + ${estatusAcreditacion}"></span>
             </div>
 
             <!-- Contador -->
@@ -100,6 +122,8 @@
                             <th>Tutor</th>
                             <th>Horario</th>
                             <th>Estado</th>
+                            <th>% Asistencia</th>
+                            <th>Acreditado</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -168,6 +192,23 @@
                                       th:classappend="${reg.activo == 1} ? 'badge-active' : 'badge-inactive'">
                                 </span>
                             </td>
+                            <!-- % Asistencia -->
+                            <td th:with="res=${resumenesHistorial.get(reg.tutorado.id)}">
+                                <span th:if="${res != null}"
+                                      th:text="${res.porcentaje} + '%'"
+                                      th:class="${res.acreditado} ? 'fw-semibold text-success' : 'fw-semibold text-danger'">
+                                </span>
+                                <span th:unless="${res != null}" class="text-body-secondary small">—</span>
+                            </td>
+                            <!-- Acreditado -->
+                            <td th:with="res=${resumenesHistorial.get(reg.tutorado.id)}">
+                                <span th:if="${res != null}"
+                                      class="badge rounded-pill"
+                                      th:text="${res.acreditado} ? 'Acreditado' : 'No acreditado'"
+                                      th:classappend="${res.acreditado} ? 'badge-active' : 'badge-inactive'">
+                                </span>
+                                <span th:unless="${res != null}" class="badge rounded-pill badge-sin-asignar">—</span>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -186,7 +227,7 @@
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/historial(page=${paginaActual - 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/historial(page=${paginaActual - 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                                 &laquo;
                             </a>
                         </li>
@@ -195,12 +236,12 @@
                             th:classappend="${i == paginaActual} ? 'active'">
                             <a class="page-link"
                                th:text="${i + 1}"
-                               th:href="@{/historial(page=${i},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/historial(page=${i},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                             </a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/historial(page=${paginaActual + 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                               th:href="@{/historial(page=${paginaActual + 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                                 &raquo;
                             </a>
                         </li>

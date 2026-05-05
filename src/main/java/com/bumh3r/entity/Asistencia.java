@@ -27,7 +27,6 @@ public class Asistencia {
 
     private Integer presente;
     private Integer recuperada;
-    private Integer activo;
 
     @CreationTimestamp
     @Column(name = "fecha_registro", updatable = false)

@@ -37,4 +37,7 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
 
     @Query("SELECT s FROM Sesion s WHERE s.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(s.grupo.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Sesion> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT COUNT(s) FROM Sesion s WHERE s.grupo IN :grupos AND s.estatusRegistro IN :estatuses AND s.activo = 1")
+    long countByGruposAndEstatusRegistroIn(@Param("grupos") List<Grupo> grupos, @Param("estatuses") List<String> estatuses);
 }

@@ -14,5 +14,5 @@ public interface GrupoTutoradoService {
     List<GrupoTutorado> buscarTutoriasPorTutorado(Integer idTutorado);
     List<Tutorado> obtenerTutoradosDisponibles(Integer idGrupo);
     Map<Integer, Long> contarAlumnosPorGrupo();
-    Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, int page, int pageSize);
+    Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, Integer idGrupo, int page, int pageSize);
 }

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -25,7 +28,8 @@ public class Actividad {
     private String descripcion;
 
     @NotNull(message = "La fecha es obligatoria")
-    private Date fecha;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate fecha;
 
     @NotNull(message = "La semana es obligatoria")
     @Min(value = 1, message = "La semana debe estar entre 1 y 10")

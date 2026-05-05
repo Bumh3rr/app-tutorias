@@ -3,7 +3,7 @@ package com.bumh3r.service;
 import com.bumh3r.entity.Actividad;
 import org.springframework.data.domain.Page;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ActividadService {
@@ -13,22 +13,17 @@ public interface ActividadService {
     Actividad obtenerActividad(Integer id);
     void eliminarActividad(Integer id);
 
-    // Búsqueda: actividades por fecha exacta
-    List<Actividad> buscarActividadesPorFecha(Date fecha);
+    List<Actividad> buscarActividadesPorFecha(LocalDate fecha);
 
-    // Búsqueda: actividades por rango de fechas
-    List<Actividad> buscarActividadesPorRangoFechas(Date fechaInicio, Date fechaFin);
+    List<Actividad> buscarActividadesPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin);
 
-    // Actividades de un PAT específico
     List<Actividad> buscarActividadesPorPAT(Integer idPat);
 
-    // Guardar múltiples actividades (batch)
     List<String> guardarLoteActividades(Integer idPat, List<Actividad> actividades);
 
-    // Paginado y ordenamiento
     Page<Actividad> buscarActividadesPorNombrePaginado(String q, Integer page, Integer pageSize, String sortBy, String sort);
-    Page<Actividad> buscarActividadesPorFechaPaginado(Date fechaDate, Integer page, Integer pageSize, String sortBy, String sort);
-    Page<Actividad> buscarActividadesPorRangoFechasPaginado(Date fInicio, Date fFin, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Actividad> buscarActividadesPorFechaPaginado(LocalDate fechaDate, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Actividad> buscarActividadesPorRangoFechasPaginado(LocalDate fInicio, LocalDate fFin, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> buscarActividadesPorPATPaginado(Integer idPat, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> obtenerTodasActividadesPaginado(Integer page, Integer pageSize, String sortBy, String sort);
 }

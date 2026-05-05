@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades de Tutoría | Tecnológico de Chilpancingo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0f14;
+            color: rgba(255,255,255,0.85);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .pub-header {
+            background: linear-gradient(135deg, #0f1117 0%, #161926 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 28px 0 24px;
+        }
+        .pub-header .tech-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .pub-header .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .pub-header .logo-text h1 {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .pub-header .logo-text p {
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.4);
+            margin: 0;
+        }
+
+        /* ── Page title ── */
+        .page-title-area {
+            padding: 36px 0 28px;
+        }
+        .page-title-area h2 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .page-title-area p {
+            color: rgba(255,255,255,0.45);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* ── Filters ── */
+        .filter-bar {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .filter-bar .form-control,
+        .filter-bar .form-select {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.85);
+            border-radius: 8px;
+            font-size: 13.5px;
+        }
+        .filter-bar .form-control:focus,
+        .filter-bar .form-select:focus {
+            border-color: rgba(99,102,241,0.5);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+            background: rgba(255,255,255,0.07);
+        }
+        .filter-bar .form-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 6px;
+        }
+
+        /* ── Activity card ── */
+        .activity-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .activity-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(99,102,241,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .activity-card .card-img-wrapper {
+            height: 140px;
+            overflow: hidden;
+            background: rgba(99,102,241,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .activity-card .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .activity-card:hover .card-img-wrapper img {
+            transform: scale(1.04);
+        }
+        .activity-card .card-body-custom {
+            padding: 16px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .activity-card .card-title {
+            font-size: 14.5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .activity-card .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .activity-card .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.45);
+        }
+        .activity-card .card-desc {
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.6;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+        .activity-card .card-footer-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Badges ── */
+        .semana-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.2);
+            color: #a5b4fc;
+        }
+
+        /* ── Active filters ── */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* ── Pagination ── */
+        .pagination .page-link {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            border-radius: 6px !important;
+            font-size: 13px;
+        }
+        .pagination .page-link:hover {
+            background: rgba(99,102,241,0.15);
+            border-color: rgba(99,102,241,0.3);
+            color: #fff;
+        }
+        .pagination .page-item.active .page-link {
+            background: rgba(99,102,241,0.3);
+            border-color: rgba(99,102,241,0.5);
+            color: #fff;
+        }
+        .pagination .page-item.disabled .page-link {
+            opacity: 0.35;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 64px 20px;
+            color: rgba(255,255,255,0.35);
+        }
+        .empty-state svg {
+            opacity: 0.2;
+            margin-bottom: 16px;
+        }
+        .empty-state h5 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: rgba(255,255,255,0.5);
+        }
+        .empty-state p {
+            font-size: 13.5px;
+        }
+
+        /* ── Footer ── */
+        .pub-footer {
+            margin-top: 60px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeInUp 0.3s ease both; }
+    </style>
+</head>
+<body>
+
+<!-- Header institucional -->
+<header class="pub-header">
+    <div class="container">
+        <div class="tech-logo">
+            <div class="logo-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1>Tecnológico Nacional de México</h1>
+                <p>Campus Chilpancingo — Programa de Tutorías</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Título de página -->
+    <div class="page-title-area fade-in">
+        <h2>Actividades de Tutoría</h2>
+        <p>Consulta las actividades registradas en el Programa de Acción Tutorial.</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar fade-in">
+        <form method="get" th:action="@{/public/actividades}">
+            <input type="hidden" name="page" value="0">
+            <input type="hidden" name="pageSize" th:value="${pageSize}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar actividad</label>
+                    <input type="text" name="q" class="form-control"
+                           placeholder="Nombre de la actividad..."
+                           th:value="${q}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fechaDesde" class="form-control"
+                           th:value="${fechaDesde}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fechaHasta" class="form-control"
+                           th:value="${fechaHasta}">
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
+                    <a th:href="@{/public/actividades}" class="btn btn-outline-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Filtros activos -->
+    <div th:if="${(q != null and !q.isBlank()) or (fechaDesde != null and !fechaDesde.isBlank()) or (fechaHasta != null and !fechaHasta.isBlank())}"
+         class="active-filters">
+        <span class="badge bg-info text-dark" th:if="${q != null and !q.isBlank()}"
+              th:text="'Búsqueda: ' + ${q}"></span>
+        <span class="badge bg-secondary" th:if="${fechaDesde != null and !fechaDesde.isBlank()}"
+              th:text="'Desde: ' + ${fechaDesde}"></span>
+        <span class="badge bg-secondary" th:if="${fechaHasta != null and !fechaHasta.isBlank()}"
+              th:text="'Hasta: ' + ${fechaHasta}"></span>
+    </div>
+
+    <!-- Contador -->
+    <div th:if="${totalElementos > 0}"
+         class="d-flex justify-content-between align-items-center mb-3">
+        <small class="text-body-secondary">
+            <span th:text="${totalElementos} + ' actividad(es) encontrada(s)'"></span>
+        </small>
+        <small class="text-body-secondary"
+               th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}">
+        </small>
+    </div>
+
+    <!-- Cards de actividades -->
+    <div th:if="${actividades != null and !#lists.isEmpty(actividades)}">
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-lg-4 fade-in"
+                 th:each="actividad, stat : ${actividades}"
+                 th:style="'animation-delay:' + ${stat.index * 0.05} + 's'">
+                <div class="activity-card">
+
+                    <!-- Imagen -->
+                    <div class="card-img-wrapper">
+                        <img th:if="${actividad.foto != null}"
+                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             alt="Imagen actividad">
+                        <svg th:unless="${actividad.foto != null}"
+                             width="40" height="40" viewBox="0 0 24 24" fill="none"
+                             stroke="rgba(165,180,252,0.3)" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </div>
+
+                    <div class="card-body-custom">
+                        <!-- Título -->
+                        <div class="card-title" th:text="${actividad.nombre}"></div>
+
+                        <!-- Meta chips -->
+                        <div class="card-meta">
+                            <span class="meta-chip" th:if="${actividad.fecha != null}">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span th:text="${#temporals.format(actividad.fecha, 'dd/MM/yyyy')}"></span>
+                            </span>
+                            <span class="meta-chip" th:if="${actividad.pat != null}">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                <span th:text="${actividad.pat.nombre}"></span>
+                            </span>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="card-desc"
+                             th:text="${actividad.descripcion != null and !actividad.descripcion.isEmpty()} ? ${actividad.descripcion} : 'Sin descripción registrada.'">
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="card-footer-custom">
+                            <span class="semana-badge" th:text="'Semana ' + ${actividad.semana}"></span>
+                            <a th:href="@{/public/actividades/{id}(id=${actividad.id})}"
+                               class="btn btn-outline-secondary btn-sm" style="font-size:12px;">
+                                Ver detalle
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:3px;"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div th:if="${totalPaginas > 1}"
+             class="d-flex justify-content-between align-items-center mt-2 mb-4">
+
+            <small class="text-body-secondary"
+                   th:text="'Página ' + ${paginaActual + 1} + ' de ' + ${totalPaginas}">
+            </small>
+
+            <nav>
+                <ul class="pagination pagination-sm mb-0 gap-1">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/public/actividades(page=${paginaActual - 1},pageSize=${pageSize},q=${q},fechaDesde=${fechaDesde},fechaHasta=${fechaHasta})}">&laquo;</a>
+                    </li>
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                        th:classappend="${i == paginaActual} ? 'active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{/public/actividades(page=${i},pageSize=${pageSize},q=${q},fechaDesde=${fechaDesde},fechaHasta=${fechaHasta})}">
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/public/actividades(page=${paginaActual + 1},pageSize=${pageSize},q=${q},fechaDesde=${fechaDesde},fechaHasta=${fechaHasta})}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-body-secondary">Mostrar</small>
+                <select class="form-select form-select-sm" style="width:auto; font-size:12px;"
+                        onchange="cambiarPageSize(this.value)">
+                    <option value="6"  th:selected="${pageSize == 6}">6</option>
+                    <option value="12" th:selected="${pageSize == 12}">12</option>
+                    <option value="24" th:selected="${pageSize == 24}">24</option>
+                </select>
+                <small class="text-body-secondary">por página</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div th:unless="${actividades != null and !#lists.isEmpty(actividades)}" class="empty-state">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <h5>Sin resultados</h5>
+        <p>No se encontraron actividades con los filtros aplicados.</p>
+        <a th:href="@{/public/actividades}" class="btn btn-outline-secondary btn-sm mt-2">Limpiar filtros</a>
+    </div>
+
+</div>
+
+<footer class="pub-footer">
+    <div class="container">
+        Tecnológico Nacional de México — Campus Chilpancingo &mdash; Programa de Tutorías
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function cambiarPageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('pageSize', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+</script>
+</body>
+</html>

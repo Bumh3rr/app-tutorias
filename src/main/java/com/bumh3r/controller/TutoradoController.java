@@ -10,6 +10,10 @@ import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.TutoradoService;
 import com.bumh3r.service.enums.FileType;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,5 +208,35 @@ public class TutoradoController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutorado: " + e.getMessage());
         }
         return "redirect:/tutorado";
+    }
+
+    @GetMapping(value = "pdf/constancia/{id}")
+    public void generarConstanciaTutorado(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        Tutorado tutorado = this.tutoradoService.obtenerTutorado(id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=constancia-tutorado-" + id + ".pdf");
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
+        document.add(new Paragraph("Constancia de Participación en Programa de Tutorías"));
+        document.add(new Paragraph("Tutorado: " + tutorado.getNombre() + " " + tutorado.getApellido()));
+        document.add(new Paragraph("En desarrollo."));
+        document.close();
+    }
+
+    @GetMapping(value = "pdf/reporte-asistencia/{id}")
+    public void generarReporteAsistenciaTutorado(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        Tutorado tutorado = this.tutoradoService.obtenerTutorado(id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=reporte-asistencia-" + id + ".pdf");
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
+        document.add(new Paragraph("Reporte de Asistencia a Tutorías"));
+        document.add(new Paragraph("Tutorado: " + tutorado.getNombre() + " " + tutorado.getApellido()));
+        document.add(new Paragraph("En desarrollo."));
+        document.close();
     }
 }

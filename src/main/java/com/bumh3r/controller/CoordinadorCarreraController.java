@@ -6,6 +6,10 @@ import com.bumh3r.service.CoordinadorCarreraService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.enums.FileType;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,5 +214,20 @@ public class CoordinadorCarreraController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el coordinador: " + e.getMessage());
         }
         return "redirect:/coordinador";
+    }
+
+    @GetMapping(value = "pdf/nombramiento/{id}")
+    public void generarNombramientoCoordinador(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        CoordinadorCarrera coordinador = this.coordinadorCarreraService.obtenerCoordinador(id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=nombramiento-coordinador-" + id + ".pdf");
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
+        document.add(new Paragraph("Nombramiento Oficial de Coordinador de Carrera"));
+        document.add(new Paragraph("Coordinador: " + coordinador.getNombre() + " " + coordinador.getApellido()));
+        document.add(new Paragraph("En desarrollo."));
+        document.close();
     }
 }

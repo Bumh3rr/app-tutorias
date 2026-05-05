@@ -2,6 +2,7 @@ package com.bumh3r.service.impl;
 
 import com.bumh3r.dto.ResumenAsistenciaDTO;
 import com.bumh3r.entity.Asistencia;
+import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 public class AsistenciaServiceImpl implements AsistenciaService {
 
-    private static final int TOTAL_SESIONES = 10;
     private static final double PORCENTAJE_MINIMO = 80.0;
 
     @Autowired
@@ -38,18 +38,17 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
     @Override
     public List<Asistencia> obtenerTodasAsistencias() {
-        return this.iAsistenciaRepository.findByActivo(1);
+        return this.iAsistenciaRepository.findAll();
     }
 
     @Override
     public Page<Asistencia> obtenerTodasAsistenciasPage(Pageable pageable) {
-        return this.iAsistenciaRepository.findByActivo(1, pageable);
+        return this.iAsistenciaRepository.findAll(pageable);
     }
 
     @Override
     public void guardarAsistencia(Asistencia asistencia) {
         resolverRelaciones(asistencia);
-        asistencia.setActivo(1);
         this.iAsistenciaRepository.save(asistencia);
     }
 
@@ -64,7 +63,6 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         asistenciaDB.setTutorado(asistencia.getTutorado());
         asistenciaDB.setPresente(asistencia.getPresente());
         asistenciaDB.setRecuperada(asistencia.getRecuperada());
-        asistenciaDB.setActivo(asistencia.getActivo());
 
         this.iAsistenciaRepository.save(asistenciaDB);
     }
@@ -76,24 +74,24 @@ public class AsistenciaServiceImpl implements AsistenciaService {
 
     @Override
     public void eliminarAsistencia(Integer id) {
-        Asistencia asistencia = this.iAsistenciaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Asistencia no encontrada"));
-        asistencia.setActivo(0);
-        this.iAsistenciaRepository.save(asistencia);
+        if (!this.iAsistenciaRepository.existsById(id)) {
+            throw new NoSuchElementException("Asistencia no encontrada");
+        }
+        this.iAsistenciaRepository.deleteById(id);
     }
 
     @Override
     public List<Asistencia> buscarAsistenciasPorSesion(Integer idSesion) {
         Sesion sesion = this.iSesionRepository.findById(idSesion)
                 .orElseThrow(() -> new NoSuchElementException("Sesión no encontrada"));
-        return this.iAsistenciaRepository.findByActivoAndSesion(1, sesion);
+        return this.iAsistenciaRepository.findBySesion(sesion);
     }
 
     @Override
     public List<Asistencia> buscarAsistenciasPorTutorado(Integer idTutorado) {
         Tutorado tutorado = this.iTutoradoRepository.findById(idTutorado)
                 .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
-        return this.iAsistenciaRepository.findByActivoAndTutorado(1, tutorado);
+        return this.iAsistenciaRepository.findByTutorado(tutorado);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 .collect(Collectors.toList());
 
         for (Tutorado tutorado : todosTutorados) {
-            if (this.iAsistenciaRepository.existsBySesionAndTutoradoAndActivo(sesion, tutorado, 1)) {
+            if (this.iAsistenciaRepository.existsBySesionAndTutorado(sesion, tutorado)) {
                 continue;
             }
 
@@ -132,7 +130,6 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                     .tutorado(tutorado)
                     .presente(estaPresente ? 1 : 0)
                     .recuperada(0)
-                    .activo(1)
                     .build();
 
             this.iAsistenciaRepository.save(asistencia);
@@ -147,20 +144,33 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         Tutorado tutorado = this.iTutoradoRepository.findById(idTutorado)
                 .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
 
-        long presentes = this.iAsistenciaRepository
-                .countByTutoradoAndPresenteAndActivo(tutorado, 1, 1);
+        long presentes = this.iAsistenciaRepository.countByTutoradoAndPresente(tutorado, 1);
+        long recuperadas = this.iAsistenciaRepository.countByTutoradoAndRecuperada(tutorado, 1);
 
-        long recuperadas = this.iAsistenciaRepository
-                .countByTutoradoAndRecuperadaAndActivo(tutorado, 1, 1);
+        List<GrupoTutorado> gruposTutorado = this.iGrupoTutoradoRepository.findByActivoAndTutorado(1, tutorado);
+        List<Grupo> grupos = gruposTutorado.stream()
+                .map(GrupoTutorado::getGrupo)
+                .collect(Collectors.toList());
+
+        long totalSesiones;
+        if (!grupos.isEmpty()) {
+            totalSesiones = this.iSesionRepository.countByGruposAndEstatusRegistroIn(
+                    grupos, List.of("REALIZADA", "PENDIENTE"));
+        } else {
+            totalSesiones = 0;
+        }
+        if (totalSesiones == 0) {
+            totalSesiones = 10;
+        }
 
         long totalAcreditadas = presentes + recuperadas;
-        double porcentaje = ((double) totalAcreditadas / TOTAL_SESIONES) * 100;
+        double porcentaje = ((double) totalAcreditadas / totalSesiones) * 100;
         boolean acreditado = porcentaje >= PORCENTAJE_MINIMO;
 
         return ResumenAsistenciaDTO.builder()
                 .idTutorado(tutorado.getId())
                 .nombreTutorado(tutorado.getNombre() + " " + tutorado.getApellido())
-                .totalSesiones(TOTAL_SESIONES)
+                .totalSesiones(totalSesiones)
                 .asistenciasPresente(presentes)
                 .asistenciasRecuperadas(recuperadas)
                 .totalAcreditadas(totalAcreditadas)

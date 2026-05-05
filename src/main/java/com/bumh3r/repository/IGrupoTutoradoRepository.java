@@ -36,6 +36,7 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
                OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
         AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
         AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
+        AND (:idGrupo IS NULL OR gt.grupo.id = :idGrupo)
         """,
         countQuery = """
         SELECT COUNT(gt) FROM GrupoTutorado gt
@@ -45,11 +46,13 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
                OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
         AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
         AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
+        AND (:idGrupo IS NULL OR gt.grupo.id = :idGrupo)
         """)
     Page<GrupoTutorado> buscarHistorial(
             @Param("q") String q,
             @Param("idSemestre") Integer idSemestre,
             @Param("idCarrera") Integer idCarrera,
+            @Param("idGrupo") Integer idGrupo,
             Pageable pageable);
 
     @Query("""

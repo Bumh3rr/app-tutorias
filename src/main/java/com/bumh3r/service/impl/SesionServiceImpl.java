@@ -36,6 +36,10 @@ public class SesionServiceImpl implements SesionService {
     public void guardarSesion(Sesion sesion) {
         resolverRelaciones(sesion);
 
+        if (sesion.getSemana() == null || sesion.getSemana() < 1 || sesion.getSemana() > 10) {
+            throw new IllegalArgumentException("La semana debe estar entre 1 y 10.");
+        }
+
         boolean duplicada = this.iSesionRepository
                 .existsByGrupoAndSemanaAndActivo(sesion.getGrupo(), sesion.getSemana(), 1);
         if (duplicada) {
@@ -56,6 +60,10 @@ public class SesionServiceImpl implements SesionService {
                 .orElseThrow(() -> new NoSuchElementException("Sesión no encontrada"));
 
         resolverRelaciones(sesion);
+
+        if (sesion.getSemana() == null || sesion.getSemana() < 1 || sesion.getSemana() > 10) {
+            throw new IllegalArgumentException("La semana debe estar entre 1 y 10.");
+        }
 
         if (this.iSesionRepository.existsByGrupoAndSemanaAndActivoExcludingId(sesion.getGrupo(), sesion.getSemana(), id)) {
             throw new IllegalStateException(

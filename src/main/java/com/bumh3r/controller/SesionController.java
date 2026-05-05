@@ -5,6 +5,10 @@ import com.bumh3r.entity.Sesion;
 import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.SesionService;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,5 +201,21 @@ public class SesionController {
     public void initBinder(WebDataBinder webDataBinder) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+    }
+
+    @GetMapping(value = "pdf/anexo19/{id}")
+    public void generarAnexo19(@PathVariable Integer id, HttpServletResponse response) throws Exception {
+        Sesion sesion = this.sesionService.obtenerSesion(id);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=anexo19-sesion-" + id + ".pdf");
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
+        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
+        document.add(new Paragraph("Anexo 19 — Reporte de Sesión de Tutoría"));
+        document.add(new Paragraph("Sesión #" + sesion.getId()
+                + (sesion.getGrupo() != null ? " — Grupo: " + sesion.getGrupo().getNombre() : "")));
+        document.add(new Paragraph("En desarrollo."));
+        document.close();
     }
 }

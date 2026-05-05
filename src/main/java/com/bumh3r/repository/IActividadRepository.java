@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -19,12 +19,12 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
     Page<Actividad> findByActivo(Integer activo, Pageable pageable);
 
     // Búsqueda: actividades por fecha
-    List<Actividad> findByActivoAndFecha(Integer activo, Date fecha);
-    Page<Actividad> findByActivoAndFecha(Integer activo, Date fecha, Pageable pageable);
+    List<Actividad> findByActivoAndFecha(Integer activo, LocalDate fecha);
+    Page<Actividad> findByActivoAndFecha(Integer activo, LocalDate fecha, Pageable pageable);
 
     // Búsqueda: actividades por rango de fechas
-    List<Actividad> findByActivoAndFechaBetween(Integer activo, Date fechaInicio, Date fechaFin);
-    Page<Actividad> findByActivoAndFechaBetween(Integer activo, Date fechaInicio, Date fechaFin, Pageable pageable);
+    List<Actividad> findByActivoAndFechaBetween(Integer activo, LocalDate fechaInicio, LocalDate fechaFin);
+    Page<Actividad> findByActivoAndFechaBetween(Integer activo, LocalDate fechaInicio, LocalDate fechaFin, Pageable pageable);
 
 
     // Actividades de un PAT específico

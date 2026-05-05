@@ -9,19 +9,17 @@ import com.bumh3r.service.enums.FileType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,20 +54,18 @@ public class ActividadController {
         List<PAT> pats = this.patService.obtenerTodosPAT();
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
             if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
                 actividades = this.actividadService.buscarActividadesPorNombrePaginado(q, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Nombre: " + q);
             } else if ("fecha".equals(tipoBusqueda) && fecha != null && !fecha.isEmpty()) {
-                Date fechaDate = sdf.parse(fecha);
+                LocalDate fechaDate = LocalDate.parse(fecha);
                 actividades = this.actividadService.buscarActividadesPorFechaPaginado(fechaDate, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Fecha: " + fecha);
 
             } else if ("rango".equals(tipoBusqueda) && fechaInicio != null && fechaFin != null
                     && !fechaInicio.isEmpty() && !fechaFin.isEmpty()) {
-                Date fInicio = sdf.parse(fechaInicio);
-                Date fFin = sdf.parse(fechaFin);
+                LocalDate fInicio = LocalDate.parse(fechaInicio);
+                LocalDate fFin = LocalDate.parse(fechaFin);
                 actividades = this.actividadService.buscarActividadesPorRangoFechasPaginado(fInicio, fFin, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Rango: " + fechaInicio + " a " + fechaFin);
 
@@ -160,7 +156,6 @@ public class ActividadController {
     public ResponseEntity<?> getActividadesPorPAT(@PathVariable Integer idPat) {
         try {
             List<Actividad> lista = this.actividadService.buscarActividadesPorPAT(idPat);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             List<Map<String, Object>> result = lista.stream()
                 .sorted(Comparator.comparingInt(Actividad::getSemana))
                 .map(a -> {
@@ -193,7 +188,6 @@ public class ActividadController {
                 return ResponseEntity.badRequest().body(Map.of("error", "No hay actividades para guardar"));
             }
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             List<Actividad> actividades = new ArrayList<>();
             for (Map<String, Object> item : items) {
                 Actividad a = new Actividad();
@@ -321,9 +315,4 @@ public class ActividadController {
         return "redirect:/actividad";
     }
 
-    @InitBinder
-    public void initBinder(WebDataBinder webDataBinder) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-    }
 }
