@@ -117,4 +117,9 @@ public class EvidenciaSesionServiceImpl implements EvidenciaSesionService {
             evidencia.setSesion(null);
         }
     }
+
+    @Override
+    public java.util.List<com.bumh3r.entity.EvidenciaSesion> buscarEvidenciasPorFechaRegistro(java.util.Date inicio, java.util.Date fin) {
+        return this.iEvidenciaSesionRepository.findByFechaRegistroRange(inicio, fin);
+    }
 }

@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.data.domain.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +57,8 @@ public class GrupoController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
             @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             Model model) {
 
         // Valid sort fields
@@ -79,6 +83,9 @@ public class GrupoController {
             } else if ("carreraSemestre".equals(tipoBusqueda) && idCarrera != null && idSemestre != null) {
                 pageResult = this.grupoService.buscarPorCarreraYSemestrePage(idCarrera, idSemestre, pageable);
                 model.addAttribute("filtro", "Carrera y semestre seleccionados");
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.grupoService.buscarPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.grupoService.obtenerTodosGruposPage(pageable); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " \u2013 " + fechaFin);
             } else {
                 pageResult = this.grupoService.obtenerTodosGruposPage(pageable);
                 model.addAttribute("filtro", null);
@@ -105,6 +112,8 @@ public class GrupoController {
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("q", q);
         model.addAttribute("conteoAlumnos", conteoAlumnos);
+                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "grupo/viewListaGrupo";
     }
 

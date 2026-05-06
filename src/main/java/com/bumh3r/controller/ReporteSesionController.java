@@ -38,6 +38,8 @@ public class ReporteSesionController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "desc") String sort,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             Model model) {
 
         if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
@@ -51,6 +53,9 @@ public class ReporteSesionController {
             if ("estatus".equals(tipoBusqueda) && estatus != null && !estatus.isEmpty()) {
                 pageResult = this.reporteSesionService.buscarPorEstatusPage(estatus, pageable);
                 model.addAttribute("filtro", "Estatus: " + estatus);
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.reporteSesionService.buscarPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.reporteSesionService.obtenerTodosReportesPage(pageable); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
                 pageResult = this.reporteSesionService.obtenerTodosReportesPage(pageable);
                 model.addAttribute("filtro", null);
@@ -69,6 +74,8 @@ public class ReporteSesionController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("estatusSeleccionado", estatus);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "reporte/viewListaReporte";
     }
 

@@ -132,4 +132,10 @@ public class PATServiceImpl implements PATService {
             pat.setSemestre(null);
         }
     }
+
+    @Override
+    public org.springframework.data.domain.Page<com.bumh3r.entity.PAT> buscarPorFechaRegistroPaginacion(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort) {
+        org.springframework.data.domain.Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iPATRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
 }

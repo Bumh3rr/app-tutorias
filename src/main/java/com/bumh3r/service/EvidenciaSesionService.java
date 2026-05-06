@@ -16,4 +16,6 @@ public interface EvidenciaSesionService {
     List<EvidenciaSesion> buscarEvidenciasPorSesion(Integer idSesion);
     void validarEvidencia(Integer id, String notas);
     void rechazarEvidencia(Integer id, String notas);
+
+    List<EvidenciaSesion> buscarEvidenciasPorFechaRegistro(java.util.Date inicio, java.util.Date fin);
 }

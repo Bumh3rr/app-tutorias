@@ -20,4 +20,6 @@ public interface DeteccionNecesidadesService {
     List<DeteccionNecesidades> buscarPorNecesidadCalculo();
     List<DeteccionNecesidades> buscarPorNecesidadEconomica();
     List<DeteccionNecesidades> buscarPorNecesidadPsicologica();
+
+    List<DeteccionNecesidades> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin);
 }

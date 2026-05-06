@@ -95,6 +95,30 @@ public class TutoradoServiceImpl implements TutoradoService {
         return this.iTutoradoRepository.searchByName(q, pageable);
     }
 
+    @Override
+    public Page<Tutorado> buscarPorNumeroControl(String q, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.searchByNumeroControl(q, pageable);
+    }
+
+    @Override
+    public Page<Tutorado> buscarPorEmail(String q, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.searchByEmail(q, pageable);
+    }
+
+    @Override
+    public Page<Tutorado> buscarPorCarrera(Integer idCarrera, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.findByCarreraId(idCarrera, pageable);
+    }
+
+    @Override
+    public Page<Tutorado> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutoradoRepository.searchByFechaRegistro(inicio, fin, pageable);
+    }
+
     private void resolverRelaciones(Tutorado tutorado) {
         if (tutorado.getCarrera() != null && tutorado.getCarrera().getId() != null) {
             Carrera carrera = this.iCarreraRepository.findById(tutorado.getCarrera().getId())

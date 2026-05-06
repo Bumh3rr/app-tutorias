@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import jakarta.validation.Valid;
@@ -44,6 +46,9 @@ public class PATController {
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "soloGenerales", required = false) Boolean soloGenerales,
+            @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -61,6 +66,9 @@ public class PATController {
             } else if (idCarrera != null && idSemestre != null) {
                 pats = this.patService.buscarPATporCarreraYSemestrePaginacion(idCarrera, idSemestre, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", "Carrera y semestre seleccionados");
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pats = this.patService.buscarPorFechaRegistroPaginacion(ini, fin2, page, pageSize, sortBy, sort); } catch (Exception ex) { pats = this.patService.obtenerTodosPATPaginacion(0,pageSize,sortBy,"desc"); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
                 pats = this.patService.obtenerTodosPATPaginacion(page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
@@ -89,6 +97,9 @@ public class PATController {
         model.addAttribute("sort", sort);
         model.addAttribute("mapSort", mapSort);
 
+                model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "pat/viewListaPAT";
     }
 

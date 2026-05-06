@@ -138,4 +138,9 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
             deteccion.setSesion(null);
         }
     }
+
+    @Override
+    public java.util.List<com.bumh3r.entity.DeteccionNecesidades> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin) {
+        return this.iDeteccionNecesidadesRepository.findByFechaRegistroRange(inicio, fin);
+    }
 }

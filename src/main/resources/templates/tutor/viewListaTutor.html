@@ -7,50 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
-    <script>
-        (function () {
-            var m = localStorage.getItem('tutor_view_mode') || 'cards';
-            var s = document.createElement('style');
-            s.id = 'view-init';
-            s.textContent = m === 'list' ? '#view-cards{display:none!important}' : '#view-list{display:none!important}';
-            document.head.appendChild(s);
-        })();
-    </script>
-    <style>
-        /* Profile card */
-        .person-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform 0.2s ease,border-color 0.2s ease,box-shadow 0.2s ease; animation:fadeSlide 0.35s cubic-bezier(0.4,0,0.2,1) both; }
-        .person-card:hover { transform:translateY(-4px); border-color:rgba(99,102,241,0.35); box-shadow:0 12px 32px rgba(0,0,0,0.35); }
-        .person-card.card-new { border-color:rgba(99,102,241,0.5)!important; box-shadow:0 0 0 1px rgba(99,102,241,0.25),0 4px 20px rgba(99,102,241,0.15); }
-        .person-card.card-new .person-card-header::after { content:'Nuevo'; position:absolute; top:10px; left:10px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:rgba(99,102,241,0.85); color:#fff; letter-spacing:0.04em; }
-
-        .person-card-header { height:72px; background:linear-gradient(135deg,rgba(99,102,241,0.12) 0%,rgba(255,255,255,0.02) 100%); border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:flex-end; justify-content:center; padding-bottom:0; position:relative; flex-shrink:0; }
-        .person-card-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; border:3px solid rgba(255,255,255,0.12); transform:translateY(32px); background:rgba(99,102,241,0.15); }
-
-        .person-card-body { padding:40px 16px 16px; flex-grow:1; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
-        .person-card-name { font-size:14.5px; font-weight:700; margin:0; line-height:1.25; }
-        .person-card-sub { font-size:11.5px; color:rgba(255,255,255,0.4); font-family:'SF Mono','Fira Code',monospace; }
-        .person-card-chips { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:4px; }
-        .person-chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:rgba(255,255,255,0.4); }
-        .person-chip svg { opacity:0.55; }
-
-        .person-card-footer { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid rgba(255,255,255,0.05); gap:6px; }
-        .p-rel-time { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; color:rgba(255,255,255,0.35); }
-        .p-rel-time .rel-badge,
-        .p-rel-time .rel-badge.badge-new-hot,
-        .p-rel-time .rel-badge.badge-new-today,
-        .p-rel-time .rel-badge.badge-sin-asignar { background:transparent!important; border:none!important; color:inherit!important; animation:none!important; padding:0!important; font-size:inherit!important; font-weight:inherit!important; }
-
-        .person-grid .col-card:nth-child(1)  .person-card { animation-delay:0.00s; }
-        .person-grid .col-card:nth-child(2)  .person-card { animation-delay:0.05s; }
-        .person-grid .col-card:nth-child(3)  .person-card { animation-delay:0.10s; }
-        .person-grid .col-card:nth-child(4)  .person-card { animation-delay:0.15s; }
-        .person-grid .col-card:nth-child(5)  .person-card { animation-delay:0.20s; }
-        .person-grid .col-card:nth-child(6)  .person-card { animation-delay:0.25s; }
-        .person-grid .col-card:nth-child(7)  .person-card { animation-delay:0.30s; }
-        .person-grid .col-card:nth-child(8)  .person-card { animation-delay:0.35s; }
-        .person-grid .col-card:nth-child(9)  .person-card { animation-delay:0.40s; }
-        .person-grid .col-card:nth-child(10) .person-card { animation-delay:0.45s; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 </head>
 <body>
 <div class="app-layout">
@@ -67,7 +24,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <!-- Header -->
             <div class="page-header">
                 <div>
                     <h3 class="mb-1">Tutores</h3>
@@ -85,18 +41,52 @@
             <div class="search-filters mb-4">
                 <h6 class="mb-3">Buscar Tutores</h6>
                 <ul class="nav nav-tabs mb-0" role="tablist">
-                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda != 'nombre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda != 'nombre' and tipoBusqueda != 'numeroControl' and tipoBusqueda != 'correo' and tipoBusqueda != 'fecha'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-todos">Todos</button></li>
                     <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'nombre'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-nombre">Por Nombre</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'numeroControl'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-nc">No. Control</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'correo'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-correo">Correo</button></li>
+                    <li class="nav-item"><button class="nav-link" th:classappend="${tipoBusqueda == 'fecha'} ? 'active'" data-bs-toggle="tab" data-bs-target="#tab-fecha">Fecha de Registro</button></li>
                 </ul>
                 <div class="tab-content pt-3">
-                    <div class="tab-pane fade" th:classappend="${tipoBusqueda != 'nombre'} ? 'show active'" id="tab-todos">
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda != 'nombre' and tipoBusqueda != 'numeroControl' and tipoBusqueda != 'correo' and tipoBusqueda != 'fecha'} ? 'show active'" id="tab-todos">
                         <a th:href="@{/tutor}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
                         <form method="get" th:action="@{/tutor}">
                             <input type="hidden" name="tipoBusqueda" value="nombre">
                             <div class="row g-2">
-                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Nombre o apellido..." th:value="${q}" autofocus></div>
+                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Nombre o apellido..." th:value="${q}"></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'numeroControl'} ? 'show active'" id="tab-nc">
+                        <form method="get" th:action="@{/tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="numeroControl">
+                            <div class="row g-2">
+                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Número de control..." th:value="${q}"></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'correo'} ? 'show active'" id="tab-correo">
+                        <form method="get" th:action="@{/tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="correo">
+                            <div class="row g-2">
+                                <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Correo electrónico..." th:value="${q}"></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'fecha'} ? 'show active'" id="tab-fecha">
+                        <form method="get" th:action="@{/tutor}">
+                            <input type="hidden" name="tipoBusqueda" value="fecha">
+                            <input type="hidden" id="hiddenFechaInicioTutor" name="fechaInicio" th:value="${fechaInicio}">
+                            <input type="hidden" id="hiddenFechaFinTutor" name="fechaFin" th:value="${fechaFin}">
+                            <div class="row g-2">
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" data-datepicker-range data-range-start="hiddenFechaInicioTutor" data-range-end="hiddenFechaFinTutor" placeholder="Selecciona un rango de fechas..." readonly>
+                                </div>
                                 <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
                             </div>
                         </form>
@@ -104,110 +94,56 @@
                 </div>
             </div>
 
-            <!-- Contador -->
+            <div th:if="${filtro != null}" class="mb-3">
+                <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
+                <a th:href="@{/tutor}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+            </div>
+
             <div th:if="${totalElementos > 0}" class="d-flex justify-content-between align-items-center mb-3">
                 <small class="text-body-secondary" th:text="${totalElementos} + ' tutor(es)'"></small>
-
-                <div class="d-flex align-items-center gap-2">
-                    <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
-                    <div class="view-toggle">
-                        <button class="view-btn" id="btn-cards" onclick="setView('cards')" title="Vista tarjetas">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                        </button>
-                        <button class="view-btn" id="btn-list" onclick="setView('list')" title="Vista lista">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                        </button>
-                    </div>
-                </div>
+                <small class="text-body-secondary" th:text="${paginaActual * pageSize + 1} + '–' + ${(paginaActual + 1) * pageSize > totalElementos ? totalElementos : (paginaActual + 1) * pageSize} + ' de ' + ${totalElementos}"></small>
             </div>
 
             <div th:if="${tutores != null and !#lists.isEmpty(tutores)}">
-
-                <!-- VISTA CARDS -->
-                <div id="view-cards">
-                    <div class="row g-3 person-grid">
-                        <div class="col-sm-6 col-lg-3 col-card" th:each="tutor : ${tutores}">
-                            <div class="person-card" th:data-ts="${tutor.fechaRegistro != null} ? ${tutor.fechaRegistro.time} : ''">
-                                <div class="person-card-header">
-                                    <img th:if="${tutor.foto != null}"
-                                         th:src="@{/tutor/{foto}(foto=${tutor.foto})}"
-                                         alt="Foto" class="person-card-avatar">
-                                    <img th:unless="${tutor.foto != null}"
-                                         th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}"
-                                         alt="Avatar" class="person-card-avatar">
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th class="sort-th"><a th:href="@{/tutor(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                            <th>Foto</th>
+                            <th class="sort-th"><a th:href="@{/tutor(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                            <th class="sort-th"><a th:href="@{/tutor(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">No. Control <span th:if="${sortBy == 'numeroControl'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                            <th>Correo</th>
+                            <th>Estado</th>
+                            <th>Registrado</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="tutor : ${tutores}" class="fade-in-up">
+                            <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${tutor.id}"></td>
+                            <td>
+                                <img th:if="${tutor.foto != null}" th:src="@{/tutor/{foto}(foto=${tutor.foto})}" alt="Foto" class="avatar avatar-sm">
+                                <img th:unless="${tutor.foto != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}" alt="Avatar" class="avatar avatar-sm">
+                            </td>
+                            <td class="fw-medium" th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></td>
+                            <td class="text-body-secondary font-monospace" style="font-size:12.5px;" th:text="${tutor.numeroControl}"></td>
+                            <td class="text-body-secondary" th:text="${tutor.email}"></td>
+                            <td><span class="badge rounded-pill" th:text="${tutor.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${tutor.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
+                            <td th:if="${tutor.fechaRegistro != null}" th:data-ts="${tutor.fechaRegistro.time}">
+                                <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(tutor.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
+                            </td>
+                            <td th:unless="${tutor.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a th:href="@{/tutor/ver/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a th:href="@{/tutor/actualizar/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a th:href="@{/tutor/delete/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
                                 </div>
-                                <div class="person-card-body">
-                                    <p class="person-card-name" th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></p>
-                                    <span class="person-card-sub" th:text="${tutor.numeroControl}"></span>
-                                    <div class="person-card-chips">
-                                        <span class="person-chip" th:if="${tutor.email != null}">
-                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                                            <span th:text="${tutor.email}"></span>
-                                        </span>
-                                    </div>
-                                    <span class="badge rounded-pill mt-1"
-                                          th:text="${tutor.activo == 1} ? 'Activo' : 'Inactivo'"
-                                          th:classappend="${tutor.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
-                                </div>
-                                <div class="person-card-footer">
-                                    <span class="p-rel-time" th:if="${tutor.fechaRegistro != null}">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                        <span class="rel-badge" data-bs-toggle="tooltip" th:title="${#dates.format(tutor.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                                    </span>
-                                    <div class="d-flex gap-1 ms-auto">
-                                        <a th:href="@{/tutor/actualizar/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
-                                        <a th:href="@{/tutor/ver/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">
-                                            Ver <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:1px;"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VISTA LISTA -->
-                <div id="view-list">
-                    <div class="table-wrapper">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th class="sort-th"><a th:href="@{/tutor(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
-                                <th>Foto</th>
-                                <th class="sort-th"><a th:href="@{/tutor(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
-                                <th class="sort-th"><a th:href="@{/tutor(sortBy='numeroControl',sort=${sortBy == 'numeroControl' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q})}">No. Control <span th:if="${sortBy == 'numeroControl'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
-                                <th>Email</th>
-                                <th>Estado</th>
-                                <th>Registrado</th>
-                                <th>Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="tutor : ${tutores}" class="fade-in-up">
-                                <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${tutor.id}"></td>
-                                <td>
-                                    <img th:if="${tutor.foto != null}" th:src="@{/tutor/{foto}(foto=${tutor.foto})}" alt="Foto" class="avatar avatar-sm">
-                                    <img th:unless="${tutor.foto != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}" alt="Avatar" class="avatar avatar-sm">
-                                </td>
-                                <td class="fw-medium" th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></td>
-                                <td class="text-body-secondary font-monospace" style="font-size:12.5px;" th:text="${tutor.numeroControl}"></td>
-                                <td class="text-body-secondary" th:text="${tutor.email}"></td>
-                                <td><span class="badge rounded-pill" th:text="${tutor.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${tutor.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
-                                <td th:if="${tutor.fechaRegistro != null}" th:data-ts="${tutor.fechaRegistro.time}">
-                                    <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(tutor.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
-                                </td>
-                                <td th:unless="${tutor.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a th:href="@{/tutor/ver/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                        <a th:href="@{/tutor/actualizar/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                        <a th:href="@{/tutor/delete/{id}(id=${tutor.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -217,13 +153,13 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/tutor(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q})}">&laquo;</a>
+                            <a class="page-link" th:href="@{/tutor(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">&laquo;</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/tutor(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q})}"></a>
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/tutor(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/tutor(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q})}">&raquo;</a>
+                            <a class="page-link" th:href="@{/tutor(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},fechaInicio=${fechaInicio},fechaFin=${fechaFin})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -255,28 +191,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
+<script th:src="@{/js/date-picker.js}"></script>
 <script>
-    const STORAGE_KEY = 'tutor_view_mode';
-    function setView(mode) {
-        const initStyle = document.getElementById('view-init');
-        if (initStyle) initStyle.remove();
-        const cards = document.getElementById('view-cards');
-        const list  = document.getElementById('view-list');
-        const btnC  = document.getElementById('btn-cards');
-        const btnL  = document.getElementById('btn-list');
-        if (mode === 'cards') {
-            cards.style.display = 'block'; list.style.display = 'none';
-            btnC.classList.add('active'); btnL.classList.remove('active');
-        } else {
-            cards.style.display = 'none'; list.style.display = 'block';
-            btnC.classList.remove('active'); btnL.classList.add('active');
-        }
-        localStorage.setItem(STORAGE_KEY, mode);
-    }
     function cambiarPageSize(size) {
         const url = new URL(window.location.href);
         url.searchParams.set('pageSize', size);
@@ -284,11 +205,6 @@
         window.location.href = url.toString();
     }
     document.addEventListener('DOMContentLoaded', function () {
-        setView(localStorage.getItem(STORAGE_KEY) || 'cards');
-        document.querySelectorAll('.person-card[data-ts]').forEach(function (card) {
-            const ms = parseInt(card.dataset.ts, 10);
-            if (ms && (Date.now() - ms) / 1000 < 3600) card.classList.add('card-new');
-        });
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) { new bootstrap.Tooltip(el); });
     });
 </script>

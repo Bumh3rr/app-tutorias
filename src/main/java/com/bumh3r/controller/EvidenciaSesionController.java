@@ -46,6 +46,8 @@ public class EvidenciaSesionController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "desc") String sort,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             Model model) {
 
         if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
@@ -61,6 +63,9 @@ public class EvidenciaSesionController {
                 List<EvidenciaSesion> lista = this.evidenciaSesionService.buscarEvidenciasPorSesion(idSesion);
                 pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Sesión seleccionada");
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); java.util.List<com.bumh3r.entity.EvidenciaSesion> lista = this.evidenciaSesionService.buscarEvidenciasPorFechaRegistro(ini, fin2); pageResult = new org.springframework.data.domain.PageImpl<>(paginate(lista, pageable), pageable, lista.size()); } catch (Exception ex) { pageResult = this.evidenciaSesionService.obtenerTodasEvidenciasPage(pageable); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
                 pageResult = this.evidenciaSesionService.obtenerTodasEvidenciasPage(pageable);
                 model.addAttribute("filtro", null);
@@ -80,6 +85,8 @@ public class EvidenciaSesionController {
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("idSesionSeleccionada", idSesion);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "evidencia/viewListaEvidencia";
     }
 

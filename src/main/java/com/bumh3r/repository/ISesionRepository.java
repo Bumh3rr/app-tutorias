@@ -40,4 +40,7 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
 
     @Query("SELECT COUNT(s) FROM Sesion s WHERE s.grupo IN :grupos AND s.estatusRegistro IN :estatuses AND s.activo = 1")
     long countByGruposAndEstatusRegistroIn(@Param("grupos") List<Grupo> grupos, @Param("estatuses") List<String> estatuses);
+
+    @Query("SELECT e FROM Sesion e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<Sesion> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

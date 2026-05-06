@@ -27,4 +27,16 @@ public interface ITutoradoRepository extends JpaRepository<Tutorado, Integer> {
 
     @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(CONCAT(t.nombre, ' ', t.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Tutorado> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND LOWER(t.numeroControl) LIKE LOWER(CONCAT('%', :q, '%'))")
+    Page<Tutorado> searchByNumeroControl(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND LOWER(t.email) LIKE LOWER(CONCAT('%', :q, '%'))")
+    Page<Tutorado> searchByEmail(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND t.carrera.id = :idCarrera")
+    Page<Tutorado> findByCarreraId(@Param("idCarrera") Integer idCarrera, Pageable pageable);
+
+    @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND t.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<Tutorado> searchByFechaRegistro(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

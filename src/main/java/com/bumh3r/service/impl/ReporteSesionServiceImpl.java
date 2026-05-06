@@ -101,4 +101,9 @@ public class ReporteSesionServiceImpl implements ReporteSesionService {
             reporte.setSesion(null);
         }
     }
+
+    @Override
+    public org.springframework.data.domain.Page<com.bumh3r.entity.ReporteSesion> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, org.springframework.data.domain.Pageable pageable) {
+        return this.iReporteSesionRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
 }

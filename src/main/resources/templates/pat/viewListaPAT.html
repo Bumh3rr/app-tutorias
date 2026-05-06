@@ -410,6 +410,17 @@
                             </svg>
                         </button>
                     </div>
+                    <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'fecha'} ? 'show active'" id="tab-fecha">
+                        <form method="get">
+                            <input type="hidden" name="tipoBusqueda" value="fecha">
+                            <input type="hidden" id="hidFechaIniPAT" name="fechaInicio" th:value="${fechaInicio}">
+                            <input type="hidden" id="hidFechaFinPAT" name="fechaFin" th:value="${fechaFin}">
+                            <div class="row g-2">
+                                <div class="col-md-8"><input type="text" class="form-control" data-datepicker-range data-range-start="hidFechaIniPAT" data-range-end="hidFechaFinPAT" placeholder="Selecciona un rango de fechas..." readonly></div>
+                                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -669,6 +680,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
@@ -726,5 +738,6 @@
         });
     });
 </script>
+<script th:src="@{/js/date-picker.js}"></script>
 </body>
 </html>

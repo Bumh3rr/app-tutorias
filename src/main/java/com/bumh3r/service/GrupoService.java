@@ -31,4 +31,6 @@ public interface GrupoService {
     Page<Grupo> buscarSinTutorPorNombrePage(String q, Pageable pageable);
     Page<Grupo> buscarSinTutorPorSemestrePage(Integer idSemestre, Pageable pageable);
     Page<Grupo> buscarSinTutorPorCarreraPage(Integer idCarrera, Pageable pageable);
+
+    Page<Grupo> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
 }

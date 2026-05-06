@@ -25,4 +25,6 @@ public interface AsistenciaService {
 
     // Calcular porcentaje de asistencia de un tutorado
     ResumenAsistenciaDTO calcularResumenAsistencia(Integer idTutorado);
+
+    List<Asistencia> buscarAsistenciasPorFechaRegistro(java.util.Date inicio, java.util.Date fin);
 }

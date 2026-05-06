@@ -55,4 +55,7 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
 
     @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND g.tutor IS NULL AND g.carrera.id = :idCarrera")
     Page<Grupo> findSinTutorByCarrera(@Param("idCarrera") Integer idCarrera, Pageable pageable);
+
+    @Query("SELECT e FROM Grupo e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<Grupo> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

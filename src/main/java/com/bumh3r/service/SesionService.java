@@ -23,4 +23,6 @@ public interface SesionService {
     Page<Sesion> buscarSesionesPorSemanaPage(Integer semana, Pageable pageable);
     Page<Sesion> buscarSesionesPorGrupoYSemanaPage(Integer idGrupo, Integer semana, Pageable pageable);
     Page<Sesion> buscarSesionesPorEstatusPage(String estatus, Pageable pageable);
+
+    Page<Sesion> buscarSesionesPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
 }

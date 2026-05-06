@@ -172,6 +172,9 @@
                           th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
                     <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}" target="_blank" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-file-earmark-pdf"></i> Carnet PDF
+                    </a>
                     <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>

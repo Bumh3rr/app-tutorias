@@ -196,4 +196,9 @@ public class AsistenciaServiceImpl implements AsistenciaService {
             asistencia.setTutorado(null);
         }
     }
+
+    @Override
+    public java.util.List<com.bumh3r.entity.Asistencia> buscarAsistenciasPorFechaRegistro(java.util.Date inicio, java.util.Date fin) {
+        return this.iAsistenciaRepository.findByFechaRegistroBetween(inicio, fin);
+    }
 }

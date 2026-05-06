@@ -49,6 +49,8 @@ public class SesionController {
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
             @RequestParam(value = "sortBy", required = false, defaultValue = "id") String sortBy,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             Model model) {
 
         List<String> validSortFields = List.of("id", "semana");
@@ -73,6 +75,9 @@ public class SesionController {
             } else if ("estatus".equals(tipoBusqueda) && estatus != null && !estatus.isEmpty()) {
                 pageResult = this.sesionService.buscarSesionesPorEstatusPage(estatus, pageable);
                 model.addAttribute("filtro", "Estatus: " + estatus);
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.sesionService.buscarSesionesPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.sesionService.obtenerTodasSesionesPage(pageable); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
                 pageResult = this.sesionService.obtenerTodasSesionesPage(pageable);
                 model.addAttribute("filtro", null);
@@ -93,6 +98,8 @@ public class SesionController {
         model.addAttribute("idGrupoSeleccionado", idGrupo);
         model.addAttribute("semanaSeleccionada", semana);
         model.addAttribute("estatusSeleccionado", estatus);
+                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "sesion/viewListaSesion";
     }
 

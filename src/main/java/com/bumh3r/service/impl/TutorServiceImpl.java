@@ -83,6 +83,24 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
+    public Page<Tutor> buscarPorNumeroControl(String q, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.searchByNumeroControl(q, pageable);
+    }
+
+    @Override
+    public Page<Tutor> buscarPorEmail(String q, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.searchByEmail(q, pageable);
+    }
+
+    @Override
+    public Page<Tutor> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.searchByFechaRegistro(inicio, fin, pageable);
+    }
+
+    @Override
     public List<Tutor> obtenerTodosTutores() {
         return this.iTutorRepository.findByActivo(1);
     }

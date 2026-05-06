@@ -122,4 +122,9 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
             coordinador.setSemestre(null);
         }
     }
+
+    @Override
+    public org.springframework.data.domain.Page<com.bumh3r.entity.CoordinadorCarrera> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, org.springframework.data.domain.Pageable pageable) {
+        return this.iCoordinadorCarreraRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
 }

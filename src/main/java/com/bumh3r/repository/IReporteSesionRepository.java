@@ -5,6 +5,8 @@ import com.bumh3r.entity.Sesion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +29,7 @@ public interface IReporteSesionRepository extends JpaRepository<ReporteSesion, I
 
     // Verificar si ya existe reporte para una sesión
     boolean existsBySesionAndActivo(Sesion sesion, Integer activo);
+
+    @Query("SELECT e FROM ReporteSesion e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<ReporteSesion> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

@@ -30,4 +30,7 @@ public interface ICoordinadorCarreraRepository extends JpaRepository<Coordinador
 
     @Query("SELECT c FROM CoordinadorCarrera c WHERE c.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(CONCAT(c.nombre, ' ', c.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<CoordinadorCarrera> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT e FROM CoordinadorCarrera e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<CoordinadorCarrera> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

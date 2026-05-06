@@ -235,4 +235,9 @@ public class GrupoServiceImpl implements GrupoService {
             grupo.setCarrera(null);
         }
     }
+
+    @Override
+    public org.springframework.data.domain.Page<com.bumh3r.entity.Grupo> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, org.springframework.data.domain.Pageable pageable) {
+        return this.iGrupoRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
 }

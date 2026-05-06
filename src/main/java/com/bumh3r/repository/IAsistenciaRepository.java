@@ -20,4 +20,6 @@ public interface IAsistenciaRepository extends JpaRepository<Asistencia, Integer
     long countByTutoradoAndRecuperada(Tutorado tutorado, Integer recuperada);
 
     boolean existsBySesionAndTutorado(Sesion sesion, Tutorado tutorado);
+
+    List<Asistencia> findByFechaRegistroBetween(java.util.Date inicio, java.util.Date fin);
 }

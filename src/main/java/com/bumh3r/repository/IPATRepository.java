@@ -31,4 +31,7 @@ public interface IPATRepository extends JpaRepository<PAT, Integer> {
 
     @Query("SELECT p FROM PAT p WHERE (:q IS NULL OR :q = '' OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<PAT> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT e FROM PAT e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<PAT> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

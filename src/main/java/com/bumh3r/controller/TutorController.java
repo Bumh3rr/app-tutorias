@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +51,8 @@ public class TutorController {
     public String obtenerVistaListaTutores(
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -56,13 +60,51 @@ public class TutorController {
             Model model) {
 
         Page<Tutor> paginaTutores;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
-                paginaTutores = this.tutorService.buscarPorNombre(q, page, pageSize, sortBy, sort);
-                model.addAttribute("filtro", "Nombre: " + q);
-            } else {
-                paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
-                model.addAttribute("filtro", null);
+            switch (tipoBusqueda) {
+                case "nombre" -> {
+                    if (!q.isBlank()) {
+                        paginaTutores = this.tutorService.buscarPorNombre(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Nombre: " + q);
+                    } else {
+                        paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "numeroControl" -> {
+                    if (!q.isBlank()) {
+                        paginaTutores = this.tutorService.buscarPorNumeroControl(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "No. Control: " + q);
+                    } else {
+                        paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "correo" -> {
+                    if (!q.isBlank()) {
+                        paginaTutores = this.tutorService.buscarPorEmail(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Correo: " + q);
+                    } else {
+                        paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "fecha" -> {
+                    if (!fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                        Date inicio = sdf.parse(fechaInicio);
+                        Date fin = new Date(sdf.parse(fechaFin).getTime() + 86399999L);
+                        paginaTutores = this.tutorService.buscarPorFechaRegistro(inicio, fin, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
+                    } else {
+                        paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                default -> {
+                    paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                    model.addAttribute("filtro", null);
+                }
             }
         } catch (Exception e) {
             paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(0, pageSize, "id", "desc");
@@ -84,6 +126,8 @@ public class TutorController {
         model.addAttribute("mapSort", mapSort);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
         model.addAttribute("q", q);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
 
         return "tutor/viewListaTutor";
     }

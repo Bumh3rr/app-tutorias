@@ -24,4 +24,13 @@ public interface ITutorRepository extends JpaRepository<Tutor, Integer> {
 
     @Query("SELECT t FROM Tutor t WHERE t.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(CONCAT(t.nombre, ' ', t.apellido)) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Tutor> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutor t WHERE t.activo = 1 AND LOWER(t.numeroControl) LIKE LOWER(CONCAT('%', :q, '%'))")
+    Page<Tutor> searchByNumeroControl(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutor t WHERE t.activo = 1 AND LOWER(t.email) LIKE LOWER(CONCAT('%', :q, '%'))")
+    Page<Tutor> searchByEmail(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT t FROM Tutor t WHERE t.activo = 1 AND t.fechaRegistro BETWEEN :inicio AND :fin")
+    Page<Tutor> searchByFechaRegistro(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 }

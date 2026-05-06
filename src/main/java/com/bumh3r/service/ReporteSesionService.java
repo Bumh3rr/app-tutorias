@@ -17,4 +17,6 @@ public interface ReporteSesionService {
 
     // Búsquedas
     List<ReporteSesion> buscarPorEstatus(String estatus);
+
+    Page<ReporteSesion> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
 }

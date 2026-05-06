@@ -22,4 +22,6 @@ public interface PATService {
     Page<PAT> obtenerPATGeneralesPaginacion(Integer page, Integer pageSize, String sortBy, String sort);
     Page<PAT> buscarPATporCarreraYSemestrePaginacion(Integer idCarrera, Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort);
     Page<PAT> obtenerTodosPATPaginacion(Integer page, Integer pageSize, String sortBy, String sort);
+
+    Page<PAT> buscarPorFechaRegistroPaginacion(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort);
 }

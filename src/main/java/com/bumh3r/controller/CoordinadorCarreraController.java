@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.validation.BindingResult;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +51,8 @@ public class CoordinadorCarreraController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", defaultValue = "desc") String sort,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             Model model) {
 
         if (!"asc".equals(sort) && !"desc".equals(sort)) sort = "desc";
@@ -74,6 +78,9 @@ public class CoordinadorCarreraController {
                 List<CoordinadorCarrera> lista = this.coordinadorCarreraService.buscarPorCarreraYSemestre(idCarrera, idSemestre);
                 pageResult = new PageImpl<>(paginate(lista, pageable), pageable, lista.size());
                 model.addAttribute("filtro", "Carrera y semestre seleccionados");
+            } else if ("fecha".equals(tipoBusqueda) && !fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.coordinadorCarreraService.buscarPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable); }
+                model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
                 pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable);
                 model.addAttribute("filtro", null);
@@ -96,6 +103,8 @@ public class CoordinadorCarreraController {
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
         model.addAttribute("q", q);
+                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
         return "coordinador/viewListaCoordinador";
     }
 

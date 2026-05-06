@@ -6,6 +6,8 @@ import com.bumh3r.entity.Tutorado;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,4 +39,7 @@ public interface IDeteccionNecesidadesRepository extends JpaRepository<Deteccion
 
     // Verificar si ya existe detección para un tutorado en una sesión
     boolean existsByTutoradoAndSesionAndActivo(Tutorado tutorado, Sesion sesion, Integer activo);
+
+    @Query("SELECT e FROM DeteccionNecesidades e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    List<DeteccionNecesidades> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin);
 }

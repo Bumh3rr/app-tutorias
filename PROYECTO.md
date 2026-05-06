@@ -24,9 +24,9 @@ com.bumh3r/
 ├── dto/                 2 objetos de transferencia
 ├── entity/              14 entidades JPA
 ├── repository/          14 interfaces JPA
-├── service/             14 interfaces de servicio
+├── service/             15 interfaces de servicio
 │   ├── enums/           FileType enum
-│   ├── impl/            14 implementaciones
+│   ├── impl/            15 implementaciones
 │   └── utils/           PaginationUtil
 └── AppTutoriasApplication.java
 ```
@@ -159,8 +159,9 @@ com.bumh3r/
 | tutorado | Tutorado | ManyToOne (id_tutorado) |
 | presente | Integer | 1=presente, 0=ausente |
 | recuperada | Integer | 1=asistencia recuperada |
-| activo | Integer | |
 | fechaRegistro | Date | CreationTimestamp |
+
+> **Nota:** El campo `activo` fue eliminado de esta tabla. La unicidad se garantiza con constraint `uq_asistencia_sesion_tutorado (id_sesion, id_tutorado)`. Ejecutar migración: `ALTER TABLE asistencia DROP COLUMN activo; ALTER TABLE asistencia ADD CONSTRAINT uq_asistencia_sesion_tutorado UNIQUE (id_sesion, id_tutorado);`
 
 ---
 
@@ -419,6 +420,10 @@ Redirige a `/tutor`.
 | Atributo | Tipo | Descripcion |
 |---|---|---|
 | tutorado | Tutorado | Entidad a eliminar |
+
+#### Carnet PDF — `GET /tutorado/pdf/carnet/{id}`
+Genera y devuelve el carnet de asistencia del tutorado en PDF (LETTER landscape, 3 columnas).
+Implementado en `CarnetPdfService` / `CarnetPdfServiceImpl`. Devuelve `ResponseEntity<byte[]>`.
 
 ---
 

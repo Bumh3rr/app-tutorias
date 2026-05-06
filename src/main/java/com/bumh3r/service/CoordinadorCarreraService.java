@@ -18,4 +18,6 @@ public interface CoordinadorCarreraService {
     List<CoordinadorCarrera> buscarPorSemestre(Integer idSemestre);
     List<CoordinadorCarrera> buscarPorCarreraYSemestre(Integer idCarrera, Integer idSemestre);
     Page<CoordinadorCarrera> buscarPorNombrePage(String q, Pageable pageable);
+
+    Page<CoordinadorCarrera> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
 }

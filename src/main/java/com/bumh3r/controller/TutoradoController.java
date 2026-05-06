@@ -4,6 +4,7 @@ import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.AsistenciaService;
+import com.bumh3r.service.CarnetPdfService;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.DeteccionNecesidadesService;
 import com.bumh3r.service.FileStoreService;
@@ -14,6 +15,10 @@ import com.lowagie.text.Document;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +54,8 @@ public class TutoradoController {
     private DeteccionNecesidadesService deteccionNecesidadesService;
     @Autowired
     private AsistenciaService asistenciaService;
+    @Autowired
+    private CarnetPdfService carnetPdfService;
 
     private final Logger log = LoggerFactory.getLogger(TutoradoController.class);
 
@@ -55,6 +64,8 @@ public class TutoradoController {
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+            @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
@@ -63,14 +74,62 @@ public class TutoradoController {
 
         Page<Tutorado> paginaTutorados;
         List<Carrera> carreras = this.carreraService.obtenerTodasCarreras();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
-            if ("nombre".equals(tipoBusqueda) && !q.isBlank()) {
-                paginaTutorados = this.tutoradoService.buscarPorNombre(q, page, pageSize, sortBy, sort);
-                model.addAttribute("filtro", "Nombre: " + q);
-            } else {
-                paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
-                model.addAttribute("filtro", null);
+            switch (tipoBusqueda) {
+                case "nombre" -> {
+                    if (!q.isBlank()) {
+                        paginaTutorados = this.tutoradoService.buscarPorNombre(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Nombre: " + q);
+                    } else {
+                        paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "numeroControl" -> {
+                    if (!q.isBlank()) {
+                        paginaTutorados = this.tutoradoService.buscarPorNumeroControl(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "No. Control: " + q);
+                    } else {
+                        paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "correo" -> {
+                    if (!q.isBlank()) {
+                        paginaTutorados = this.tutoradoService.buscarPorEmail(q, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Correo: " + q);
+                    } else {
+                        paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "carrera" -> {
+                    if (idCarrera != null) {
+                        paginaTutorados = this.tutoradoService.buscarPorCarrera(idCarrera, page, pageSize, sortBy, sort);
+                        String nombreCarrera = carreras.stream().filter(c -> c.getId().equals(idCarrera)).map(Carrera::getNombre).findFirst().orElse(String.valueOf(idCarrera));
+                        model.addAttribute("filtro", "Carrera: " + nombreCarrera);
+                    } else {
+                        paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "fecha" -> {
+                    if (!fechaInicio.isBlank() && !fechaFin.isBlank()) {
+                        Date inicio = sdf.parse(fechaInicio);
+                        Date fin = new Date(sdf.parse(fechaFin).getTime() + 86399999L);
+                        paginaTutorados = this.tutoradoService.buscarPorFechaRegistro(inicio, fin, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
+                    } else {
+                        paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                default -> {
+                    paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                    model.addAttribute("filtro", null);
+                }
             }
         } catch (Exception e) {
             paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(0, pageSize, "id", "desc");
@@ -94,6 +153,8 @@ public class TutoradoController {
         model.addAttribute("mapSort", mapSort);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
         model.addAttribute("q", q);
+        model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaFin", fechaFin);
 
         return "tutorado/viewListaTutorado";
     }
@@ -208,6 +269,20 @@ public class TutoradoController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutorado: " + e.getMessage());
         }
         return "redirect:/tutorado";
+    }
+
+    @GetMapping(value = "pdf/carnet/{id}")
+    public ResponseEntity<byte[]> generarCarnetPdf(@PathVariable Integer id) {
+        try {
+            byte[] pdf = carnetPdfService.generarCarnetTutorado(id);
+            String filename = "carnet-tutorado-" + id + ".pdf";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping(value = "pdf/constancia/{id}")

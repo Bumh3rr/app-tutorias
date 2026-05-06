@@ -28,4 +28,7 @@ public interface IEvidenciaSesionRepository extends JpaRepository<EvidenciaSesio
 
     @Query("SELECT COUNT(e) > 0 FROM EvidenciaSesion e WHERE e.sesion = :sesion AND e.activo = 1 AND e.id <> :id")
     boolean existsBySesionAndActivoExcludingId(@Param("sesion") Sesion sesion, @Param("id") Integer id);
+
+    @Query("SELECT e FROM EvidenciaSesion e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
+    List<EvidenciaSesion> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin);
 }
