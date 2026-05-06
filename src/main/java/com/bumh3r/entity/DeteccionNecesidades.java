@@ -43,6 +43,33 @@ public class DeteccionNecesidades {
     @Column(name = "necesidad_psicologica")
     private Integer necesidadPsicologica;
 
+    @Column(name = "tiene_beca")
+    private Integer tieneBeca;
+
+    @Column(name = "nombre_beca")
+    private String nombreBeca;
+
+    @Column(name = "tiene_escasez_materiales")
+    private Integer tieneEscasezMateriales;
+
+    @Column(name = "materiales_requeridos")
+    private String materialesRequeridos;
+
+    @Column(name = "tiene_atencion_medica")
+    private Integer tieneAtencionMedica;
+
+    @Column(name = "especificacion_medica")
+    private String especificacionMedica;
+
+    @Column(name = "tiene_vinculacion_familia")
+    private Integer tieneVinculacionFamilia;
+
+    @Column(name = "razon_vinculacion")
+    private String razonVinculacion;
+
+    @Column(name = "tema_psicologico")
+    private String temaPsicologico;
+
     private String observaciones;
 
     private Integer activo;

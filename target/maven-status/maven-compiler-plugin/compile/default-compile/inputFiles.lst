@@ -16,6 +16,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/SesionController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutorController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutoradoController.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/PublicDeteccionForm.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/ResumenAsistenciaDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/SearchResultDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Actividad.java
@@ -50,8 +51,11 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/AsistenciaService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/CarnetPdfService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/CarreraService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ConstanciaTutorPdfService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ConstanciaTutoradoPdfService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/CoordinadorCarreraService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/DeteccionNecesidadesService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/DeteccionPdfService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/EvidenciaSesionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/FileStoreService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/GrupoService.java
@@ -67,8 +71,11 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/AsistenciaServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/CarnetPdfServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/CarreraServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ConstanciaTutorPdfServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ConstanciaTutoradoPdfServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/CoordinadorCarreraServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/DeteccionNecesidadesServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/DeteccionPdfServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/EvidenciaSesionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/FileStoreServiceImp.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/GrupoServiceImpl.java

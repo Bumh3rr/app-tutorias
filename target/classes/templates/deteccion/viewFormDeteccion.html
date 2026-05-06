@@ -206,6 +206,113 @@
                             </div>
                         </div>
 
+                        <!-- Becas -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Becas</label>
+                            <div class="row g-2 align-items-center mb-2">
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-beca"
+                                         th:classappend="${deteccion.tieneBeca == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="tieneBeca" name="tieneBeca" value="1"
+                                                   th:checked="${deteccion.tieneBeca == 1}"
+                                                   onchange="toggleCondicional('detailBeca', this.checked)">
+                                            <label class="form-check-label w-100" for="tieneBeca">
+                                                <span class="fw-medium d-block">¿Cuenta con beca?</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8" id="detailBeca" th:style="${deteccion.tieneBeca == 1} ? '' : 'display:none'">
+                                    <input type="text" class="form-control" placeholder="Nombre de la beca"
+                                           th:field="*{nombreBeca}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Escasez de materiales -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Materiales</label>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-materiales"
+                                         th:classappend="${deteccion.tieneEscasezMateriales == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="tieneEscasezMateriales" name="tieneEscasezMateriales" value="1"
+                                                   th:checked="${deteccion.tieneEscasezMateriales == 1}"
+                                                   onchange="toggleCondicional('detailMateriales', this.checked)">
+                                            <label class="form-check-label w-100" for="tieneEscasezMateriales">
+                                                <span class="fw-medium d-block">¿Escasez de materiales?</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8" id="detailMateriales" th:style="${deteccion.tieneEscasezMateriales == 1} ? '' : 'display:none'">
+                                    <input type="text" class="form-control" placeholder="Materiales requeridos"
+                                           th:field="*{materialesRequeridos}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Atención médica -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Atención médica</label>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-medica"
+                                         th:classappend="${deteccion.tieneAtencionMedica == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="tieneAtencionMedica" name="tieneAtencionMedica" value="1"
+                                                   th:checked="${deteccion.tieneAtencionMedica == 1}"
+                                                   onchange="toggleCondicional('detailMedica', this.checked)">
+                                            <label class="form-check-label w-100" for="tieneAtencionMedica">
+                                                <span class="fw-medium d-block">¿Requiere atención médica?</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8" id="detailMedica" th:style="${deteccion.tieneAtencionMedica == 1} ? '' : 'display:none'">
+                                    <input type="text" class="form-control" placeholder="Especificación médica"
+                                           th:field="*{especificacionMedica}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vinculación familiar -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Vinculación familiar</label>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-4">
+                                    <div class="necesidad-card" id="card-familia"
+                                         th:classappend="${deteccion.tieneVinculacionFamilia == 1} ? ' selected' : ''">
+                                        <div class="form-check">
+                                            <input class="form-check-input necesidad-check" type="checkbox"
+                                                   id="tieneVinculacionFamilia" name="tieneVinculacionFamilia" value="1"
+                                                   th:checked="${deteccion.tieneVinculacionFamilia == 1}"
+                                                   onchange="toggleCondicional('detailFamilia', this.checked)">
+                                            <label class="form-check-label w-100" for="tieneVinculacionFamilia">
+                                                <span class="fw-medium d-block">¿Problemática familiar?</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8" id="detailFamilia" th:style="${deteccion.tieneVinculacionFamilia == 1} ? '' : 'display:none'">
+                                    <textarea class="form-control" rows="2" placeholder="Razón o descripción"
+                                              th:field="*{razonVinculacion}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tema psicológico -->
+                        <div class="mb-4" id="detailPsicologico" th:style="${deteccion.necesidadPsicologica == 1} ? '' : 'display:none'">
+                            <label class="form-label">Tema psicológico específico</label>
+                            <input type="text" class="form-control" placeholder="Ej. Ansiedad, estrés..."
+                                   th:field="*{temaPsicologico}">
+                        </div>
+
                         <!-- Observaciones -->
                         <div class="mb-4">
                             <label for="observaciones" class="form-label">Observaciones del tutor</label>
@@ -235,6 +342,11 @@
 <script th:src="@{/js/entity-picker.js}"></script>
 <script th:src="@{/js/date-picker.js}"></script>
 <script>
+    function toggleCondicional(id, show) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = show ? '' : 'none';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const checks = document.querySelectorAll('.necesidad-check');
         checks.forEach(check => {
@@ -249,6 +361,14 @@
                 }
             });
         });
+
+        // Show temaPsicologico when psicologica is checked
+        const chkPsico = document.getElementById('necesidadPsicologica');
+        if (chkPsico) {
+            chkPsico.addEventListener('change', function () {
+                toggleCondicional('detailPsicologico', this.checked);
+            });
+        }
     });
 </script>
 </body>

@@ -42,4 +42,8 @@ public interface IDeteccionNecesidadesRepository extends JpaRepository<Deteccion
 
     @Query("SELECT e FROM DeteccionNecesidades e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     List<DeteccionNecesidades> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin);
+
+    boolean existsByTutoradoAndActivo(Tutorado tutorado, Integer activo);
+
+    java.util.Optional<DeteccionNecesidades> findFirstByTutoradoAndActivo(Tutorado tutorado, Integer activo);
 }

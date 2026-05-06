@@ -2,16 +2,17 @@ package com.bumh3r.controller;
 
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Tutor;
+import com.bumh3r.service.ConstanciaTutorPdfService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.GrupoTutoradoService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutorService;
 import com.bumh3r.service.enums.FileType;
-import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
-import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,8 @@ public class TutorController {
     private SesionService sesionService;
     @Autowired
     private FileStoreService fileStoreService;
+    @Autowired
+    private ConstanciaTutorPdfService constanciaTutorPdfService;
 
     private final Logger log = LoggerFactory.getLogger(TutorController.class);
 
@@ -246,17 +249,19 @@ public class TutorController {
     }
 
     @GetMapping(value = "pdf/constancia/{id}")
-    public void generarConstanciaTutor(@PathVariable Integer id, HttpServletResponse response) throws Exception {
-        Tutor tutor = this.tutorService.obtenerTutor(id);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=constancia-tutor-" + id + ".pdf");
-        Document document = new Document();
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
-        document.add(new Paragraph("Constancia de Participación como Tutor"));
-        document.add(new Paragraph("Tutor: " + tutor.getNombre() + " " + tutor.getApellido()));
-        document.add(new Paragraph("En desarrollo."));
-        document.close();
+    public ResponseEntity<byte[]> generarConstanciaTutor(
+            @PathVariable Integer id,
+            @RequestParam Integer idSemestre) {
+        try {
+            byte[] pdf = constanciaTutorPdfService.generarConstanciaTutor(id, idSemestre);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"constancia-tutor-" + id + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error generando constancia tutor {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

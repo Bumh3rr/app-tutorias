@@ -425,6 +425,20 @@ Redirige a `/tutor`.
 Genera y devuelve el carnet de asistencia del tutorado en PDF (LETTER landscape, 3 columnas).
 Implementado en `CarnetPdfService` / `CarnetPdfServiceImpl`. Devuelve `ResponseEntity<byte[]>`.
 
+#### Constancia Tutorado — `GET /tutorado/pdf/constancia/{id}?idSemestre={idSemestre}`
+Genera el Anexo XVI (Constancia de Cumplimiento de Actividad Complementaria) en PDF (LETTER portrait).
+Requiere `@RequestParam Integer idSemestre`. Calcula nivel de desempeño por porcentaje de asistencia.
+Implementado en `ConstanciaTutoradoPdfService` / `ConstanciaTutoradoPdfServiceImpl`.
+Nombres institucionales hardcodeados: Jefa DDA = ADRIANA MALDONADO BRAVO, Subdirector = SERGIO RICARDO ZAGAL BARRERA, Jefa Servicios Escolares = MARGARITA ALCOCER SOLACHE. Código CCP: SRZB/AMB/cacc.
+
+---
+
+### Constancia Tutor — `GET /tutor/pdf/constancia/{id}?idSemestre={idSemestre}`
+Genera la constancia "Hace Constar" del tutor en PDF (LETTER portrait, 3 columnas de firma).
+Requiere `@RequestParam Integer idSemestre`. Suma tutorados de todos sus grupos en ese semestre.
+Implementado en `ConstanciaTutorPdfService` / `ConstanciaTutorPdfServiceImpl`.
+Nombres institucionales hardcodeados: Jefa DDA = ADRIANA MALDONADO BRAVO, Subdirector = SERGIO RICARDO ZAGAL BARRERA, CIT = SUSANA PINEDA MILLÁN. Código CCP: SRZB/AMB/spm.
+
 ---
 
 ### Modulo Grupo (`/grupo`)

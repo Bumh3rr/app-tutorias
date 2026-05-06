@@ -66,6 +66,8 @@ public class TutoradoServiceImpl implements TutoradoService {
         tutoradoDB.setEmail(tutorado.getEmail());
         tutoradoDB.setFoto(tutorado.getFoto());
         tutoradoDB.setCarrera(tutorado.getCarrera());
+        tutoradoDB.setGrado(tutorado.getGrado());
+        tutoradoDB.setSexo(tutorado.getSexo());
 
         this.iTutoradoRepository.save(tutoradoDB);
     }

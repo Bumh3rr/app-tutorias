@@ -44,6 +44,8 @@ public class Tutorado {
     @Column(name = "grado")
     private Integer grado;
 
+    private String sexo;
+
     private Integer activo;
 
     @CreationTimestamp

@@ -4,6 +4,7 @@ import com.bumh3r.entity.DeteccionNecesidades;
 import com.bumh3r.entity.Sesion;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.DeteccionNecesidadesService;
+import com.bumh3r.service.DeteccionPdfService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutoradoService;
 import jakarta.validation.Valid;
@@ -12,6 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,6 +34,8 @@ public class DeteccionNecesidadesController {
 
     @Autowired
     private DeteccionNecesidadesService deteccionNecesidadesService;
+    @Autowired
+    private DeteccionPdfService deteccionPdfService;
     @Autowired
     private TutoradoService tutoradoService;
     @Autowired
@@ -232,6 +239,21 @@ public class DeteccionNecesidadesController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la detección: " + e.getMessage());
         }
         return "redirect:/deteccion";
+    }
+
+    @GetMapping(value = "pdf/{id}")
+    public ResponseEntity<byte[]> generarPdfDeteccion(@PathVariable Integer id) {
+        try {
+            byte[] pdf = deteccionPdfService.generarPdfDeteccion(id);
+            String filename = "deteccion-necesidades-" + id + ".pdf";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error generando PDF detección {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @InitBinder

@@ -2,6 +2,7 @@ package com.bumh3r.repository;
 
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
+import com.bumh3r.entity.Semestre;
 import com.bumh3r.entity.Tutorado;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, Integer> {
@@ -24,6 +26,14 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
     boolean existsByGrupoAndTutoradoAndActivo(Grupo grupo, Tutorado tutorado, Integer activo);
 
     long countByTutoradoAndActivo(Tutorado tutorado, Integer activo);
+
+    long countByGrupoAndActivo(Grupo grupo, Integer activo);
+
+    @Query("SELECT gt FROM GrupoTutorado gt WHERE gt.tutorado = :tutorado AND gt.grupo.semestre = :semestre AND gt.activo = :activo")
+    List<GrupoTutorado> findByTutoradoAndGrupoSemestreAndActivo(
+            @Param("tutorado") Tutorado tutorado,
+            @Param("semestre") Semestre semestre,
+            @Param("activo") Integer activo);
 
     @Query("SELECT gt.grupo.id, COUNT(gt) FROM GrupoTutorado gt WHERE gt.activo = 1 GROUP BY gt.grupo.id")
     List<Object[]> countActivoByGrupo();

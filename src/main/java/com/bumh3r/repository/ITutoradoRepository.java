@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ITutoradoRepository extends JpaRepository<Tutorado, Integer> {
@@ -39,4 +40,6 @@ public interface ITutoradoRepository extends JpaRepository<Tutorado, Integer> {
 
     @Query("SELECT t FROM Tutorado t WHERE t.activo = 1 AND t.fechaRegistro BETWEEN :inicio AND :fin")
     Page<Tutorado> searchByFechaRegistro(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
+
+    Optional<Tutorado> findByNumeroControlAndActivo(String numeroControl, Integer activo);
 }

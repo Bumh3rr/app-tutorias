@@ -48,6 +48,10 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
         if (deteccion.getNecesidadDerecho() == null) deteccion.setNecesidadDerecho(0);
         if (deteccion.getNecesidadEconomica() == null) deteccion.setNecesidadEconomica(0);
         if (deteccion.getNecesidadPsicologica() == null) deteccion.setNecesidadPsicologica(0);
+        if (deteccion.getTieneBeca() == null) deteccion.setTieneBeca(0);
+        if (deteccion.getTieneEscasezMateriales() == null) deteccion.setTieneEscasezMateriales(0);
+        if (deteccion.getTieneAtencionMedica() == null) deteccion.setTieneAtencionMedica(0);
+        if (deteccion.getTieneVinculacionFamilia() == null) deteccion.setTieneVinculacionFamilia(0);
 
         deteccion.setActivo(1);
         this.iDeteccionNecesidadesRepository.save(deteccion);
@@ -68,6 +72,15 @@ public class DeteccionNecesidadesServiceImpl implements DeteccionNecesidadesServ
         deteccionDB.setNecesidadOtra(deteccion.getNecesidadOtra());
         deteccionDB.setNecesidadEconomica(deteccion.getNecesidadEconomica());
         deteccionDB.setNecesidadPsicologica(deteccion.getNecesidadPsicologica());
+        deteccionDB.setTemaPsicologico(deteccion.getTemaPsicologico());
+        deteccionDB.setTieneBeca(deteccion.getTieneBeca());
+        deteccionDB.setNombreBeca(deteccion.getNombreBeca());
+        deteccionDB.setTieneEscasezMateriales(deteccion.getTieneEscasezMateriales());
+        deteccionDB.setMaterialesRequeridos(deteccion.getMaterialesRequeridos());
+        deteccionDB.setTieneAtencionMedica(deteccion.getTieneAtencionMedica());
+        deteccionDB.setEspecificacionMedica(deteccion.getEspecificacionMedica());
+        deteccionDB.setTieneVinculacionFamilia(deteccion.getTieneVinculacionFamilia());
+        deteccionDB.setRazonVinculacion(deteccion.getRazonVinculacion());
         deteccionDB.setObservaciones(deteccion.getObservaciones());
         deteccionDB.setActivo(deteccion.getActivo());
 

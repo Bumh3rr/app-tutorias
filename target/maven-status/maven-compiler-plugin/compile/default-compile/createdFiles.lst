@@ -1,2 +1,11 @@
-com/bumh3r/service/impl/CarnetPdfServiceImpl.class
+com/bumh3r/service/impl/DeteccionPdfServiceImpl$HeaderFooterEvent.class
+com/bumh3r/service/ConstanciaTutoradoPdfService.class
+com/bumh3r/dto/PublicDeteccionForm$PublicDeteccionFormBuilder.class
+com/bumh3r/dto/PublicDeteccionForm.class
 com/bumh3r/service/CarnetPdfService.class
+com/bumh3r/service/DeteccionPdfService.class
+com/bumh3r/service/impl/ConstanciaTutorPdfServiceImpl.class
+com/bumh3r/service/ConstanciaTutorPdfService.class
+com/bumh3r/service/impl/CarnetPdfServiceImpl.class
+com/bumh3r/service/impl/ConstanciaTutoradoPdfServiceImpl.class
+com/bumh3r/service/impl/DeteccionPdfServiceImpl.class

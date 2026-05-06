@@ -6,6 +6,7 @@ import com.bumh3r.entity.Tutorado;
 import com.bumh3r.service.AsistenciaService;
 import com.bumh3r.service.CarnetPdfService;
 import com.bumh3r.service.CarreraService;
+import com.bumh3r.service.ConstanciaTutoradoPdfService;
 import com.bumh3r.service.DeteccionNecesidadesService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.GrupoTutoradoService;
@@ -56,6 +57,8 @@ public class TutoradoController {
     private AsistenciaService asistenciaService;
     @Autowired
     private CarnetPdfService carnetPdfService;
+    @Autowired
+    private ConstanciaTutoradoPdfService constanciaTutoradoPdfService;
 
     private final Logger log = LoggerFactory.getLogger(TutoradoController.class);
 
@@ -286,32 +289,19 @@ public class TutoradoController {
     }
 
     @GetMapping(value = "pdf/constancia/{id}")
-    public void generarConstanciaTutorado(@PathVariable Integer id, HttpServletResponse response) throws Exception {
-        Tutorado tutorado = this.tutoradoService.obtenerTutorado(id);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=constancia-tutorado-" + id + ".pdf");
-        Document document = new Document();
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
-        document.add(new Paragraph("Constancia de Participación en Programa de Tutorías"));
-        document.add(new Paragraph("Tutorado: " + tutorado.getNombre() + " " + tutorado.getApellido()));
-        document.add(new Paragraph("En desarrollo."));
-        document.close();
-    }
-
-    @GetMapping(value = "pdf/reporte-asistencia/{id}")
-    public void generarReporteAsistenciaTutorado(@PathVariable Integer id, HttpServletResponse response) throws Exception {
-        Tutorado tutorado = this.tutoradoService.obtenerTutorado(id);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=reporte-asistencia-" + id + ".pdf");
-        Document document = new Document();
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
-        document.add(new Paragraph("Reporte de Asistencia a Tutorías"));
-        document.add(new Paragraph("Tutorado: " + tutorado.getNombre() + " " + tutorado.getApellido()));
-        document.add(new Paragraph("En desarrollo."));
-        document.close();
+    public ResponseEntity<byte[]> generarConstanciaTutorado(
+            @PathVariable Integer id,
+            @RequestParam Integer idSemestre) {
+        try {
+            byte[] pdf = constanciaTutoradoPdfService.generarConstanciaTutorado(id, idSemestre);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"constancia-tutorado-" + id + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error generando constancia tutorado {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

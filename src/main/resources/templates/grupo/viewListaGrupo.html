@@ -224,8 +224,8 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th class="sort-th"><a th:href="@{/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">ID <span th:if="${sortBy == \'id\'}" th:text="${sort == \'asc\' ? \'↑\' : \'↓\'}"></span></a></th>
-                                <th class="sort-th"><a th:href="@{/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">Nombre <span th:if="${sortBy == \'nombre\'}" th:text="${sort == \'asc\' ? \'↑\' : \'↓\'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>Alumnos</th>
                                 <th>Tutor</th>
                                 <th>Carrera</th>
