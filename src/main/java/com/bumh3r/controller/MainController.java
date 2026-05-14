@@ -30,7 +30,17 @@ public class MainController {
     @Autowired
     private PATService patService;
 
+    @GetMapping("/login")
+    public String login() {
+        return "public/viewLogin";
+    }
+
     @GetMapping({"/", ""})
+    public String root() {
+        return "forward:/public/actividades";
+    }
+
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
         try {
             List<Tutor> tutores = tutorService.obtenerTodosTutores();

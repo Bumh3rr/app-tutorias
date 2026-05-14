@@ -1,14 +1,14 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Grupo;
+import com.bumh3r.entity.ReporteSesion;
 import com.bumh3r.entity.Sesion;
+import com.bumh3r.entity.Tutor;
 import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.GrupoService;
+import com.bumh3r.service.ReporteSesionService;
 import com.bumh3r.service.SesionService;
-import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
-import jakarta.servlet.http.HttpServletResponse;
+import com.bumh3r.service.TutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +36,17 @@ public class SesionController {
     private GrupoService grupoService;
     @Autowired
     private ActividadService actividadService;
+    @Autowired
+    private ReporteSesionService reporteSesionService;
+    @Autowired
+    private TutorService tutorService;
 
     private static final Logger log = LoggerFactory.getLogger(SesionController.class);
 
     @GetMapping()
     public String obtenerVistaListaSesiones(
             @RequestParam(value = "idGrupo", required = false) Integer idGrupo,
+            @RequestParam(value = "idTutor", required = false) Integer idTutor,
             @RequestParam(value = "semana", required = false) Integer semana,
             @RequestParam(value = "estatus", required = false) String estatus,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
@@ -60,10 +65,15 @@ public class SesionController {
         Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
         List<Grupo> grupos = this.grupoService.obtenerTodosGrupos();
+        List<Tutor> tutores = this.tutorService.obtenerTodosTutores();
 
         org.springframework.data.domain.Page<Sesion> pageResult;
         try {
-            if ("grupo".equals(tipoBusqueda) && idGrupo != null) {
+            if ("tutor".equals(tipoBusqueda) && idTutor != null) {
+                pageResult = this.sesionService.buscarSesionesPorTutorPage(idTutor, pageable);
+                Tutor t = tutores.stream().filter(x -> x.getId().equals(idTutor)).findFirst().orElse(null);
+                model.addAttribute("filtro", t != null ? "Tutor: " + t.getNombre() + " " + t.getApellido() : "Tutor seleccionado");
+            } else if ("grupo".equals(tipoBusqueda) && idGrupo != null) {
                 pageResult = this.sesionService.buscarSesionesPorGrupoPage(idGrupo, pageable);
                 model.addAttribute("filtro", "Grupo seleccionado");
             } else if ("semana".equals(tipoBusqueda) && semana != null) {
@@ -95,10 +105,12 @@ public class SesionController {
         model.addAttribute("sort", sort);
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("grupos", grupos);
+        model.addAttribute("tutores", tutores);
         model.addAttribute("idGrupoSeleccionado", idGrupo);
+        model.addAttribute("idTutorSeleccionado", idTutor);
         model.addAttribute("semanaSeleccionada", semana);
         model.addAttribute("estatusSeleccionado", estatus);
-                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
         return "sesion/viewListaSesion";
     }
@@ -142,6 +154,8 @@ public class SesionController {
         Sesion sesion = this.sesionService.obtenerSesion(id);
         log.info("Sesion: {}", sesion);
         model.addAttribute("sesion", sesion);
+        ReporteSesion reporte = this.reporteSesionService.obtenerReportePorSesion(id);
+        model.addAttribute("reporte", reporte);
         return "sesion/viewInfoSesion";
     }
 
@@ -210,19 +224,5 @@ public class SesionController {
         webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
     }
 
-    @GetMapping(value = "pdf/anexo19/{id}")
-    public void generarAnexo19(@PathVariable Integer id, HttpServletResponse response) throws Exception {
-        Sesion sesion = this.sesionService.obtenerSesion(id);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=anexo19-sesion-" + id + ".pdf");
-        Document document = new Document();
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
-        document.add(new Paragraph("Anexo 19 — Reporte de Sesión de Tutoría"));
-        document.add(new Paragraph("Sesión #" + sesion.getId()
-                + (sesion.getGrupo() != null ? " — Grupo: " + sesion.getGrupo().getNombre() : "")));
-        document.add(new Paragraph("En desarrollo."));
-        document.close();
-    }
+
 }

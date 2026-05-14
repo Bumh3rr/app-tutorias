@@ -2,10 +2,12 @@ package com.bumh3r.controller;
 
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Tutor;
+import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.ConstanciaTutorPdfService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.GrupoTutoradoService;
+import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutorService;
 import com.bumh3r.service.enums.FileType;
@@ -47,6 +49,10 @@ public class TutorController {
     private FileStoreService fileStoreService;
     @Autowired
     private ConstanciaTutorPdfService constanciaTutorPdfService;
+    @Autowired
+    private SemestreService semestreService;
+    @Autowired
+    private ActividadService actividadService;
 
     private final Logger log = LoggerFactory.getLogger(TutorController.class);
 
@@ -54,6 +60,7 @@ public class TutorController {
     public String obtenerVistaListaTutores(
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
+            @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
             @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -88,6 +95,15 @@ public class TutorController {
                     if (!q.isBlank()) {
                         paginaTutores = this.tutorService.buscarPorEmail(q, page, pageSize, sortBy, sort);
                         model.addAttribute("filtro", "Correo: " + q);
+                    } else {
+                        paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", null);
+                    }
+                }
+                case "semestre" -> {
+                    if (idSemestre != null) {
+                        paginaTutores = this.tutorService.buscarPorSemestre(idSemestre, page, pageSize, sortBy, sort);
+                        model.addAttribute("filtro", "Semestre seleccionado");
                     } else {
                         paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(page, pageSize, sortBy, sort);
                         model.addAttribute("filtro", null);
@@ -129,6 +145,8 @@ public class TutorController {
         model.addAttribute("mapSort", mapSort);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
         model.addAttribute("q", q);
+        model.addAttribute("idSemestreSeleccionado", idSemestre);
+        model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
 
@@ -182,6 +200,7 @@ public class TutorController {
         }
         long totalAlumnos = grupos.stream().mapToLong(g -> alumnosPorGrupo.getOrDefault(g.getId(), 0L)).sum();
         long totalSesiones = sesionesPorGrupo.values().stream().mapToLong(Long::longValue).sum();
+        java.util.List<com.bumh3r.entity.Actividad> actividades = this.actividadService.buscarActividadesPorTutor(id);
         log.info("Tutor: {}", tutor);
         model.addAttribute("tutor", tutor);
         model.addAttribute("grupos", grupos);
@@ -189,6 +208,7 @@ public class TutorController {
         model.addAttribute("sesionesPorGrupo", sesionesPorGrupo);
         model.addAttribute("totalAlumnos", totalAlumnos);
         model.addAttribute("totalSesiones", totalSesiones);
+        model.addAttribute("actividades", actividades);
         return "tutor/viewInfoTutor";
     }
 
@@ -252,6 +272,11 @@ public class TutorController {
     public ResponseEntity<byte[]> generarConstanciaTutor(
             @PathVariable Integer id,
             @RequestParam Integer idSemestre) {
+        String error = constanciaTutorPdfService.validar(id, idSemestre);
+        if (error != null)
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(error.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         try {
             byte[] pdf = constanciaTutorPdfService.generarConstanciaTutor(id, idSemestre);
             return ResponseEntity.ok()

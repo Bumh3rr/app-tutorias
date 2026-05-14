@@ -16,6 +16,7 @@ public interface TutorService {
     Page<Tutor> buscarPorNumeroControl(String q, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Tutor> buscarPorEmail(String q, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Tutor> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort);
+    Page<Tutor> buscarPorSemestre(Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort);
 
     List<Tutor> obtenerTodosTutores();
 }

@@ -3,6 +3,7 @@ package com.bumh3r.controller;
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
+import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.AsistenciaService;
 import com.bumh3r.service.CarnetPdfService;
 import com.bumh3r.service.CarreraService;
@@ -59,6 +60,8 @@ public class TutoradoController {
     private CarnetPdfService carnetPdfService;
     @Autowired
     private ConstanciaTutoradoPdfService constanciaTutoradoPdfService;
+    @Autowired
+    private ActividadService actividadService;
 
     private final Logger log = LoggerFactory.getLogger(TutoradoController.class);
 
@@ -207,11 +210,13 @@ public class TutoradoController {
         java.util.List<com.bumh3r.entity.DeteccionNecesidades> detecciones =
                 this.deteccionNecesidadesService.buscarPorTutorado(id);
         com.bumh3r.dto.ResumenAsistenciaDTO resumen = this.asistenciaService.calcularResumenAsistencia(id);
+        java.util.List<com.bumh3r.entity.Actividad> actividades = this.actividadService.buscarActividadesPorTutorado(id);
         log.info("Tutorado: {}", tutorado);
         model.addAttribute("tutorado", tutorado);
         model.addAttribute("gruposTutorado", gruposTutorado);
         model.addAttribute("detecciones", detecciones);
         model.addAttribute("resumen", resumen);
+        model.addAttribute("actividades", actividades);
         return "tutorado/viewInfoTutorado";
     }
 
@@ -276,6 +281,11 @@ public class TutoradoController {
 
     @GetMapping(value = "pdf/carnet/{id}")
     public ResponseEntity<byte[]> generarCarnetPdf(@PathVariable Integer id) {
+        String error = carnetPdfService.validar(id);
+        if (error != null)
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(error.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         try {
             byte[] pdf = carnetPdfService.generarCarnetTutorado(id);
             String filename = "carnet-tutorado-" + id + ".pdf";
@@ -292,6 +302,11 @@ public class TutoradoController {
     public ResponseEntity<byte[]> generarConstanciaTutorado(
             @PathVariable Integer id,
             @RequestParam Integer idSemestre) {
+        String error = constanciaTutoradoPdfService.validar(id, idSemestre);
+        if (error != null)
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(error.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         try {
             byte[] pdf = constanciaTutoradoPdfService.generarConstanciaTutorado(id, idSemestre);
             return ResponseEntity.ok()

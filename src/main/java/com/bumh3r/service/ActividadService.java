@@ -18,6 +18,8 @@ public interface ActividadService {
     List<Actividad> buscarActividadesPorRangoFechas(LocalDate fechaInicio, LocalDate fechaFin);
 
     List<Actividad> buscarActividadesPorPAT(Integer idPat);
+    List<Actividad> buscarActividadesPorTutorado(Integer idTutorado);
+    List<Actividad> buscarActividadesPorTutor(Integer idTutor);
 
     List<String> guardarLoteActividades(Integer idPat, List<Actividad> actividades);
 

@@ -4,13 +4,14 @@ import com.bumh3r.entity.CoordinadorCarrera;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.CoordinadorCarreraService;
 import com.bumh3r.service.FileStoreService;
+import com.bumh3r.service.NombramientoCoordinadorPdfService;
 import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.enums.FileType;
-import com.lowagie.text.Document;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.PdfWriter;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class CoordinadorCarreraController {
     private SemestreService semestreService;
     @Autowired
     private FileStoreService fileStoreService;
+    @Autowired
+    private NombramientoCoordinadorPdfService nombramientoPdfService;
 
     private static final Logger log = LoggerFactory.getLogger(CoordinadorCarreraController.class);
 
@@ -226,17 +229,22 @@ public class CoordinadorCarreraController {
     }
 
     @GetMapping(value = "pdf/nombramiento/{id}")
-    public void generarNombramientoCoordinador(@PathVariable Integer id, HttpServletResponse response) throws Exception {
-        CoordinadorCarrera coordinador = this.coordinadorCarreraService.obtenerCoordinador(id);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=nombramiento-coordinador-" + id + ".pdf");
-        Document document = new Document();
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        document.add(new Paragraph("Tecnológico Nacional de México — Campus Chilpancingo"));
-        document.add(new Paragraph("Nombramiento Oficial de Coordinador de Carrera"));
-        document.add(new Paragraph("Coordinador: " + coordinador.getNombre() + " " + coordinador.getApellido()));
-        document.add(new Paragraph("En desarrollo."));
-        document.close();
+    public ResponseEntity<byte[]> generarNombramientoCoordinador(@PathVariable Integer id) {
+        String error = nombramientoPdfService.validar(id);
+        if (error != null)
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(error.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        try {
+            byte[] pdf = nombramientoPdfService.generarNombramiento(id);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"nombramiento-coordinador-" + id + ".pdf\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error generando nombramiento coordinador {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

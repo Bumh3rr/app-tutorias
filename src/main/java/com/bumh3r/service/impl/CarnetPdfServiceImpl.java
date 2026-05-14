@@ -113,6 +113,24 @@ public class CarnetPdfServiceImpl implements CarnetPdfService {
         return baos.toByteArray();
     }
 
+    @Override
+    public String validar(Integer idTutorado) {
+        Tutorado tutorado = tutoradoRepository.findById(idTutorado).orElse(null);
+        if (tutorado == null || !Integer.valueOf(1).equals(tutorado.getActivo()))
+            return "El tutorado no existe o ha sido dado de baja del sistema.";
+
+        List<GrupoTutorado> gts = grupoTutoradoRepository.findByActivoAndTutorado(1, tutorado);
+        if (gts.isEmpty())
+            return "El tutorado no tiene ningún grupo asignado.";
+
+        Grupo grupo = gts.get(0).getGrupo();
+        List<Sesion> sesiones = sesionRepository.findByActivoAndGrupo(1, grupo);
+        if (sesiones.isEmpty())
+            return "No hay sesiones registradas para el grupo del tutorado.";
+
+        return null;
+    }
+
     // ── Left Column ───────────────────────────────────────────────────────────
 
     private PdfPCell buildLeftColumn(Tutorado tutorado, String codigo) {

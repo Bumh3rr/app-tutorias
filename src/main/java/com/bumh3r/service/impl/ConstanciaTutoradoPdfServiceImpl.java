@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Primary
 @Service
@@ -41,6 +43,8 @@ public class ConstanciaTutoradoPdfServiceImpl implements ConstanciaTutoradoPdfSe
     @Autowired private ITutoradoRepository tutoradoRepository;
     @Autowired private ISemestreRepository semestreRepository;
     @Autowired private IGrupoTutoradoRepository grupoTutoradoRepository;
+    @Autowired private ISesionRepository sesionRepository;
+    @Autowired private IAsistenciaRepository asistenciaRepository;
     @Autowired private AsistenciaService asistenciaService;
 
     @Override
@@ -179,6 +183,38 @@ public class ConstanciaTutoradoPdfServiceImpl implements ConstanciaTutoradoPdfSe
 
         document.close();
         return baos.toByteArray();
+    }
+
+    @Override
+    public String validar(Integer idTutorado, Integer idSemestre) {
+        Tutorado tutorado = tutoradoRepository.findById(idTutorado).orElse(null);
+        if (tutorado == null || !Integer.valueOf(1).equals(tutorado.getActivo()))
+            return "El tutorado no existe o ha sido dado de baja del sistema.";
+
+        Semestre semestre = semestreRepository.findById(idSemestre).orElse(null);
+        if (semestre == null)
+            return "El semestre seleccionado no existe.";
+
+        List<GrupoTutorado> gts = grupoTutoradoRepository
+                .findByTutoradoAndGrupoSemestreAndActivo(tutorado, semestre, 1);
+        if (gts.isEmpty())
+            return "El tutorado no tiene grupo asignado en el semestre seleccionado.";
+
+        List<Grupo> grupos = gts.stream().map(GrupoTutorado::getGrupo).collect(Collectors.toList());
+        long realizadas = sesionRepository.countByGruposAndEstatusRegistroIn(grupos, java.util.List.of("REALIZADA"));
+        if (realizadas == 0)
+            return "No hay sesiones realizadas registradas para el grupo en este semestre.";
+
+        if (!asistenciaRepository.existsByTutoradoAndSesionGrupoSemestreId(tutorado, idSemestre))
+            return "No se han registrado asistencias para este tutorado en el semestre seleccionado.";
+
+        ResumenAsistenciaDTO resumen = asistenciaService.calcularResumenAsistencia(idTutorado);
+        if (!resumen.isAcreditado())
+            return String.format(
+                    "El tutorado no ha acreditado el período de tutoría. Porcentaje actual: %.1f%%.",
+                    resumen.getPorcentaje());
+
+        return null;
     }
 
     private PdfPTable buildEncabezado() {

@@ -1,8 +1,10 @@
 package com.bumh3r.controller;
 
+import com.bumh3r.entity.Actividad;
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.PAT;
 import com.bumh3r.entity.Semestre;
+import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.PATService;
@@ -32,6 +34,8 @@ public class PATController {
 
     @Autowired
     private PATService patService;
+    @Autowired
+    private ActividadService actividadService;
     @Autowired
     private CarreraService carreraService;
     @Autowired
@@ -148,7 +152,9 @@ public class PATController {
     public String obtenerVistaVerPAT(@PathVariable Integer id, Model model) {
         PAT pat = this.patService.obtenerPAT(id);
         log.info("PAT: {}", pat);
+        List<Actividad> actividades = this.actividadService.buscarActividadesPorPAT(id);
         model.addAttribute("pat", pat);
+        model.addAttribute("actividades", actividades);
         return "pat/viewInfoPAT";
     }
 

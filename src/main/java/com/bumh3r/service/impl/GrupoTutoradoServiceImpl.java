@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,10 +99,11 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
     }
 
     @Override
-    public Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, Integer idGrupo, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        String query = (q == null || q.isBlank()) ? "" : q.trim();
-        return this.iGrupoTutoradoRepository.buscarHistorial(query, idSemestre, idCarrera, idGrupo, pageable);
+    public Page<GrupoTutorado> buscarHistorial(String q, Integer idSemestre, Integer idCarrera, Integer idGrupo, String estatusAcreditacion, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        String query = (q == null || q.isBlank()) ? null : q.trim();
+        String estatus = (estatusAcreditacion == null || estatusAcreditacion.isBlank()) ? null : estatusAcreditacion.trim();
+        return this.iGrupoTutoradoRepository.buscarHistorial(query, idSemestre, idCarrera, idGrupo, estatus, pageable);
     }
 
     @Override

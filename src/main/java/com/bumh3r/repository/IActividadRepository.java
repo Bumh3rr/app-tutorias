@@ -47,4 +47,10 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
 
     @Query("SELECT a FROM Actividad a WHERE a.activo = 1 AND (:q IS NULL OR :q = '' OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Actividad> searchByName(@Param("q") String q, Pageable pageable);
+
+    @Query("SELECT DISTINCT s.actividad FROM Asistencia ast JOIN ast.sesion s WHERE s.actividad IS NOT NULL AND s.actividad.activo = 1 AND ast.tutorado.id = :idTutorado ORDER BY s.actividad.semana ASC")
+    List<Actividad> findActividadesByTutorado(@Param("idTutorado") Integer idTutorado);
+
+    @Query("SELECT DISTINCT s.actividad FROM Sesion s WHERE s.actividad IS NOT NULL AND s.actividad.activo = 1 AND s.grupo.tutor.id = :idTutor ORDER BY s.actividad.semana ASC")
+    List<Actividad> findActividadesByTutor(@Param("idTutor") Integer idTutor);
 }

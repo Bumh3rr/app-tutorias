@@ -2,6 +2,7 @@ package com.bumh3r.controller;
 
 import com.bumh3r.entity.ReporteSesion;
 import com.bumh3r.entity.Sesion;
+import com.bumh3r.service.ReporteSesionPdfService;
 import com.bumh3r.service.ReporteSesionService;
 import com.bumh3r.service.SesionService;
 import org.slf4j.Logger;
@@ -9,6 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -27,6 +32,8 @@ public class ReporteSesionController {
     private ReporteSesionService reporteSesionService;
     @Autowired
     private SesionService sesionService;
+    @Autowired
+    private ReporteSesionPdfService reporteSesionPdfService;
 
     private static final Logger log = LoggerFactory.getLogger(ReporteSesionController.class);
 
@@ -181,6 +188,26 @@ public class ReporteSesionController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el reporte: " + e.getMessage());
         }
         return "redirect:/reporte";
+    }
+
+    @GetMapping(value = "pdf/{id}")
+    public ResponseEntity<byte[]> generarPdfReporte(@PathVariable Integer id) {
+        String error = reporteSesionPdfService.validar(id);
+        if (error != null)
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(error.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        try {
+            byte[] pdf = reporteSesionPdfService.generarReporteSesion(id);
+            String filename = "reporte-sesion-" + id + ".pdf";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error generando PDF reporte sesión {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @InitBinder

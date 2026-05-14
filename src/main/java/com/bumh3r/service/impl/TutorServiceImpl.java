@@ -101,6 +101,12 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
+    public Page<Tutor> buscarPorSemestre(Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return this.iTutorRepository.searchBySemestre(idSemestre, pageable);
+    }
+
+    @Override
     public List<Tutor> obtenerTodosTutores() {
         return this.iTutorRepository.findByActivo(1);
     }

@@ -93,8 +93,8 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="gt : ${grupoTutorados}"
-                                th:with="tutorado=${gt.tutorado}, asistencia=${mapaAsistencias[gt.tutorado.id]}">
+                            <tr th:each="grupoTutorado : ${grupoTutorados}"
+                                th:with="tutorado=${grupoTutorado.tutorado}, asistencia=${mapaAsistencias[grupoTutorado.tutorado.id]}">
                                 <td>
                                     <!-- Si ya tiene asistencia registrada, la casilla queda deshabilitada -->
                                     <input type="checkbox"

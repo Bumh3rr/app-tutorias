@@ -45,7 +45,7 @@ public class HistorialController {
             Model model) {
 
         Page<GrupoTutorado> pagina = this.grupoTutoradoService
-                .buscarHistorial(q, idSemestre, idCarrera, idGrupo, page, pageSize);
+                .buscarHistorial(q, idSemestre, idCarrera, idGrupo, estatusAcreditacion, page, pageSize);
 
         Map<Integer, ResumenAsistenciaDTO> resumenesHistorial = new HashMap<>();
         for (GrupoTutorado reg : pagina.getContent()) {

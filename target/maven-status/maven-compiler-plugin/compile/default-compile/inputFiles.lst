@@ -61,6 +61,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/GrupoService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/GrupoTutoradoService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/PATService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ReporteSesionPdfService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ReporteSesionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SemestreService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SesionService.java
@@ -81,6 +82,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/GrupoServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/GrupoTutoradoServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/PATServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ReporteSesionPdfServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ReporteSesionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SemestreServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SesionServiceImpl.java

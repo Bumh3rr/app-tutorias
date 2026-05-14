@@ -124,6 +124,7 @@
                             <th>Estado</th>
                             <th>% Asistencia</th>
                             <th>Acreditado</th>
+                            <th>PDFs</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -209,6 +210,41 @@
                                 </span>
                                 <span th:unless="${res != null}" class="badge rounded-pill badge-sin-asignar">—</span>
                             </td>
+                            <!-- PDFs -->
+                            <td>
+                                <div class="d-flex align-items-center gap-1">
+                                    <!-- Carnet: siempre disponible -->
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary pdf-btn"
+                                            th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${reg.tutorado.id})}"
+                                            onclick="abrirPdf(this)"
+                                            data-bs-toggle="tooltip"
+                                            title="Carnet PDF">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                                        </svg>
+                                        Carnet
+                                    </button>
+                                    <!-- Constancia: solo si el grupo tiene semestre asignado -->
+                                    <button th:if="${reg.grupo.semestre != null}"
+                                            type="button"
+                                            class="btn btn-sm btn-outline-secondary pdf-btn"
+                                            th:attr="data-url=@{/tutorado/pdf/constancia/{id}(id=${reg.tutorado.id}, idSemestre=${reg.grupo.semestre.id})}"
+                                            onclick="abrirPdf(this)"
+                                            data-bs-toggle="tooltip"
+                                            title="Constancia PDF">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                                        </svg>
+                                        Constancia
+                                    </button>
+                                    <span th:unless="${reg.grupo.semestre != null}"
+                                          class="text-body-secondary small" style="opacity:0.4;"
+                                          data-bs-toggle="tooltip" title="Sin semestre asignado al grupo">—</span>
+                                </div>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -287,6 +323,23 @@
         url.searchParams.set('page', '0');
         window.location.href = url.toString();
     }
+
+    function abrirPdf(el) {
+        var url = el.getAttribute('data-url');
+        fetch(url).then(function(r) {
+            if (r.ok) {
+                window.open(url, '_blank');
+            } else {
+                r.text().then(function(msg) { alert(msg); });
+            }
+        }).catch(function() { alert('Error al generar el PDF.'); });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    });
 </script>
 
 </body>

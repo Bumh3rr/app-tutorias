@@ -25,4 +25,6 @@ public interface SesionService {
     Page<Sesion> buscarSesionesPorEstatusPage(String estatus, Pageable pageable);
 
     Page<Sesion> buscarSesionesPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
+
+    Page<Sesion> buscarSesionesPorTutorPage(Integer idTutor, Pageable pageable);
 }

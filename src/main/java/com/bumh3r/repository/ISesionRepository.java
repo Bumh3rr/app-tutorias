@@ -44,6 +44,9 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
     @Query("SELECT e FROM Sesion e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     Page<Sesion> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 
+    @Query("SELECT s FROM Sesion s WHERE s.grupo.tutor.id = :idTutor AND s.activo = 1")
+    Page<Sesion> findByTutorId(@Param("idTutor") Integer idTutor, Pageable pageable);
+
     java.util.Optional<Sesion> findTopByGrupoAndActivoOrderBySemanaDesc(Grupo grupo, Integer activo);
 
     java.util.Optional<Sesion> findTopByGrupoAndEstatusRegistroAndActivoOrderBySemanaDesc(Grupo grupo, String estatusRegistro, Integer activo);

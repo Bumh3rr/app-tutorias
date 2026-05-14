@@ -140,6 +140,38 @@
         .nav-link-item:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.14); transform:translateX(3px); color:inherit; }
         .nav-link-item .link-chevron { opacity:0.25; margin-left:auto; transition:opacity 0.15s; }
         .nav-link-item:hover .link-chevron { opacity:0.7; }
+
+        /* ── Activity rows ── */
+        .act-row {
+            display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+            border-radius: 10px; background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.06);
+            text-decoration: none; color: inherit;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s cubic-bezier(0.4,0,0.2,1);
+            animation: fadeInUp 0.3s cubic-bezier(0.4,0,0.2,1) both;
+        }
+        .act-row:hover { background: rgba(99,102,241,0.07); border-color: rgba(99,102,241,0.22); transform: translateX(3px); color: inherit; }
+        .act-semana {
+            min-width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+            background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.25);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .act-semana .s-num { font-size: 14px; font-weight: 800; color: #a5b4fc; line-height: 1; }
+        .act-semana .s-lbl { font-size: 7px; color: rgba(165,180,252,0.5); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+        .act-nombre { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
+        .act-desc { font-size: 11.5px; color: rgba(255,255,255,0.4); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 380px; }
+        .act-fecha { font-size: 11px; color: rgba(255,255,255,0.3); white-space: nowrap; margin-left: auto; flex-shrink: 0; padding-left: 8px; }
+        .act-arrow { opacity: 0.2; flex-shrink: 0; transition: opacity 0.15s; }
+        .act-row:hover .act-arrow { opacity: 0.6; }
+        .act-pat-badge {
+            display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600;
+            padding: 2px 7px; border-radius: 99px;
+            background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: #a5b4fc;
+        }
+        .act-empty {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 20px; gap: 8px; opacity: 0.35; text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -172,9 +204,12 @@
                           th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
                     <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}" target="_blank" class="btn btn-outline-danger btn-sm">
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
+                            onclick="abrirPdf(this)">
                         <i class="bi bi-file-earmark-pdf"></i> Carnet PDF
-                    </a>
+                    </button>
+                    <div class="pdf-error alert alert-danger small py-1 px-2 mt-1 mb-0 d-none"></div>
                     <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
@@ -230,7 +265,7 @@
                     </div>
 
                     <!-- Mini stats -->
-                    <div class="d-flex gap-2 align-self-start flex-shrink-0">
+                    <div class="d-flex gap-2 align-self-start flex-shrink-0 flex-wrap">
                         <div class="stat-mini">
                             <span class="num" th:text="${gruposTutorado != null} ? ${#lists.size(gruposTutorado)} : 0"></span>
                             <span class="lbl">Grupos</span>
@@ -241,6 +276,10 @@
                                   th:classappend="${resumen.acreditado} ? 'text-success' : 'text-danger'"
                                   th:text="${resumen.porcentaje} + '%'"></span>
                             <span class="lbl">Asistencia</span>
+                        </div>
+                        <div class="stat-mini" th:if="${actividades != null}">
+                            <span class="num" style="color:#a5b4fc;" th:text="${#lists.size(actividades)}"></span>
+                            <span class="lbl">Actividades</span>
                         </div>
                         <div class="stat-mini" th:if="${detecciones != null}">
                             <span class="num" th:text="${#lists.size(detecciones)}"></span>
@@ -427,7 +466,7 @@
                             <small>Sin detecciones registradas</small>
                         </div>
 
-                        <a th:href="@{/deteccion}" class="nav-link-item mt-3">
+                        <a th:href="@{/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item mt-3">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -458,7 +497,7 @@
                                 Resumen de asistencia
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/deteccion}" class="nav-link-item">
+                            <a th:href="@{/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"/>
                                     <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -466,7 +505,7 @@
                                 Detección de necesidades
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/historial}" class="nav-link-item">
+                            <a th:href="@{/historial(q=${tutorado.numeroControl})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="1 4 1 10 7 10"/>
                                     <path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
@@ -475,8 +514,10 @@
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
                             <a th:if="${not #lists.isEmpty(gruposTutorado)}"
-                               th:href="@{/tutorado/pdf/constancia/{id}(id=${tutorado.id},idSemestre=${gruposTutorado[0].grupo.semestre.id})}"
-                               class="nav-link-item" target="_blank">
+                               href="javascript:void(0)"
+                               th:attr="data-url=@{/tutorado/pdf/constancia/{id}(id=${tutorado.id},idSemestre=${gruposTutorado[0].grupo.semestre.id})}"
+                               class="nav-link-item"
+                               onclick="abrirPdf(this)">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
@@ -486,14 +527,19 @@
                                 Constancia de Tutoría (PDF)
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
+                            <div class="pdf-error alert alert-danger small py-1 px-2 mb-0 d-none"></div>
                             <a th:if="${not #lists.isEmpty(gruposTutorado)}"
-                               th:href="@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}" class="nav-link-item" target="_blank">
+                               href="javascript:void(0)"
+                               th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
+                               class="nav-link-item"
+                               onclick="abrirPdf(this)">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                                 </svg>
                                 Carnet (PDF)
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
+                            <div class="pdf-error alert alert-danger small py-1 px-2 mb-0 d-none"></div>
                             <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}"
                                class="nav-link-item" style="color:rgba(248,113,113,0.7);">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -521,7 +567,7 @@
                               th:text="${#lists.size(gruposTutorado)}">
                         </span>
                     </p>
-                    <a th:href="@{/historial}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                    <a th:href="@{/historial(q=${tutorado.numeroControl})}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
                         Ver historial completo
                     </a>
                 </div>
@@ -575,6 +621,80 @@
                 </div>
             </div>
 
+            <!-- Actividades realizadas -->
+            <div class="glass-surface td-bottom mt-4" style="animation-delay:0.22s;">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <p class="section-title mb-0">Actividades realizadas</p>
+                        <span class="badge rounded-pill"
+                              style="font-size:10px; background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3);"
+                              th:if="${actividades != null}"
+                              th:text="${#lists.size(actividades)}">0</span>
+                    </div>
+                    <a th:href="@{/actividad}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><polyline points="9 18 15 12 9 6"/></svg>
+                        Ver módulo
+                    </a>
+                </div>
+
+                <!-- Con actividades -->
+                <div th:if="${actividades != null and !#lists.isEmpty(actividades)}">
+                    <div class="d-flex flex-column gap-2">
+                        <a th:each="act, stat : ${actividades}"
+                           th:href="@{/actividad/ver/{id}(id=${act.id})}"
+                           class="act-row"
+                           th:style="'animation-delay:' + ${stat.index * 0.05} + 's'">
+
+                            <!-- Semana -->
+                            <div class="act-semana">
+                                <span class="s-num" th:text="${act.semana}"></span>
+                                <span class="s-lbl">sem</span>
+                            </div>
+
+                            <!-- Nombre + descripción + PAT -->
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="act-nombre" th:text="${act.nombre}"></div>
+                                <div th:if="${act.descripcion != null and !act.descripcion.isBlank()}"
+                                     class="act-desc" th:text="${act.descripcion}"></div>
+                                <div class="mt-1" th:if="${act.pat != null}">
+                                    <span class="act-pat-badge">
+                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        <span th:text="${act.pat.nombre}"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Fecha -->
+                            <span class="act-fecha"
+                                  th:if="${act.fecha != null}"
+                                  th:text="${#temporals.format(act.fecha, 'dd/MM/yyyy')}"></span>
+
+                            <!-- Chevron -->
+                            <svg class="act-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-3 pt-2"
+                         style="border-top:1px solid rgba(255,255,255,0.05); font-size:11.5px; color:rgba(255,255,255,0.35);">
+                        <span th:text="${#lists.size(actividades)} + ' actividad(es) registrada(s) en sesiones asistidas'"></span>
+                    </div>
+                </div>
+
+                <!-- Sin actividades -->
+                <div th:unless="${actividades != null and !#lists.isEmpty(actividades)}"
+                     class="act-empty">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        <line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/>
+                    </svg>
+                    <div>
+                        <p class="mb-1 fw-medium" style="font-size:13px; opacity:0.7;">Sin actividades registradas</p>
+                        <small style="opacity:0.5;">Las actividades aparecen aquí cuando el tutorado asiste a sesiones que tienen una actividad asignada.</small>
+                    </div>
+                </div>
+            </div>
+
         </main>
         <footer th:replace="~{fragments/fragment::footer}"></footer>
     </div>
@@ -589,6 +709,26 @@
             new bootstrap.Tooltip(el);
         });
     });
+    function abrirPdf(el) {
+        var url = el.getAttribute('data-url');
+        var err = el.nextElementSibling;
+        if (err && err.classList.contains('pdf-error')) {
+            err.classList.add('d-none');
+            err.textContent = '';
+        }
+        fetch(url).then(function(r) {
+            if (r.ok) {
+                window.open(url, '_blank');
+            } else {
+                r.text().then(function(msg) {
+                    if (err && err.classList.contains('pdf-error')) {
+                        err.textContent = msg;
+                        err.classList.remove('d-none');
+                    } else { alert(msg); }
+                });
+            }
+        }).catch(function() { alert('Error al generar el PDF.'); });
+    }
 </script>
 </body>
 </html>

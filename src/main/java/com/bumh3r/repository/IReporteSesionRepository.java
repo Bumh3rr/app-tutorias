@@ -1,5 +1,6 @@
 package com.bumh3r.repository;
 
+import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.ReporteSesion;
 import com.bumh3r.entity.Sesion;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Repository
 public interface IReporteSesionRepository extends JpaRepository<ReporteSesion, Integer> {
@@ -29,6 +31,11 @@ public interface IReporteSesionRepository extends JpaRepository<ReporteSesion, I
 
     // Verificar si ya existe reporte para una sesión
     boolean existsBySesionAndActivo(Sesion sesion, Integer activo);
+
+    Optional<ReporteSesion> findBySesionId(Integer idSesion);
+
+    @Query("SELECT COUNT(r) > 0 FROM ReporteSesion r WHERE r.sesion.grupo IN :grupos AND r.activo = 1")
+    boolean existsBySesionGrupoIn(@Param("grupos") List<Grupo> grupos);
 
     @Query("SELECT e FROM ReporteSesion e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     Page<ReporteSesion> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);

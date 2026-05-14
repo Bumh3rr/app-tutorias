@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión | Sistema Tutorías TecNM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #080a0f;
+            color: rgba(255,255,255,0.85);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Background orbs ── */
+        .bg-orbs {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            animation: floatOrb var(--dur, 12s) ease-in-out infinite alternate;
+        }
+        .orb-1 {
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, #6366f1, transparent 70%);
+            top: -160px; left: -120px;
+            --dur: 14s;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #8b5cf6, transparent 70%);
+            bottom: -100px; right: -80px;
+            --dur: 18s;
+            animation-delay: -6s;
+        }
+        .orb-3 {
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, #06b6d4, transparent 70%);
+            bottom: 30%; left: 60%;
+            --dur: 22s;
+            animation-delay: -3s;
+            opacity: 0.10;
+        }
+        @keyframes floatOrb {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(30px, 20px) scale(1.08); }
+        }
+
+        /* Grid lines subtle background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+        }
+
+        /* ── Layout ── */
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px 16px;
+            animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Brand ── */
+        .brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+            animation: slideUp 0.5s 0.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.4), transparent 60%);
+            pointer-events: none;
+        }
+        .brand-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.03em;
+            text-align: center;
+        }
+
+        /* ── Card ── */
+        .login-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 36px 32px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+            backdrop-filter: blur(12px);
+        }
+        /* Top gradient line */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99,102,241,0.6) 50%, transparent);
+        }
+        /* Subtle inner glow */
+        .login-card::after {
+            content: '';
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 120px;
+            background: radial-gradient(ellipse, rgba(99,102,241,0.12), transparent 70%);
+            pointer-events: none;
+        }
+
+        .card-heading {
+            margin-bottom: 6px;
+        }
+        .card-heading h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .card-heading p {
+            font-size: 13.5px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 28px;
+        }
+
+        /* ── Form ── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 7px;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: rgba(255,255,255,0.9);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.22);
+        }
+        .form-input:focus {
+            border-color: rgba(99,102,241,0.55);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+            background: rgba(255,255,255,0.07);
+        }
+
+        .form-input-wrapper {
+            position: relative;
+        }
+        .form-input-wrapper .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.25);
+            pointer-events: none;
+        }
+        .form-input-wrapper .form-input {
+            padding-left: 38px;
+        }
+
+        /* ── Forgot link ── */
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            color: rgba(99,102,241,0.8);
+            text-decoration: none;
+            margin-top: -10px;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        .forgot-link:hover { color: #a5b4fc; }
+
+        /* ── Submit button ── */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            font-size: 14.5px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-submit:hover::before { left: 100%; }
+        .btn-submit:hover {
+            opacity: 0.92;
+            box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+            transform: translateY(-1px);
+        }
+        .btn-submit:active { transform: translateY(0); }
+
+        /* ── Divider ── */
+        .card-divider {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.2);
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .card-divider::before,
+        .card-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 38%;
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+        }
+        .card-divider::before { left: 0; }
+        .card-divider::after  { right: 0; }
+
+        /* ── Register link ── */
+        .register-link {
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+        }
+        .register-link a {
+            color: #a5b4fc;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .register-link a:hover { color: #fff; text-decoration: underline; }
+
+        /* ── Back link ── */
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 22px;
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.25);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: rgba(255,255,255,0.6); }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<div class="login-wrapper">
+
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+        </div>
+        <span class="brand-name">TecNM Campus Chilpancingo — Tutorías</span>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card">
+        <div class="card-heading">
+            <h2>Bienvenido de nuevo</h2>
+            <p>Ingresa tus credenciales para acceder al sistema.</p>
+        </div>
+
+        <!-- Número de control -->
+        <div class="form-group">
+            <label class="form-label">Número de control</label>
+            <div class="form-input-wrapper">
+                <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </span>
+                <input type="text" class="form-input" placeholder="Ej. 21ISC001...">
+            </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <div class="form-input-wrapper">
+                <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </span>
+                <input type="password" class="form-input" placeholder="••••••••">
+            </div>
+        </div>
+
+        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+
+        <!-- Submit → Dashboard -->
+        <a href="/dashboard" class="btn-submit">Iniciar sesión</a>
+
+    </div>
+
+    <a href="/" class="back-link">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Volver a actividades
+    </a>
+
+</div>
+
+</body>
+</html>

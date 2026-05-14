@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Primary
 @Service
@@ -40,6 +42,8 @@ public class ConstanciaTutorPdfServiceImpl implements ConstanciaTutorPdfService 
     @Autowired private ISemestreRepository semestreRepository;
     @Autowired private IGrupoRepository grupoRepository;
     @Autowired private IGrupoTutoradoRepository grupoTutoradoRepository;
+    @Autowired private ISesionRepository sesionRepository;
+    @Autowired private IReporteSesionRepository reporteSesionRepository;
 
     @Override
     public byte[] generarConstanciaTutor(Integer idTutor, Integer idSemestre) throws Exception {
@@ -182,6 +186,37 @@ public class ConstanciaTutorPdfServiceImpl implements ConstanciaTutorPdfService 
 
         document.close();
         return baos.toByteArray();
+    }
+
+    @Override
+    public String validar(Integer idTutor, Integer idSemestre) {
+        Tutor tutor = tutorRepository.findById(idTutor).orElse(null);
+        if (tutor == null || !Integer.valueOf(1).equals(tutor.getActivo()))
+            return "El tutor no existe o ha sido dado de baja del sistema.";
+
+        Semestre semestre = semestreRepository.findById(idSemestre).orElse(null);
+        if (semestre == null)
+            return "El semestre seleccionado no existe.";
+
+        List<Grupo> grupos = grupoRepository.findByActivoAndTutorAndSemestre(1, tutor, semestre);
+        if (grupos.isEmpty())
+            return "El tutor no tiene grupos asignados en el semestre seleccionado.";
+
+        long tutorados = grupos.stream()
+                .mapToLong(g -> grupoTutoradoRepository.countByGrupoAndActivo(g, 1))
+                .sum();
+        if (tutorados == 0)
+            return "No hay tutorados asignados en los grupos del tutor para este semestre.";
+
+        long realizadas = sesionRepository.countByGruposAndEstatusRegistroIn(
+                grupos, java.util.List.of("REALIZADA"));
+        if (realizadas == 0)
+            return "No hay sesiones realizadas registradas para los grupos del tutor en este semestre.";
+
+        if (!reporteSesionRepository.existsBySesionGrupoIn(grupos))
+            return "No se han generado reportes de sesión para los grupos del tutor en este semestre.";
+
+        return null;
     }
 
     private PdfPTable buildEncabezado() {

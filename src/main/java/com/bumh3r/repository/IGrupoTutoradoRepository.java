@@ -39,30 +39,113 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
     List<Object[]> countActivoByGrupo();
 
     @Query(value = """
-        SELECT gt FROM GrupoTutorado gt
-        WHERE (:q IS NULL OR :q = ''
-               OR LOWER(gt.tutorado.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(gt.tutorado.apellido) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
-        AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
-        AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
-        AND (:idGrupo IS NULL OR gt.grupo.id = :idGrupo)
+        SELECT gt.*
+        FROM grupo_tutorado gt
+        JOIN tutorado t ON t.id = gt.id_tutorado
+        JOIN grupo    g ON g.id = gt.id_grupo
+        WHERE (
+            :q IS NULL
+            OR LOWER(t.nombre)         LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(t.apellido)       LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(t.numero_control) LIKE LOWER(CONCAT('%', :q, '%'))
+        )
+        AND (:idSemestre IS NULL OR g.id_semestre = :idSemestre)
+        AND (:idCarrera  IS NULL OR g.id_carrera  = :idCarrera)
+        AND (:idGrupo    IS NULL OR gt.id_grupo   = :idGrupo)
+        AND (
+            :estatusAcreditacion IS NULL
+            OR (
+                :estatusAcreditacion = 'acreditado'
+                AND COALESCE(
+                    (SELECT COUNT(*) FROM asistencia a
+                     WHERE a.id_tutorado = gt.id_tutorado
+                       AND (a.presente = 1 OR a.recuperada = 1)
+                    ) * 100.0 / NULLIF(
+                        (SELECT COUNT(*) FROM sesion s
+                         JOIN grupo_tutorado gt2
+                              ON gt2.id_grupo = s.id_grupo
+                             AND gt2.id_tutorado = gt.id_tutorado
+                             AND gt2.activo = 1
+                         WHERE s.estatus_registro IN ('REALIZADA', 'PENDIENTE')
+                        ), 0),
+                    0) >= 80
+            )
+            OR (
+                :estatusAcreditacion = 'no_acreditado'
+                AND COALESCE(
+                    (SELECT COUNT(*) FROM asistencia a
+                     WHERE a.id_tutorado = gt.id_tutorado
+                       AND (a.presente = 1 OR a.recuperada = 1)
+                    ) * 100.0 / NULLIF(
+                        (SELECT COUNT(*) FROM sesion s
+                         JOIN grupo_tutorado gt2
+                              ON gt2.id_grupo = s.id_grupo
+                             AND gt2.id_tutorado = gt.id_tutorado
+                             AND gt2.activo = 1
+                         WHERE s.estatus_registro IN ('REALIZADA', 'PENDIENTE')
+                        ), 0),
+                    0) < 80
+            )
+        )
+        ORDER BY gt.id DESC
         """,
         countQuery = """
-        SELECT COUNT(gt) FROM GrupoTutorado gt
-        WHERE (:q IS NULL OR :q = ''
-               OR LOWER(gt.tutorado.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(gt.tutorado.apellido) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(gt.tutorado.numeroControl) LIKE LOWER(CONCAT('%', :q, '%')))
-        AND (:idSemestre IS NULL OR gt.grupo.semestre.id = :idSemestre)
-        AND (:idCarrera IS NULL OR gt.grupo.carrera.id = :idCarrera)
-        AND (:idGrupo IS NULL OR gt.grupo.id = :idGrupo)
-        """)
+        SELECT COUNT(*)
+        FROM grupo_tutorado gt
+        JOIN tutorado t ON t.id = gt.id_tutorado
+        JOIN grupo    g ON g.id = gt.id_grupo
+        WHERE (
+            :q IS NULL
+            OR LOWER(t.nombre)         LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(t.apellido)       LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(t.numero_control) LIKE LOWER(CONCAT('%', :q, '%'))
+        )
+        AND (:idSemestre IS NULL OR g.id_semestre = :idSemestre)
+        AND (:idCarrera  IS NULL OR g.id_carrera  = :idCarrera)
+        AND (:idGrupo    IS NULL OR gt.id_grupo   = :idGrupo)
+        AND (
+            :estatusAcreditacion IS NULL
+            OR (
+                :estatusAcreditacion = 'acreditado'
+                AND COALESCE(
+                    (SELECT COUNT(*) FROM asistencia a
+                     WHERE a.id_tutorado = gt.id_tutorado
+                       AND (a.presente = 1 OR a.recuperada = 1)
+                    ) * 100.0 / NULLIF(
+                        (SELECT COUNT(*) FROM sesion s
+                         JOIN grupo_tutorado gt2
+                              ON gt2.id_grupo = s.id_grupo
+                             AND gt2.id_tutorado = gt.id_tutorado
+                             AND gt2.activo = 1
+                         WHERE s.estatus_registro IN ('REALIZADA', 'PENDIENTE')
+                        ), 0),
+                    0) >= 80
+            )
+            OR (
+                :estatusAcreditacion = 'no_acreditado'
+                AND COALESCE(
+                    (SELECT COUNT(*) FROM asistencia a
+                     WHERE a.id_tutorado = gt.id_tutorado
+                       AND (a.presente = 1 OR a.recuperada = 1)
+                    ) * 100.0 / NULLIF(
+                        (SELECT COUNT(*) FROM sesion s
+                         JOIN grupo_tutorado gt2
+                              ON gt2.id_grupo = s.id_grupo
+                             AND gt2.id_tutorado = gt.id_tutorado
+                             AND gt2.activo = 1
+                         WHERE s.estatus_registro IN ('REALIZADA', 'PENDIENTE')
+                        ), 0),
+                    0) < 80
+            )
+        )
+        """,
+        nativeQuery = true)
     Page<GrupoTutorado> buscarHistorial(
             @Param("q") String q,
             @Param("idSemestre") Integer idSemestre,
             @Param("idCarrera") Integer idCarrera,
             @Param("idGrupo") Integer idGrupo,
+            @Param("estatusAcreditacion") String estatusAcreditacion,
             Pageable pageable);
 
     @Query("""

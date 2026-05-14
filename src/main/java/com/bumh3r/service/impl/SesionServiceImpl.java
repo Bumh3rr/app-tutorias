@@ -167,4 +167,9 @@ public class SesionServiceImpl implements SesionService {
     public org.springframework.data.domain.Page<com.bumh3r.entity.Sesion> buscarSesionesPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, org.springframework.data.domain.Pageable pageable) {
         return this.iSesionRepository.findByFechaRegistroRange(inicio, fin, pageable);
     }
+
+    @Override
+    public org.springframework.data.domain.Page<com.bumh3r.entity.Sesion> buscarSesionesPorTutorPage(Integer idTutor, org.springframework.data.domain.Pageable pageable) {
+        return this.iSesionRepository.findByTutorId(idTutor, pageable);
+    }
 }

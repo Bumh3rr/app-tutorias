@@ -33,4 +33,7 @@ public interface ITutorRepository extends JpaRepository<Tutor, Integer> {
 
     @Query("SELECT t FROM Tutor t WHERE t.activo = 1 AND t.fechaRegistro BETWEEN :inicio AND :fin")
     Page<Tutor> searchByFechaRegistro(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
+
+    @Query("SELECT DISTINCT t FROM Tutor t WHERE t.activo = 1 AND EXISTS (SELECT g FROM Grupo g WHERE g.tutor = t AND g.activo = 1 AND g.semestre.id = :idSemestre)")
+    Page<Tutor> searchBySemestre(@Param("idSemestre") Integer idSemestre, Pageable pageable);
 }

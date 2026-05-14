@@ -114,6 +114,16 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
+    public List<Actividad> buscarActividadesPorTutorado(Integer idTutorado) {
+        return this.iActividadRepository.findActividadesByTutorado(idTutorado);
+    }
+
+    @Override
+    public List<Actividad> buscarActividadesPorTutor(Integer idTutor) {
+        return this.iActividadRepository.findActividadesByTutor(idTutor);
+    }
+
+    @Override
     public Page<Actividad> buscarActividadesPorNombrePaginado(String q, Integer page, Integer pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iActividadRepository.searchByName(q, pageable);
