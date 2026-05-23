@@ -164,6 +164,7 @@ public class ActividadController {
                     m.put("nombre", a.getNombre());
                     m.put("descripcion", a.getDescripcion() != null ? a.getDescripcion() : "");
                     m.put("semana", a.getSemana());
+                    m.put("fecha", a.getFecha() != null ? a.getFecha().toString() : null);
                     return m;
                 }).collect(Collectors.toList());
             return ResponseEntity.ok(result);
@@ -194,6 +195,8 @@ public class ActividadController {
                 a.setNombre((String) item.get("nombre"));
                 a.setDescripcion(item.get("descripcion") != null ? (String) item.get("descripcion") : null);
                 a.setSemana(Integer.valueOf(item.get("semana").toString()));
+                String fechaStr = item.get("fecha") != null ? item.get("fecha").toString().trim() : null;
+                a.setFecha(fechaStr != null && !fechaStr.isEmpty() ? LocalDate.parse(fechaStr) : null);
                 actividades.add(a);
             }
 
@@ -222,10 +225,12 @@ public class ActividadController {
             Actividad existing = this.actividadService.obtenerActividad(id);
             if (existing == null) return ResponseEntity.notFound().build();
 
+            String fechaStr = body.get("fecha") != null ? body.get("fecha").toString().trim() : null;
             Actividad updated = new Actividad();
             updated.setNombre((String) body.get("nombre"));
             updated.setDescripcion(body.get("descripcion") != null ? (String) body.get("descripcion") : null);
             updated.setSemana(Integer.valueOf(body.get("semana").toString()));
+            updated.setFecha(fechaStr != null && !fechaStr.isEmpty() ? LocalDate.parse(fechaStr) : null);
             updated.setPat(existing.getPat());
             updated.setFoto(existing.getFoto());
             updated.setActivo(1);

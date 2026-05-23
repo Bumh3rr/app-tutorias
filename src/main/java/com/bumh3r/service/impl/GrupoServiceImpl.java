@@ -46,12 +46,20 @@ public class GrupoServiceImpl implements GrupoService {
                 "Ya existe un grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
         }
 
+        if (grupo.getTutor() != null) {
+            long gruposDelTutor = this.iGrupoRepository.countByActivoAndTutorAndSemestre(1, grupo.getTutor(), grupo.getSemestre());
+            if (gruposDelTutor >= 2) {
+                throw new IllegalStateException(
+                    "El tutor ya tiene 2 grupos asignados en este semestre (máximo permitido).");
+            }
+        }
+
         if (grupo.getAula() != null && grupo.getDiaSemana() != null && grupo.getHorario() != null
                 && !grupo.getAula().isBlank() && !grupo.getDiaSemana().isBlank() && !grupo.getHorario().isBlank()) {
-            if (this.iGrupoRepository.existsByAulaAndDiaSemanaAndHorarioAndActivo(
-                    grupo.getAula(), grupo.getDiaSemana(), grupo.getHorario(), 1)) {
+            if (this.iGrupoRepository.existsByAulaAndDiaSemanaAndHorarioAndSemestreAndActivo(
+                    grupo.getAula(), grupo.getDiaSemana(), grupo.getHorario(), grupo.getSemestre(), 1)) {
                 throw new IllegalStateException(
-                        "El aula " + grupo.getAula() + " ya está ocupada en ese día y horario.");
+                        "El aula " + grupo.getAula() + " ya está ocupada en ese día y horario en este semestre.");
             }
         }
 
@@ -72,12 +80,22 @@ public class GrupoServiceImpl implements GrupoService {
                 "Ya existe un grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
         }
 
+        // Si el grupo tiene tutor y el semestre cambia, verificar que el tutor no supere 2 grupos en el nuevo semestre
+        if (grupoDB.getTutor() != null) {
+            long gruposDelTutor = this.iGrupoRepository.countByTutorAndSemestreExcludingId(
+                    grupoDB.getTutor(), grupo.getSemestre(), id);
+            if (gruposDelTutor >= 2) {
+                throw new IllegalStateException(
+                    "El tutor ya tiene 2 grupos asignados en el semestre destino (máximo permitido).");
+            }
+        }
+
         if (grupo.getAula() != null && grupo.getDiaSemana() != null && grupo.getHorario() != null
                 && !grupo.getAula().isBlank() && !grupo.getDiaSemana().isBlank() && !grupo.getHorario().isBlank()) {
-            if (this.iGrupoRepository.existsByAulaAndDiaSemanaAndHorarioAndActivoAndIdNot(
-                    grupo.getAula(), grupo.getDiaSemana(), grupo.getHorario(), 1, id)) {
+            if (this.iGrupoRepository.existsByAulaAndDiaSemanaAndHorarioAndSemestreAndActivoAndIdNot(
+                    grupo.getAula(), grupo.getDiaSemana(), grupo.getHorario(), grupo.getSemestre(), 1, id)) {
                 throw new IllegalStateException(
-                        "El aula " + grupo.getAula() + " ya está ocupada en ese día y horario.");
+                        "El aula " + grupo.getAula() + " ya está ocupada en ese día y horario en este semestre.");
             }
         }
 
@@ -178,6 +196,14 @@ public class GrupoServiceImpl implements GrupoService {
                 .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
         Tutor tutor = this.iTutorRepository.findById(idTutor)
                 .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
+
+        long gruposDelTutor = this.iGrupoRepository.countByTutorAndSemestreExcludingId(
+                tutor, grupo.getSemestre(), idGrupo);
+        if (gruposDelTutor >= 2) {
+            throw new IllegalStateException(
+                "El tutor ya tiene 2 grupos asignados en este semestre (máximo permitido).");
+        }
+
         grupo.setTutor(tutor);
         this.iGrupoRepository.save(grupo);
     }

@@ -31,9 +31,14 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
     Page<Grupo> findByActivoAndTutorAndSemestre(Integer activo, Tutor tutor, Semestre semestre, Pageable pageable);
     Page<Grupo> findByActivoAndCarreraAndSemestre(Integer activo, Carrera carrera, Semestre semestre, Pageable pageable);
 
-    boolean existsByAulaAndDiaSemanaAndHorarioAndActivo(String aula, String diaSemana, String horario, Integer activo);
+    boolean existsByAulaAndDiaSemanaAndHorarioAndSemestreAndActivo(String aula, String diaSemana, String horario, Semestre semestre, Integer activo);
 
-    boolean existsByAulaAndDiaSemanaAndHorarioAndActivoAndIdNot(String aula, String diaSemana, String horario, Integer activo, Integer id);
+    boolean existsByAulaAndDiaSemanaAndHorarioAndSemestreAndActivoAndIdNot(String aula, String diaSemana, String horario, Semestre semestre, Integer activo, Integer id);
+
+    long countByActivoAndTutorAndSemestre(Integer activo, Tutor tutor, Semestre semestre);
+
+    @Query("SELECT COUNT(g) FROM Grupo g WHERE g.activo = 1 AND g.tutor = :tutor AND g.semestre = :semestre AND g.id <> :id")
+    long countByTutorAndSemestreExcludingId(@Param("tutor") Tutor tutor, @Param("semestre") Semestre semestre, @Param("id") Integer id);
 
     @Query("SELECT COUNT(g) > 0 FROM Grupo g WHERE g.nombre = :nombre AND g.semestre.id = :idSemestre AND g.carrera.id = :idCarrera AND g.activo = 1")
     boolean existsByNombreAndSemestreAndCarreraAndActivo(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera);

@@ -27,7 +27,6 @@ public class Actividad {
 
     private String descripcion;
 
-    @NotNull(message = "La fecha es obligatoria")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate fecha;
 

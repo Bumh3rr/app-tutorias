@@ -8,12 +8,12 @@ Sistema de gestión de tutorías académicas construido con **Spring Boot 3**, *
 
 | Capa | Tecnología |
 |---|---|
-| Backend | Spring Boot 3.5.13 · Java 21 |
+| Backend | Spring Boot 3.5.13 · Java 17 |
 | Persistencia | Spring Data JPA · Hibernate · MySQL |
 | Vistas | Thymeleaf 3.1.3 · Bootstrap 5.3 · Inter font |
 | Validación | Jakarta Validation (Bean Validation 3) |
 | Utilidades | Lombok · Spring DevTools · Spring Multipart |
-| PDF | iText |
+| PDF | OpenPDF 2.0.3 |
 | Build | Maven |
 
 **Paquete base:** `com.bumh3r`  
@@ -26,12 +26,12 @@ Sistema de gestión de tutorías académicas construido con **Spring Boot 3**, *
 ```
 com.bumh3r/
 ├── controller/          17 controladores MVC
-├── dto/                 2 objetos de transferencia
+├── dto/                 3 objetos de transferencia
 ├── entity/              14 entidades JPA
 ├── repository/          14 interfaces JPA
-├── service/             15 interfaces de servicio
+├── service/             21 interfaces de servicio
 │   ├── enums/           FileType enum
-│   ├── impl/            15 implementaciones
+│   ├── impl/            21 implementaciones
 │   └── utils/           PaginationUtil
 └── AppTutoriasApplication.java
 ```
@@ -301,6 +301,19 @@ Coordinador de una carrera que puede revisar reportes y evidencias.
 
 ---
 
+### SearchResultDTO (record)
+
+DTO de respuesta para los endpoints de búsqueda/autocompletado en `ApiSearchController`.
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| id | Integer | ID de la entidad |
+| nombre | String | Nombre principal mostrado en el resultado |
+| sub | String | Subtítulo o información secundaria (ej. número de control, semestre) |
+| foto | String | Nombre de archivo de foto (puede ser null) |
+
+---
+
 ### PublicDeteccionForm
 
 Formulario público (sin autenticación) para que un alumno registre su propia detección de necesidades.
@@ -499,6 +512,11 @@ Genera el Anexo XVI (Constancia de Cumplimiento de Actividad Complementaria) en 
 #### DeteccionPdfService / DeteccionPdfServiceImpl
 Genera reporte PDF de una detección de necesidades.
 - `generarPdf(Integer idDeteccion)` → `byte[]`
+
+#### NombramientoCoordinadorPdfService / NombramientoCoordinadorPdfServiceImpl
+Genera el nombramiento oficial de un Coordinador de Carrera en PDF.
+- `generarNombramiento(Integer idCoordinador, Integer idSemestre)` → `byte[]`
+- Incluye datos institucionales, datos del coordinador, carrera y semestre.
 
 #### ReporteSesionPdfService / ReporteSesionPdfServiceImpl
 Genera el Reporte de Sesión (Anexo 19) en PDF (LETTER portrait).
@@ -1190,4 +1208,4 @@ Un tutorado acredita si `(presente + recuperadas) / totalSesiones >= 0.80`.
 
 ---
 
-*Actualizado: 2026-05-13*
+*Actualizado: 2026-05-22*
