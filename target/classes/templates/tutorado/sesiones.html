@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Sesiones | Mi Tutoría</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>Mis Sesiones</h3>
+                    <p class="text-body-secondary mb-0"
+                       th:text="${semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : ''}"></p>
+                </div>
+                <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
+            </div>
+
+            <div th:if="${sesiones == null or sesiones.isEmpty()}" class="alert alert-info">
+                No hay sesiones registradas para tu grupo en este semestre.
+            </div>
+
+            <div th:if="${sesiones != null and !sesiones.isEmpty()}" class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Semana</th>
+                                    <th>Fecha</th>
+                                    <th>Grupo</th>
+                                    <th>Actividad PAT</th>
+                                    <th class="text-center">Estatus sesión</th>
+                                    <th class="text-center">Mi asistencia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s : ${sesiones}">
+                                    <td class="fw-semibold" th:text="${s.semana != null ? 'Semana ' + s.semana : '—'}">—</td>
+                                    <td th:text="${s.fechaImparticion != null ? #temporals.format(s.fechaImparticion, 'dd/MM/yyyy') : '—'}">—</td>
+                                    <td class="small text-body-secondary" th:text="${s.grupo?.nombre ?: '—'}">—</td>
+                                    <td class="small" th:text="${s.actividad?.nombre ?: '—'}">—</td>
+                                    <td class="text-center">
+                                        <span class="badge"
+                                              th:classappend="${s.estatusRegistro == 'REALIZADA' ? 'bg-success' : (s.estatusRegistro == 'CANCELADA' ? 'bg-danger' : 'bg-warning text-dark')}"
+                                              th:text="${s.estatusRegistro ?: 'PROGRAMADA'}">—</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <!-- Sesión no realizada aún -->
+                                        <span th:if="${s.estatusRegistro != 'REALIZADA'}"
+                                              class="badge bg-secondary">Pendiente</span>
+                                        <!-- Sesión realizada, sin registro de asistencia -->
+                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] == null}"
+                                              class="badge bg-secondary">—</span>
+                                        <!-- Presente -->
+                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] != null and mapaAsistencias[s.id].presente == 1 and (mapaAsistencias[s.id].recuperada == null or mapaAsistencias[s.id].recuperada != 1)}"
+                                              class="badge bg-success">Presente</span>
+                                        <!-- Recuperada -->
+                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] != null and mapaAsistencias[s.id].recuperada == 1}"
+                                              class="badge bg-info text-dark">Recuperada</span>
+                                        <!-- Ausente -->
+                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] != null and mapaAsistencias[s.id].presente == 0 and (mapaAsistencias[s.id].recuperada == null or mapaAsistencias[s.id].recuperada != 1)}"
+                                              class="badge bg-danger">Ausente</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

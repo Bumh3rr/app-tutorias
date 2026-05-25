@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Detección | Mi Tutoría</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .nec-chip {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .78rem;
+            background: rgba(99,102,241,.18);
+            color: #a5b4fc;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>Mi Detección de Necesidades</h3>
+                    <p class="text-body-secondary mb-0"
+                       th:text="${tutorado != null ? tutorado.nombre + ' ' + tutorado.apellido : ''}"></p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:if="${detecciones != null and !detecciones.isEmpty()}"
+                       th:href="@{/tutorado/deteccion/pdf}"
+                       target="_blank"
+                       class="btn btn-outline-primary btn-sm">Descargar PDF</a>
+                    <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
+                </div>
+            </div>
+
+            <div th:if="${detecciones == null or detecciones.isEmpty()}" class="alert alert-info">
+                Aún no tienes una detección de necesidades registrada. Tu tutor la completará durante las sesiones de tutoría.
+            </div>
+
+            <div th:each="d : ${detecciones}" class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Detección registrada</h6>
+                    <small class="text-body-secondary"
+                           th:text="${d.fechaRegistro != null ? #temporals.format(d.fechaRegistro, 'dd/MM/yyyy') : ''}"></small>
+                </div>
+                <div class="card-body">
+
+                    <!-- Necesidades académicas -->
+                    <div th:if="${d.necesidadAlgebra == 1 or d.necesidadCalculo == 1 or d.necesidadDerecho == 1 or d.necesidadOtra != null}" class="mb-3">
+                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Necesidades académicas</p>
+                        <span th:if="${d.necesidadAlgebra == 1}" class="nec-chip">Álgebra</span>
+                        <span th:if="${d.necesidadCalculo == 1}" class="nec-chip">Cálculo</span>
+                        <span th:if="${d.necesidadDerecho == 1}" class="nec-chip">Intro. al Derecho</span>
+                        <span th:if="${d.necesidadOtra != null and !d.necesidadOtra.isEmpty()}"
+                              class="nec-chip" th:text="${d.necesidadOtra}">—</span>
+                    </div>
+
+                    <!-- Apoyo psicológico -->
+                    <div th:if="${d.necesidadPsicologica == 1}" class="mb-3">
+                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Apoyo psicológico</p>
+                        <span class="nec-chip" style="background:rgba(234,134,143,.15);color:#ea868f">Apoyo psicológico</span>
+                        <span th:if="${d.temaPsicologico != null and !d.temaPsicologico.isEmpty()}"
+                              class="small text-body-secondary ms-2" th:text="${d.temaPsicologico}"></span>
+                    </div>
+
+                    <!-- Situación económica -->
+                    <div th:if="${d.necesidadEconomica == 1 or d.tieneBeca == 1 or d.tieneEscasezMateriales == 1}" class="mb-3">
+                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Situación económica</p>
+                        <span th:if="${d.necesidadEconomica == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">Apoyo económico</span>
+                        <span th:if="${d.tieneBeca == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">
+                            Beca<span th:if="${d.nombreBeca != null and !d.nombreBeca.isEmpty()}" th:text="': ' + ${d.nombreBeca}"></span>
+                        </span>
+                        <span th:if="${d.tieneEscasezMateriales == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">
+                            Escasez de materiales<span th:if="${d.materialesRequeridos != null and !d.materialesRequeridos.isEmpty()}" th:text="' — ' + ${d.materialesRequeridos}"></span>
+                        </span>
+                    </div>
+
+                    <!-- Salud y familia -->
+                    <div th:if="${d.tieneAtencionMedica == 1 or d.tieneVinculacionFamilia == 1}" class="mb-3">
+                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Salud y familia</p>
+                        <span th:if="${d.tieneAtencionMedica == 1}" class="nec-chip" style="background:rgba(110,255,198,.1);color:#75b798">
+                            Atención médica<span th:if="${d.especificacionMedica != null and !d.especificacionMedica.isEmpty()}" th:text="' — ' + ${d.especificacionMedica}"></span>
+                        </span>
+                        <span th:if="${d.tieneVinculacionFamilia == 1}" class="nec-chip" style="background:rgba(110,255,198,.1);color:#75b798">
+                            Vinculación familiar<span th:if="${d.razonVinculacion != null and !d.razonVinculacion.isEmpty()}" th:text="' — ' + ${d.razonVinculacion}"></span>
+                        </span>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div th:if="${d.observaciones != null and !d.observaciones.isEmpty()}">
+                        <p class="text-body-secondary small text-uppercase mb-1" style="letter-spacing:.06em">Observaciones</p>
+                        <p class="small mb-0" th:text="${d.observaciones}">—</p>
+                    </div>
+
+                    <!-- Sin necesidades detectadas -->
+                    <div th:if="${d.necesidadAlgebra != 1 and d.necesidadCalculo != 1 and d.necesidadDerecho != 1 and d.necesidadPsicologica != 1 and d.necesidadEconomica != 1 and d.tieneBeca != 1 and d.tieneEscasezMateriales != 1 and d.tieneAtencionMedica != 1 and d.tieneVinculacionFamilia != 1 and (d.necesidadOtra == null or d.necesidadOtra.isEmpty()) and (d.observaciones == null or d.observaciones.isEmpty())}"
+                         class="text-body-secondary small">
+                        No se registraron necesidades específicas en esta detección.
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

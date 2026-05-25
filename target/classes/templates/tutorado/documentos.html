@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Documentos | Mi Tutoría</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .doc-card { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; }
+        .doc-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .doc-icon svg { width: 26px; height: 26px; }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>Mis Documentos</h3>
+                    <p class="text-body-secondary mb-0"
+                       th:text="${semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : ''}"></p>
+                </div>
+                <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
+            </div>
+
+            <!-- Resumen de asistencia si aplica -->
+            <div th:if="${resumen != null}" class="alert alert-secondary d-flex align-items-center gap-3 mb-4">
+                <div>
+                    <strong th:text="${#numbers.formatDecimal(resumen.porcentaje, 1, 1) + '% de asistencia'}">0%</strong>
+                    <span class="ms-2 badge"
+                          th:classappend="${resumen.acreditado ? 'bg-success' : 'bg-warning text-dark'}"
+                          th:text="${resumen.acreditado ? 'Acreditado' : 'En riesgo'}">—</span>
+                    <p class="mb-0 small text-body-secondary mt-1">
+                        La constancia de participación requiere al menos 80% de asistencia.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Carnet de tutoría -->
+                <div class="col-md-6">
+                    <div class="doc-card h-100 d-flex flex-column">
+                        <div class="doc-icon bg-primary bg-opacity-25">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#6ea8fe" stroke-width="1.8">
+                                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                <line x1="2" y1="10" x2="22" y2="10"/>
+                            </svg>
+                        </div>
+                        <h5 class="mb-1">Carnet de Tutoría</h5>
+                        <p class="text-body-secondary small flex-grow-1">
+                            Documento oficial que acredita tu participación en el programa de tutoría.
+                            Incluye tus datos, grupo y tutor asignado.
+                        </p>
+                        <div th:if="${carnetError == null}">
+                            <a th:href="@{/tutorado/documentos/carnet}" target="_blank"
+                               class="btn btn-primary w-100">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Descargar carnet
+                            </a>
+                        </div>
+                        <div th:if="${carnetError != null}">
+                            <button class="btn btn-secondary w-100" disabled>Descargar carnet</button>
+                            <p class="small text-body-secondary mt-2 mb-0" th:text="${carnetError}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Constancia de participación -->
+                <div class="col-md-6">
+                    <div class="doc-card h-100 d-flex flex-column">
+                        <div class="doc-icon"
+                             th:style="${constanciaError == null ? 'background:rgba(117,183,152,.18)' : 'background:rgba(255,255,255,.05)'}">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                 th:attr="stroke=${constanciaError == null ? '#75b798' : '#6c757d'}"
+                                 stroke-width="1.8">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <polyline points="9 15 11 17 15 13"/>
+                            </svg>
+                        </div>
+                        <h5 class="mb-1">Constancia de Participación</h5>
+                        <p class="text-body-secondary small flex-grow-1">
+                            Constancia oficial del semestre vigente. Se genera únicamente cuando tu porcentaje
+                            de asistencia es igual o mayor al 80%.
+                        </p>
+                        <div th:if="${constanciaError == null}">
+                            <a th:href="@{/tutorado/documentos/constancia}" target="_blank"
+                               class="btn btn-success w-100">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Descargar constancia
+                            </a>
+                        </div>
+                        <div th:if="${constanciaError != null}">
+                            <button class="btn btn-secondary w-100" disabled>Descargar constancia</button>
+                            <p class="small text-body-secondary mt-2 mb-0" th:text="${constanciaError}"></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>
