@@ -80,7 +80,7 @@ public class DeteccionPdfServiceImpl implements DeteccionPdfService {
         doc.add(spacer(8f));
 
         // Instrucción
-        Paragraph instruccion = new Paragraph("Contesta las siguientes preguntas:", f(9f, Font.BOLD, NEGRO));
+        Paragraph instruccion = new Paragraph("Instrumento de Detección de Necesidades", f(9f, Font.BOLD, NEGRO));
         instruccion.setSpacingAfter(6f);
         doc.add(instruccion);
 
@@ -318,15 +318,15 @@ public class DeteccionPdfServiceImpl implements DeteccionPdfService {
 
         // P3
         addPreguntaRow(t, "3", "¿Cuentas con escasez de materiales básicos e indispensables para el desarrollo de tus actividades académicas?");
-        addRespuestaSimple(t, "DESCRIBE LOS MATERIALES QUE REQUIERES", d.getTieneEscasezMateriales(), d.getMaterialesRequeridos());
+        addRespuestaSimple(t, "Describe los materiales que requieres", d.getTieneEscasezMateriales(), d.getMaterialesRequeridos());
 
         // P4
         addPreguntaRow(t, "4", "¿Necesitas atención médica o algún cuidado especial?");
-        addRespuestaSimple(t, "ESPECIFIQUE", d.getTieneAtencionMedica(), d.getEspecificacionMedica());
+        addRespuestaSimple(t, "Especifica", d.getTieneAtencionMedica(), d.getEspecificacionMedica());
 
         // P5
         addPreguntaRow(t, "5", "¿Es importante para ti la vinculación escuela-familia, para padres, hijos y tutores? ¿Por qué?");
-        addRespuestaSimple(t, "¿POR QUÉ?", d.getTieneVinculacionFamilia(), d.getRazonVinculacion());
+        addRespuestaSimple(t, "¿Por qué?", d.getTieneVinculacionFamilia(), d.getRazonVinculacion());
 
         // P6
         addPreguntaRow(t, "6", "¿Requieres orientación psicológica?");
