@@ -1,0 +1,19 @@
+docker pull mysql:8.0
+docker --version
+docker compose down
+docker compose up --build -d
+
+docker exec -it mysql-practica mysql -u root -p
+# ingresa la contraseña: root
+
+# Detener el contenedor
+docker stop mysql-practica
+
+# Volver a levantarlo (conserva los datos)
+docker start mysql-practica
+
+# Ver logs si algo falla
+docker logs mysql-practica
+
+# Eliminar el contenedor (¡borra los datos!)
+docker rm -f mysql-practica

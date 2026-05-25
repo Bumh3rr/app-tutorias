@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Subdirector | Sistema Tutorías</title>
+    <title>Dashboard Subdirector | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
@@ -18,28 +18,100 @@
             <div class="page-header">
                 <div>
                     <h3>Panel del Subdirector</h3>
-                    <p>Resumen general del programa de tutorías.</p>
+                    <p th:if="${semestre != null}"
+                       th:text="'Semestre vigente: ' + ${semestre.periodo} + ' ' + ${semestre.anio}">Semestre</p>
+                    <p th:if="${semestre == null}" class="text-warning">Sin semestre activo</p>
                 </div>
             </div>
 
-            <div class="row g-3 stagger">
-                <div class="col-6 col-md-4">
-                    <div class="stat-card">
-                        <div class="stat-label">Tutores registrados</div>
-                        <div class="stat-value" th:text="${totalTutores}">0</div>
-                    </div>
+            <div th:if="${msg_warning}" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                <span th:text="${msg_warning}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tarjetas de indicadores -->
+            <div class="row g-3 mb-4 stagger">
+
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/subdirector/tutores}" class="text-decoration-none">
+                        <div class="stat-card">
+                            <div class="stat-label">Tutores activos</div>
+                            <div class="stat-value" th:text="${totalTutores}">0</div>
+                            <small style="opacity:0.45; font-size:12px;">semestre vigente</small>
+                        </div>
+                    </a>
                 </div>
-                <div class="col-6 col-md-4">
+
+                <div class="col-6 col-md-3">
                     <div class="stat-card">
-                        <div class="stat-label">Tutorados registrados</div>
+                        <div class="stat-label">Tutorados asignados</div>
                         <div class="stat-value" th:text="${totalTutorados}">0</div>
+                        <small style="opacity:0.45; font-size:12px;">semestre vigente</small>
                     </div>
                 </div>
-                <div class="col-6 col-md-4">
+
+                <div class="col-6 col-md-3">
                     <div class="stat-card">
                         <div class="stat-label">Grupos activos</div>
                         <div class="stat-value" th:text="${totalGrupos}">0</div>
+                        <small style="opacity:0.45; font-size:12px;">semestre vigente</small>
                     </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <a th:href="@{/subdirector/documentos}" class="text-decoration-none">
+                        <div class="stat-card">
+                            <div class="stat-label">Constancias disponibles</div>
+                            <div class="stat-value" th:text="${totalConstancias}">0</div>
+                            <small style="opacity:0.45; font-size:12px;">tutores con constancia</small>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Resumen por carrera -->
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="mb-0">Distribución por carrera</h6>
+                    <small class="text-muted" th:if="${semestre != null}"
+                           th:text="${semestre.periodo + ' ' + semestre.anio}"></small>
+                </div>
+                <div class="card-body p-0">
+
+                    <div th:if="${resumenCarreras == null or resumenCarreras.isEmpty()}"
+                         class="p-4 text-center">
+                        <div class="alert alert-info mb-0">
+                            No hay información disponible para este semestre.
+                        </div>
+                    </div>
+
+                    <div th:if="${resumenCarreras != null and !resumenCarreras.isEmpty()}"
+                         class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Carrera</th>
+                                    <th class="text-center">Tutores activos</th>
+                                    <th class="text-center">Tutorados asignados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="r : ${resumenCarreras}" class="fade-in-up">
+                                    <td th:text="${r['carrera']}">—</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary rounded-pill"
+                                              th:text="${r['tutores']}">0</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-pill"
+                                              th:text="${r['tutorados']}">0</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
 
