@@ -9,9 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ISemestreRepository extends JpaRepository<Semestre, Integer> {
+
+    Optional<Semestre> findFirstByActivoOrderByIdDesc(Integer activo);
     List<Semestre> findByActivo(Integer activo);
     Page<Semestre> findByActivo(Integer activo, Pageable pageable);
 

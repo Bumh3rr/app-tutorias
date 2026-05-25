@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bug 3: Evitar que el cliente de correo aplique modo oscuro automático -->
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light">
+    <title>Recordatorio Semanal de Tutorias</title>
+    <style>
+        :root { color-scheme: light only; }
+    </style>
+</head>
+<!-- Bug 3: forzar fondo blanco en body para modo oscuro -->
+<body style="margin:0;padding:0;background-color:#F0F2F5;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333333;" bgcolor="#F0F2F5">
+
+<!-- Wrapper externo -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F2F5" style="background-color:#F0F2F5;">
+    <tr>
+        <td align="center" style="padding:24px 12px;">
+
+            <!-- Contenedor principal -->
+            <table width="640" cellpadding="0" cellspacing="0" border="0"
+                   bgcolor="#FFFFFF"
+                   style="max-width:640px;width:100%;background-color:#FFFFFF;border-radius:6px;overflow:hidden;">
+
+                <!-- ══════════════ HEADER ══════════════ -->
+                <tr>
+                    <td bgcolor="#1A2C4E" style="background-color:#1A2C4E;padding:0;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <!-- Logo SEP izquierda -->
+                                <!-- Bug 2: usar th:src con Base64 en lugar de cid: -->
+                                <td width="120" align="center" style="padding:14px 10px;">
+                                    <img th:src="${imgSep}" src="" alt="SEP"
+                                         style="height:54px;width:auto;display:block;margin:0 auto;"
+                                         height="54">
+                                </td>
+                                <!-- Texto central -->
+                                <td align="center" style="padding:14px 6px;">
+                                    <div style="color:#FFFFFF;font-size:13px;font-weight:bold;letter-spacing:0.5px;line-height:1.4;">
+                                        TECNOLÓGICO NACIONAL DE MÉXICO
+                                    </div>
+                                    <div style="color:#B8C8E0;font-size:11px;margin-top:3px;letter-spacing:0.3px;">
+                                        Campus Chilpancingo
+                                    </div>
+                                    <div style="color:#7FA8D4;font-size:10px;margin-top:2px;">
+                                        Dirección de Desarrollo Académico
+                                    </div>
+                                </td>
+                                <!-- Logo TecNM derecha -->
+                                <td width="120" align="center" style="padding:14px 10px;">
+                                    <img th:src="${imgLogoTecnm}" src="" alt="TecNM"
+                                         style="height:54px;width:auto;display:block;margin:0 auto;"
+                                         height="54">
+                                </td>
+                            </tr>
+                            <!-- Banda de acento -->
+                            <tr>
+                                <td colspan="3" bgcolor="#2E6DB4" style="background-color:#2E6DB4;height:4px;font-size:0;line-height:0;">&nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- ══════════════ TÍTULO DEL CORREO ══════════════ -->
+                <tr>
+                    <td bgcolor="#2E6DB4" style="background-color:#2E6DB4;padding:14px 28px;text-align:center;">
+                        <div style="color:#FFFFFF;font-size:15px;font-weight:bold;letter-spacing:0.3px;">
+                            Recordatorio Semanal — Programa Institucional de Tutorías
+                        </div>
+                        <div style="color:#C8DCEF;font-size:12px;margin-top:4px;">
+                            Semana del <span th:text="${fechaInicio}">01/01/2026</span>
+                            al <span th:text="${fechaFin}">07/01/2026</span>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- ══════════════ CUERPO ══════════════ -->
+                <tr>
+                    <td bgcolor="#FFFFFF" style="background-color:#FFFFFF;padding:28px 32px 0 32px;">
+
+                        <!-- Saludo -->
+                        <p style="margin:0 0 14px 0;font-size:14px;color:#222222;">
+                            Estimado/a Coordinador/a
+                            <strong th:text="${coordinador.nombre + ' ' + coordinador.apellido}">Nombre Apellido</strong>,
+                        </p>
+
+                        <!-- Cuerpo principal -->
+                        <p style="margin:0 0 18px 0;font-size:13px;color:#444444;line-height:1.6;">
+                            Se le informa que para la semana del
+                            <strong th:text="${fechaInicio}">01/01/2026</strong>
+                            al
+                            <strong th:text="${fechaFin}">07/01/2026</strong>,
+                            las siguientes actividades del Programa Institucional de Tutorías
+                            han sido programadas en su área de coordinación:
+                        </p>
+
+                        <!-- ── Tabla de actividades (HAY actividades) ── -->
+                        <div th:if="${totalActividades > 0}">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                   style="border-collapse:collapse;border:1px solid #DDDDDD;margin-bottom:20px;">
+                                <!-- Encabezado -->
+                                <tr bgcolor="#F5F5F5" style="background-color:#F5F5F5;">
+                                    <th style="padding:9px 8px;text-align:center;font-size:11px;color:#555555;font-weight:bold;border-bottom:2px solid #CCCCCC;border-right:1px solid #EEEEEE;width:52px;white-space:nowrap;">
+                                        SEM.
+                                    </th>
+                                    <th style="padding:9px 8px;text-align:left;font-size:11px;color:#555555;font-weight:bold;border-bottom:2px solid #CCCCCC;border-right:1px solid #EEEEEE;width:82px;white-space:nowrap;">
+                                        FECHA
+                                    </th>
+                                    <th style="padding:9px 8px;text-align:left;font-size:11px;color:#555555;font-weight:bold;border-bottom:2px solid #CCCCCC;border-right:1px solid #EEEEEE;">
+                                        ACTIVIDAD
+                                    </th>
+                                    <!-- Bug 4: columna PAT sin ancho fijo, se adapta al contenido -->
+                                    <th style="padding:9px 8px;text-align:left;font-size:11px;color:#555555;font-weight:bold;border-bottom:2px solid #CCCCCC;border-right:1px solid #EEEEEE;">
+                                        PAT
+                                    </th>
+                                    <th style="padding:9px 8px;text-align:left;font-size:11px;color:#555555;font-weight:bold;border-bottom:2px solid #CCCCCC;">
+                                        DESCRIPCIÓN
+                                    </th>
+                                </tr>
+                                <!-- Filas de actividades -->
+                                <tr th:each="act, iterStat : ${actividades}"
+                                    th:bgcolor="${iterStat.odd} ? '#FAFAFA' : '#FFFFFF'"
+                                    th:style="${iterStat.odd} ? 'background-color:#FAFAFA;' : 'background-color:#FFFFFF;'">
+                                    <td style="padding:8px;text-align:center;font-size:12px;color:#333333;border-bottom:1px solid #EEEEEE;border-right:1px solid #EEEEEE;">
+                                        <!-- Bug 1: usar |S${act.semana}| para concatenar correctamente en Thymeleaf -->
+                                        <span style="display:inline-block;background-color:#1A2C4E;color:#FFFFFF;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:bold;white-space:nowrap;"
+                                              th:text="|S${act.semana}|">S1</span>
+                                    </td>
+                                    <td style="padding:8px;font-size:12px;color:#555555;border-bottom:1px solid #EEEEEE;border-right:1px solid #EEEEEE;white-space:nowrap;">
+                                        <span th:if="${act.fecha != null}"
+                                              th:text="${#temporals.format(act.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                                        <span th:if="${act.fecha == null}" style="color:#AAAAAA;font-style:italic;">Sin fecha</span>
+                                    </td>
+                                    <td style="padding:8px;font-size:12px;color:#222222;font-weight:bold;border-bottom:1px solid #EEEEEE;border-right:1px solid #EEEEEE;"
+                                        th:text="${act.nombre}">Nombre actividad</td>
+                                    <td style="padding:8px;font-size:11px;color:#555555;border-bottom:1px solid #EEEEEE;border-right:1px solid #EEEEEE;"
+                                        th:text="${act.pat != null ? act.pat.nombre : '-'}">PAT</td>
+                                    <td style="padding:8px;font-size:11px;color:#666666;border-bottom:1px solid #EEEEEE;"
+                                        th:text="${act.descripcion != null and !#strings.isEmpty(act.descripcion) ? act.descripcion : '—'}">Descripción</td>
+                                </tr>
+                            </table>
+
+                            <!-- Contador de actividades -->
+                            <p style="margin:0 0 20px 0;font-size:12px;color:#777777;text-align:right;">
+                                Total de actividades programadas:
+                                <strong th:text="${totalActividades}">0</strong>
+                            </p>
+                        </div>
+
+                        <!-- ── Sin actividades ── -->
+                        <div th:if="${totalActividades == 0}"
+                             style="background-color:#FFFBEB;border:1px solid #F0D080;border-radius:4px;padding:16px 20px;margin-bottom:20px;text-align:center;">
+                            <div style="font-size:22px;margin-bottom:6px;">&#9888;</div>
+                            <div style="font-size:13px;color:#7A5C00;font-weight:bold;">
+                                No hay actividades programadas para esta semana.
+                            </div>
+                            <div style="font-size:12px;color:#9A7C20;margin-top:4px;">
+                                Verifique el Plan de Acción Tutorial correspondiente.
+                            </div>
+                        </div>
+
+                        <!-- ── Bloque de datos del coordinador ── -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                               bgcolor="#F7F9FC"
+                               style="background-color:#F7F9FC;border:1px solid #D8E4F0;border-radius:4px;margin-bottom:20px;">
+                            <tr>
+                                <td style="padding:12px 18px;">
+                                    <div style="font-size:11px;font-weight:bold;color:#1A2C4E;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;">
+                                        Información de su cargo
+                                    </div>
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="font-size:12px;color:#555555;padding:3px 0;min-width:140px;">Coordinador/a:</td>
+                                            <td style="font-size:12px;color:#222222;font-weight:bold;padding:3px 0;"
+                                                th:text="${coordinador.nombre + ' ' + coordinador.apellido}">Nombre</td>
+                                        </tr>
+                                        <tr th:if="${coordinador.cargo != null and !#strings.isEmpty(coordinador.cargo)}">
+                                            <td style="font-size:12px;color:#555555;padding:3px 0;">Cargo:</td>
+                                            <td style="font-size:12px;color:#222222;padding:3px 0;"
+                                                th:text="${coordinador.cargo}">Cargo</td>
+                                        </tr>
+                                        <tr th:if="${coordinador.carrera != null}">
+                                            <td style="font-size:12px;color:#555555;padding:3px 0;">Carrera asignada:</td>
+                                            <td style="font-size:12px;color:#222222;padding:3px 0;"
+                                                th:text="${coordinador.carrera.nombre}">Carrera</td>
+                                        </tr>
+                                        <tr th:if="${coordinador.semestre != null}">
+                                            <td style="font-size:12px;color:#555555;padding:3px 0;">Semestre vigente:</td>
+                                            <td style="font-size:12px;color:#222222;padding:3px 0;"
+                                                th:text="${coordinador.semestre.periodo + ' ' + coordinador.semestre.anio}">Semestre</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Mensaje de cierre -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                            <tr>
+                                <td width="3" bgcolor="#2E6DB4" style="background-color:#2E6DB4;">&nbsp;</td>
+                                <td bgcolor="#F8FBFF" style="background-color:#F8FBFF;padding:12px 14px;font-size:13px;color:#444444;line-height:1.7;">
+                                    Le recordamos verificar el cumplimiento de las actividades programadas
+                                    y mantenerse en contacto con los tutores asignados a su carrera.
+                                    Cualquier ajuste al Plan de Acción Tutorial debe coordinarse con anticipación.
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- ══════════════ FOOTER ══════════════ -->
+                <tr>
+                    <td bgcolor="#FFFFFF" style="background-color:#FFFFFF;padding:0 32px 28px 32px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="border-top:1px solid #DDDDDD;padding-top:20px;">
+
+                                    <!-- Logos institucionales de pie -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td align="center" style="padding-bottom:12px;">
+                                                <!-- Bug 2: usar th:src con Base64 en lugar de cid: -->
+                                                <img th:src="${imgEmblema}" src="" alt="Emblema TecNM"
+                                                     style="height:40px;width:auto;margin:0 10px;vertical-align:middle;"
+                                                     height="40">
+                                                <img th:src="${imgTecnologicoNacional}" src="" alt="Tecnológico Nacional"
+                                                     style="height:36px;width:auto;margin:0 10px;vertical-align:middle;"
+                                                     height="36">
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Texto de pie -->
+                                    <p style="margin:0 0 4px 0;text-align:center;font-size:11px;color:#888888;">
+                                        Este es un mensaje automático del Sistema de Tutorías. Por favor no responda a este correo.
+                                    </p>
+                                    <p style="margin:0 0 4px 0;text-align:center;font-size:11px;color:#777777;font-weight:bold;">
+                                        Tecnológico Nacional de México — Campus Chilpancingo
+                                    </p>
+                                    <p style="margin:0;text-align:center;font-size:10px;color:#AAAAAA;"
+                                       th:text="|© ${anioActual} — Sistema de Gestión de Tutorías|">
+                                        © 2026 — Sistema de Gestión de Tutorías
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- /Contenedor principal -->
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -67,4 +67,9 @@ public class SemestreServiceImpl implements SemestreService {
     public Page<Semestre> obtenerTodosSemestresPage(Pageable pageable) {
         return this.iSemestreRepository.findByActivo(1, pageable);
     }
+
+    @Override
+    public Semestre obtenerSemestreVigente() {
+        return iSemestreRepository.findFirstByActivoOrderByIdDesc(1).orElse(null);
+    }
 }

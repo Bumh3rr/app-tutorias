@@ -14,4 +14,6 @@ public interface SemestreService {
     void eliminarSemestre(Integer id);
 
     Page<Semestre> obtenerTodosSemestresPage(Pageable pageable);
+
+    Semestre obtenerSemestreVigente();
 }
