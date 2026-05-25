@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "asistencia")
+@RequestMapping(value = "admin/asistencia")
 public class AsistenciaController {
 
     @Autowired
@@ -147,7 +147,7 @@ public class AsistenciaController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al registrar asistencia: " + e.getMessage());
         }
-        return "redirect:/sesion/ver/" + idSesion;
+        return "redirect:/admin/sesion/ver/" + idSesion;
     }
 
     // Ver resumen de asistencia de un tutorado con cálculo del 80%
@@ -189,7 +189,7 @@ public class AsistenciaController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al guardar la asistencia: " + e.getMessage());
         }
-        return "redirect:/asistencia";
+        return "redirect:/admin/asistencia";
     }
 
     @GetMapping(value = "actualizar/{id}")
@@ -215,7 +215,7 @@ public class AsistenciaController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al actualizar la asistencia: " + e.getMessage());
         }
-        return "redirect:/asistencia";
+        return "redirect:/admin/asistencia";
     }
 
     @PostMapping(value = "recuperar/{id}")
@@ -228,13 +228,13 @@ public class AsistenciaController {
 
             if (asistencia == null) {
                 attributes.addFlashAttribute("msg_error", "Asistencia no encontrada.");
-                return "redirect:/asistencia/resumen/" + idTutorado;
+                return "redirect:/admin/asistencia/resumen/" + idTutorado;
             }
 
             if (asistencia.getPresente() == 1) {
                 attributes.addFlashAttribute("msg_error",
                         "No se puede recuperar una asistencia que ya está presente.");
-                return "redirect:/asistencia/resumen/" + idTutorado;
+                return "redirect:/admin/asistencia/resumen/" + idTutorado;
             }
 
             asistencia.setRecuperada(1);
@@ -246,7 +246,7 @@ public class AsistenciaController {
             attributes.addFlashAttribute("msg_error",
                     "Error al recuperar asistencia: " + e.getMessage());
         }
-        return "redirect:/asistencia/resumen/" + idTutorado;
+        return "redirect:/admin/asistencia/resumen/" + idTutorado;
     }
 
     @GetMapping(value = "delete/{id}")
@@ -264,6 +264,6 @@ public class AsistenciaController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la asistencia: " + e.getMessage());
         }
-        return "redirect:/asistencia";
+        return "redirect:/admin/asistencia";
     }
 }

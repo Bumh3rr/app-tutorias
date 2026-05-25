@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -279,7 +279,7 @@
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los PAT del programa de tutorías.</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <a th:href="@{/pat/agregar}" class="btn btn-primary btn-icon">
+                    <a th:href="@{/admin/pat/agregar}" class="btn btn-primary btn-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                              fill="currentColor">
                             <path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/>
@@ -317,19 +317,19 @@
                     <div class="tab-pane fade"
                          th:classappend="${filtro == null and idSemestreSeleccionado == null and idCarreraSeleccionada == null} ? 'show active'"
                          id="tab-todos">
-                        <a th:href="@{/pat}" class="btn btn-primary btn-sm">Ver todos</a>
+                        <a th:href="@{/admin/pat}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
 
                     <div class="tab-pane fade"
                          th:classappend="${soloGenerales == true} ? 'show active'"
                          id="tab-generales">
-                        <a th:href="@{/pat(soloGenerales=true)}" class="btn btn-primary btn-sm">Ver PAT Generales</a>
+                        <a th:href="@{/admin/pat(soloGenerales=true)}" class="btn btn-primary btn-sm">Ver PAT Generales</a>
                     </div>
 
                     <div class="tab-pane fade"
                          th:classappend="${idCarreraSeleccionada != null or idSemestreSeleccionado != null} ? 'show active'"
                          id="tab-carrera-semestre">
-                        <form method="get" th:action="@{/pat}">
+                        <form method="get" th:action="@{/admin/pat}">
                             <div class="row g-2">
                                 <div class="col-md-4">
                                     <select name="idCarrera" class="form-select">
@@ -351,7 +351,7 @@
                                 </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-primary">Buscar</button>
-                                    <a th:href="@{/pat}" class="btn btn-outline-secondary ms-1">
+                                    <a th:href="@{/admin/pat}" class="btn btn-outline-secondary ms-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="1 4 1 10 7 10"/>
@@ -376,13 +376,13 @@
                     <div class="d-flex gap-1">
                         <a class="btn btn-sm btn-outline-secondary py-1 px-2"
                            style="font-size:11px;"
-                           th:href="@{/pat(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                           th:href="@{/admin/pat(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
                             Nombre
                             <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                         </a>
                         <a class="btn btn-sm btn-outline-secondary py-1 px-2"
                            style="font-size:11px;"
-                           th:href="@{/pat(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'desc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                           th:href="@{/admin/pat(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'desc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
                             Recientes
                             <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                         </a>
@@ -425,7 +425,7 @@
                                 <!-- Imagen -->
                                 <div class="pat-card-img">
                                     <img th:if="${pat.foto != null}"
-                                         th:src="@{/pat/{foto}(foto=${pat.foto})}"
+                                         th:src="@{/admin/pat/{foto}(foto=${pat.foto})}"
                                          alt="Foto PAT">
                                     <div th:unless="${pat.foto != null}" class="img-placeholder">
                                         <svg width="38" height="38" viewBox="0 0 24 24" fill="none"
@@ -497,10 +497,10 @@
                                         </span>
                                     </div>
                                     <div class="right-actions">
-                                        <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}"
+                                        <a th:href="@{/admin/pat/actualizar/{id}(id=${pat.id})}"
                                            class="btn btn-sm btn-outline-secondary py-1 px-2"
                                            style="font-size:12px;">Editar</a>
-                                        <a th:href="@{/pat/ver/{id}(id=${pat.id})}"
+                                        <a th:href="@{/admin/pat/ver/{id}(id=${pat.id})}"
                                            class="btn btn-sm btn-outline-primary py-1 px-2"
                                            style="font-size:12px;">
                                             Ver detalle
@@ -524,14 +524,14 @@
                             <thead>
                             <tr>
                                 <th>
-                                    <a th:href="@{/pat(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                                    <a th:href="@{/admin/pat(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
                                         ID <span th:if="${sortBy == 'id'}"
                                                  th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     </a>
                                 </th>
                                 <th>Imagen</th>
                                 <th>
-                                    <a th:href="@{/pat(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
+                                    <a th:href="@{/admin/pat(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">
                                         Nombre <span th:if="${sortBy == 'nombre'}"
                                                      th:text="${sort == 'asc' ? '↑' : '↓'}"></span>
                                     </a>
@@ -550,7 +550,7 @@
                                     th:text="'#' + ${pat.id}"></td>
                                 <td>
                                     <img th:if="${pat.foto != null}"
-                                         th:src="@{/pat/{foto}(foto=${pat.foto})}"
+                                         th:src="@{/admin/pat/{foto}(foto=${pat.foto})}"
                                          alt="Foto"
                                          style="width:40px; height:40px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
                                     <div th:unless="${pat.foto != null}"
@@ -599,11 +599,11 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <a th:href="@{/pat/ver/{id}(id=${pat.id})}"
+                                        <a th:href="@{/admin/pat/ver/{id}(id=${pat.id})}"
                                            class="btn btn-sm btn-outline-primary">Ver</a>
-                                        <a th:href="@{/pat/actualizar/{id}(id=${pat.id})}"
+                                        <a th:href="@{/admin/pat/actualizar/{id}(id=${pat.id})}"
                                            class="btn btn-sm btn-outline-secondary">Editar</a>
-                                        <a th:href="@{/pat/delete/{id}(id=${pat.id})}"
+                                        <a th:href="@{/admin/pat/delete/{id}(id=${pat.id})}"
                                            class="btn btn-sm btn-outline-danger">Eliminar</a>
                                     </div>
                                 </td>
@@ -624,18 +624,18 @@
                     <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/pat(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
+                               th:href="@{/admin/pat(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
                         </li>
                         <li class="page-item"
                             th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
                             th:classappend="${i == paginaActual} ? 'active'">
                             <a class="page-link"
                                th:text="${i + 1}"
-                               th:href="@{/pat(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}"></a>
+                               th:href="@{/admin/pat(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/pat(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&raquo;</a>
+                               th:href="@{/admin/pat(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},soloGenerales=${soloGenerales},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -658,8 +658,8 @@
                 <h5>No hay planes de acción tutorial</h5>
                 <p>No se encontraron PAT con los filtros aplicados.</p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/pat}" class="btn btn-outline-secondary">Limpiar filtros</a>
-                    <a th:href="@{/pat/agregar}" class="btn btn-primary">Agregar PAT</a>
+                    <a th:href="@{/admin/pat}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                    <a th:href="@{/admin/pat/agregar}" class="btn btn-primary">Agregar PAT</a>
                 </div>
             </div>
 

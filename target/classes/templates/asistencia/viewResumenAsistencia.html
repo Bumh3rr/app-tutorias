@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -235,7 +235,7 @@
             <!-- Header -->
             <div class="page-header ar-hero">
                 <div>
-                    <a th:href="@{/asistencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/asistencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -446,7 +446,7 @@
                                 </td>
                                 <td>
                                     <form th:if="${asistencia.presente == 0 and asistencia.recuperada == 0}"
-                                          th:action="@{/asistencia/recuperar/{id}(id=${asistencia.id})}"
+                                          th:action="@{/admin/asistencia/recuperar/{id}(id=${asistencia.id})}"
                                           method="post" style="display:inline;">
                                         <input type="hidden" name="idTutorado" th:value="${resumen.idTutorado}">
                                         <button type="submit" class="btn btn-sm btn-warning"
@@ -468,7 +468,7 @@
             </div><!-- /resumen -->
 
             <div class="mt-4">
-                <a th:href="@{/asistencia}" class="btn btn-outline-secondary">
+                <a th:href="@{/admin/asistencia}" class="btn btn-outline-secondary">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><polyline points="15 18 9 12 15 6"/></svg>
                     Volver
                 </a>

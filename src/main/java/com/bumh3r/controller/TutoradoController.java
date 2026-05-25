@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "tutorado")
+@RequestMapping(value = "admin/tutorado")
 public class TutoradoController {
 
     @Autowired
@@ -200,7 +200,7 @@ public class TutoradoController {
             model.addAttribute("isEdit", false);
             return "tutorado/viewFormTutorado";
         }
-        return "redirect:/tutorado";
+        return "redirect:/admin/tutorado";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -258,7 +258,7 @@ public class TutoradoController {
             model.addAttribute("isEdit", true);
             return "tutorado/viewFormTutorado";
         }
-        return "redirect:/tutorado";
+        return "redirect:/admin/tutorado";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -276,7 +276,7 @@ public class TutoradoController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutorado: " + e.getMessage());
         }
-        return "redirect:/tutorado";
+        return "redirect:/admin/tutorado";
     }
 
     @GetMapping(value = "pdf/carnet/{id}")

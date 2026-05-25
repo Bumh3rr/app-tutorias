@@ -107,7 +107,7 @@
             <h6>&#10003; Registro existente</h6>
             <p th:text="'Ya existe una detección de necesidades registrada para ' + ${tutorado.nombre} + ' ' + ${tutorado.apellido} + '.'"></p>
             <a th:if="${idDeteccion != null}"
-               th:href="@{/deteccion/pdf/{id}(id=${idDeteccion})}"
+               th:href="@{/admin/deteccion/pdf/{id}(id=${idDeteccion})}"
                target="_blank"
                class="btn btn-outline-success btn-sm mt-3">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;">

@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "pat")
+@RequestMapping(value = "admin/pat")
 public class PATController {
 
     @Autowired
@@ -145,7 +145,7 @@ public class PATController {
             model.addAttribute("isEdit", false);
             return "pat/viewFormPAT";
         }
-        return "redirect:/pat";
+        return "redirect:/admin/pat";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -199,7 +199,7 @@ public class PATController {
             model.addAttribute("isEdit", true);
             return "pat/viewFormPAT";
         }
-        return "redirect:/pat";
+        return "redirect:/admin/pat";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -217,6 +217,6 @@ public class PATController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el PAT: " + e.getMessage());
         }
-        return "redirect:/pat";
+        return "redirect:/admin/pat";
     }
 }

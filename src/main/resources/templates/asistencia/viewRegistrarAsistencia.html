@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
                        th:text="'Sesión — Semana ' + ${sesion.semana} + ' | ' + (${sesion.grupo != null} ? ${sesion.grupo.nombre} : '')">
                     </p>
                 </div>
-                <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-outline-secondary">
+                <a th:href="@{/admin/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-outline-secondary">
                     Volver a la sesión
                 </a>
             </div>
@@ -62,7 +62,7 @@
             </div>
 
             <!-- Formulario de asistencia masiva -->
-            <form th:action="@{/asistencia/registrar/{id}(id=${sesion.id})}" method="post">
+            <form th:action="@{/admin/asistencia/registrar/{id}(id=${sesion.id})}" method="post">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Tutorados del grupo</h5>
@@ -107,7 +107,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <img th:if="${tutorado.foto != null}"
-                                             th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
+                                             th:src="@{/admin/tutorado/{foto}(foto=${tutorado.foto})}"
                                              alt="Foto"
                                              style="width:32px; height:32px; object-fit:cover; border-radius:50%;">
                                         <img th:unless="${tutorado.foto != null}"
@@ -131,7 +131,7 @@
                                           class="badge bg-secondary rounded-pill">Sin registro</span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/deteccion/agregar(idTutorado=${tutorado.id}, idSesion=${sesion.id})}"
+                                    <a th:href="@{/admin/deteccion/agregar(idTutorado=${tutorado.id}, idSesion=${sesion.id})}"
                                        class="btn btn-sm btn-outline-info">
                                         Registrar
                                     </a>
@@ -148,7 +148,7 @@
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
-                    <a th:href="@{/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-secondary">Cancelar</a>
+                    <a th:href="@{/admin/sesion/ver/{id}(id=${sesion.id})}" class="btn btn-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-success">
                         Guardar Asistencia
                     </button>

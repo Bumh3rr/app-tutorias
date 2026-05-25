@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "reporte")
+@RequestMapping(value = "admin/reporte")
 public class ReporteSesionController {
 
     @Autowired
@@ -121,12 +121,12 @@ public class ReporteSesionController {
 
             // Si viene de una sesión, redirigir a esa sesión
             if (reporte.getSesion() != null && reporte.getSesion().getId() != null) {
-                return "redirect:/sesion/ver/" + reporte.getSesion().getId();
+                return "redirect:/admin/sesion/ver/" + reporte.getSesion().getId();
             }
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al guardar el reporte: " + e.getMessage());
         }
-        return "redirect:/reporte";
+        return "redirect:/admin/reporte";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -141,7 +141,7 @@ public class ReporteSesionController {
     public String obtenerVistaReportePorSesion(@PathVariable Integer idSesion, Model model) {
         ReporteSesion reporte = this.reporteSesionService.obtenerReportePorSesion(idSesion);
         if (reporte == null) {
-            return "redirect:/reporte/agregar?idSesion=" + idSesion;
+            return "redirect:/admin/reporte/agregar?idSesion=" + idSesion;
         }
         model.addAttribute("reporte", reporte);
         return "reporte/viewInfoReporte";
@@ -169,7 +169,7 @@ public class ReporteSesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al actualizar el reporte: " + e.getMessage());
         }
-        return "redirect:/reporte";
+        return "redirect:/admin/reporte";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -187,7 +187,7 @@ public class ReporteSesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el reporte: " + e.getMessage());
         }
-        return "redirect:/reporte";
+        return "redirect:/admin/reporte";
     }
 
     @GetMapping(value = "pdf/{id}")

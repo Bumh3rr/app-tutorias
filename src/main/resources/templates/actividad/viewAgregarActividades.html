@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -152,7 +152,7 @@
                     <h3 class="mb-1">Agregar Actividades</h3>
                     <p class="text-body-secondary fs-6 mb-0">Crea múltiples actividades para un PAT en un solo paso.</p>
                 </div>
-                <a th:href="@{/actividad}" class="btn btn-outline-secondary">← Volver a la lista</a>
+                <a th:href="@{/admin/actividad}" class="btn btn-outline-secondary">← Volver a la lista</a>
             </div>
 
             <!-- Step 1 — PAT selector -->

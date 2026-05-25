@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,7 +36,7 @@
                     <div class="d-flex gap-2 mt-3">
                         <button type="button" class="btn btn-danger flex-grow-1"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal">Sí, desactivar</button>
-                        <a th:href="@{/reporte}" class="btn btn-secondary flex-grow-1">Cancelar</a>
+                        <a th:href="@{/admin/reporte}" class="btn btn-secondary flex-grow-1">Cancelar</a>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form th:action="@{/reporte/confirm/delete/{id}(id=${reporte.id})}" method="post" style="display:inline;">
+                <form th:action="@{/admin/reporte/confirm/delete/{id}(id=${reporte.id})}" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-danger">Sí, desactivar</button>
                 </form>
             </div>

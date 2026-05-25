@@ -34,7 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "tutor")
+@RequestMapping(value = "admin/tutor")
 public class TutorController {
 
     @Autowired
@@ -185,7 +185,7 @@ public class TutorController {
             model.addAttribute("isEdit", false);
             return "tutor/viewFormTutor";
         }
-        return "redirect:/tutor";
+        return "redirect:/admin/tutor";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -247,7 +247,7 @@ public class TutorController {
             model.addAttribute("isEdit", true);
             return "tutor/viewFormTutor";
         }
-        return "redirect:/tutor";
+        return "redirect:/admin/tutor";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -265,7 +265,7 @@ public class TutorController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutor: " + e.getMessage());
         }
-        return "redirect:/tutor";
+        return "redirect:/admin/tutor";
     }
 
     @GetMapping(value = "pdf/constancia/{id}")

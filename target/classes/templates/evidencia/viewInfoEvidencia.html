@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -163,7 +163,7 @@
             <!-- Header -->
             <div class="page-header ev-hero">
                 <div>
-                    <a th:href="@{/evidencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/evidencia}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -182,8 +182,8 @@
                           th:text="${evidencia.estatusValidacion != null ? evidencia.estatusValidacion : 'SIN ESTATUS'}"
                           th:classappend="${evidencia.estatusValidacion == 'VALIDADA' ? 'badge-active' : (evidencia.estatusValidacion == 'RECHAZADA' ? 'badge-inactive' : 'badge-pendiente')}">
                     </span>
-                    <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/evidencia/delete/{id}(id=${evidencia.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/evidencia/actualizar/{id}(id=${evidencia.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/evidencia/delete/{id}(id=${evidencia.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -197,9 +197,9 @@
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.png') or
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.gif') or
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.webp')}">
-                        <img th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                        <img th:src="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                              alt="Evidencia">
-                        <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                        <a th:href="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                            target="_blank" class="file-preview-link">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -220,7 +220,7 @@
                                 <div class="fw-medium" style="font-size:13px; color:rgba(255,255,255,0.7);" th:text="${evidencia.archivoUrl}"></div>
                                 <small style="color:#f87171;">PDF</small>
                             </div>
-                            <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                            <a th:href="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                                target="_blank" class="btn btn-outline-secondary btn-sm mt-2">
                                 Abrir documento
                             </a>
@@ -242,7 +242,7 @@
                             <div class="text-center">
                                 <div class="fw-medium" style="font-size:13px; color:rgba(255,255,255,0.7);" th:text="${evidencia.archivoUrl}"></div>
                             </div>
-                            <a th:href="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                            <a th:href="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                                target="_blank" class="btn btn-outline-secondary btn-sm mt-2">
                                 Descargar archivo
                             </a>
@@ -275,7 +275,7 @@
                             <span class="detail-label">Sesión</span>
                             <span class="detail-value">
                                 <a class="text-decoration-none"
-                                   th:href="@{/sesion/ver/{id}(id=${evidencia.sesion.id})}"
+                                   th:href="@{/admin/sesion/ver/{id}(id=${evidencia.sesion.id})}"
                                    th:text="'Semana ' + ${evidencia.sesion.semana} + ' — #' + ${evidencia.sesion.id}"></a>
                             </span>
                         </div>
@@ -386,7 +386,7 @@
                         <!-- Acciones solo si PENDIENTE -->
                         <div th:if="${evidencia.estatusValidacion == 'PENDIENTE'}"
                              class="d-flex flex-column gap-2 mt-2">
-                            <form th:action="@{/evidencia/validar/{id}(id=${evidencia.id})}" method="post">
+                            <form th:action="@{/admin/evidencia/validar/{id}(id=${evidencia.id})}" method="post">
                                 <input type="hidden" name="notas" value="Evidencia aprobada por coordinador">
                                 <button type="submit" class="btn btn-validate w-100">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="me-1"><polyline points="20 6 9 17 4 12"/></svg>
@@ -403,7 +403,7 @@
                         <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
                             <p class="section-title" style="margin-bottom:10px;">Navegación</p>
                             <div class="d-flex flex-column gap-2">
-                                <a th:href="@{/sesion/ver/{id}(id=${evidencia.sesion.id})}"
+                                <a th:href="@{/admin/sesion/ver/{id}(id=${evidencia.sesion.id})}"
                                    th:if="${evidencia.sesion != null}"
                                    class="btn btn-outline-secondary btn-sm w-100 text-start">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
@@ -412,7 +412,7 @@
                                     </svg>
                                     Ver sesión vinculada
                                 </a>
-                                <a th:href="@{/evidencia/actualizar/{id}(id=${evidencia.id})}"
+                                <a th:href="@{/admin/evidencia/actualizar/{id}(id=${evidencia.id})}"
                                    class="btn btn-outline-secondary btn-sm w-100 text-start">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
                                         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -439,7 +439,7 @@
                 <h5 class="modal-title">Rechazar evidencia</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form th:action="@{/evidencia/rechazar/{id}(id=${evidencia.id})}" method="post">
+            <form th:action="@{/admin/evidencia/rechazar/{id}(id=${evidencia.id})}" method="post">
                 <div class="modal-body">
                     <p class="text-body-secondary small mb-3">Indica el motivo por el que se rechaza esta evidencia. El tutor podrá ver esta nota.</p>
                     <label for="notasRechazo" class="form-label">Motivo del rechazo</label>

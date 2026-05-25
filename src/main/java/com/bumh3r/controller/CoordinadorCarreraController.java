@@ -28,7 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "coordinador")
+@RequestMapping(value = "admin/coordinador")
 public class CoordinadorCarreraController {
 
     @Autowired
@@ -155,7 +155,7 @@ public class CoordinadorCarreraController {
             model.addAttribute("isEdit", false);
             return "coordinador/viewFormCoordinador";
         }
-        return "redirect:/coordinador";
+        return "redirect:/admin/coordinador";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -207,7 +207,7 @@ public class CoordinadorCarreraController {
             model.addAttribute("isEdit", true);
             return "coordinador/viewFormCoordinador";
         }
-        return "redirect:/coordinador";
+        return "redirect:/admin/coordinador";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -225,7 +225,7 @@ public class CoordinadorCarreraController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el coordinador: " + e.getMessage());
         }
-        return "redirect:/coordinador";
+        return "redirect:/admin/coordinador";
     }
 
     @GetMapping(value = "pdf/nombramiento/{id}")

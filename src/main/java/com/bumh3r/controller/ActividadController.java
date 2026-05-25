@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping(value = "actividad")
+@RequestMapping(value = "admin/actividad")
 public class ActividadController {
 
     @Autowired
@@ -146,7 +146,7 @@ public class ActividadController {
             return "actividad/viewFormActividad";
         }
         Integer idPat = actividad.getPat() != null ? actividad.getPat().getId() : null;
-        return idPat != null ? "redirect:/actividad/agregar?idPat=" + idPat : "redirect:/actividad";
+        return idPat != null ? "redirect:/admin/actividad/agregar?idPat=" + idPat : "redirect:/admin/actividad";
     }
 
     // ── REST API para el builder de actividades ────────────────────────────
@@ -299,7 +299,7 @@ public class ActividadController {
             model.addAttribute("isEdit", true);
             return "actividad/viewFormActividad";
         }
-        return "redirect:/actividad";
+        return "redirect:/admin/actividad";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -317,7 +317,7 @@ public class ActividadController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la actividad: " + e.getMessage());
         }
-        return "redirect:/actividad";
+        return "redirect:/admin/actividad";
     }
 
 }

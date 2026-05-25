@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "evidencia")
+@RequestMapping(value = "admin/evidencia")
 public class EvidenciaSesionController {
 
     @Autowired
@@ -142,7 +142,7 @@ public class EvidenciaSesionController {
             model.addAttribute("isEdit", false);
             return "evidencia/viewFormEvidencia";
         }
-        return "redirect:/evidencia";
+        return "redirect:/admin/evidencia";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -194,7 +194,7 @@ public class EvidenciaSesionController {
             model.addAttribute("isEdit", true);
             return "evidencia/viewFormEvidencia";
         }
-        return "redirect:/evidencia";
+        return "redirect:/admin/evidencia";
     }
 
     // Validar evidencia
@@ -209,7 +209,7 @@ public class EvidenciaSesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al validar la evidencia: " + e.getMessage());
         }
-        return "redirect:/evidencia/ver/" + id;
+        return "redirect:/admin/evidencia/ver/" + id;
     }
 
     // Rechazar evidencia
@@ -224,7 +224,7 @@ public class EvidenciaSesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al rechazar la evidencia: " + e.getMessage());
         }
-        return "redirect:/evidencia/ver/" + id;
+        return "redirect:/admin/evidencia/ver/" + id;
     }
 
     @GetMapping(value = "delete/{id}")
@@ -242,7 +242,7 @@ public class EvidenciaSesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la evidencia: " + e.getMessage());
         }
-        return "redirect:/evidencia";
+        return "redirect:/admin/evidencia";
     }
 
     @InitBinder

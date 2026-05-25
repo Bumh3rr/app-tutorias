@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -189,7 +189,7 @@
             <!-- Header -->
             <div class="page-header td-hero">
                 <div>
-                    <a th:href="@{/tutorado}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/tutorado}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6;transition:opacity 0.15s;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -203,14 +203,14 @@
                           th:text="${tutorado.activo == 1} ? 'Activo' : 'Inactivo'"
                           th:classappend="${tutorado.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
-                    <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/tutorado/actualizar/{id}(id=${tutorado.id})}" class="btn btn-primary btn-sm">Editar</a>
                     <button type="button" class="btn btn-outline-danger btn-sm"
-                            th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
+                            th:attr="data-url=@{/admin/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
                             onclick="abrirPdf(this)">
                         <i class="bi bi-file-earmark-pdf"></i> Carnet PDF
                     </button>
                     <div class="pdf-error alert alert-danger small py-1 px-2 mt-1 mb-0 d-none"></div>
-                    <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/tutorado/delete/{id}(id=${tutorado.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -220,7 +220,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${tutorado.foto != null}"
-                         th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
+                         th:src="@{/admin/tutorado/{foto}(foto=${tutorado.foto})}"
                          alt="Foto tutorado" class="avatar-hero">
                     <img th:unless="${tutorado.foto != null}"
                          th:src="@{|https://ui-avatars.com/api/?size=160&background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
@@ -402,7 +402,7 @@
                             </div>
                         </div>
 
-                        <a th:href="@{/asistencia/resumen/{id}(id=${tutorado.id})}"
+                        <a th:href="@{/admin/asistencia/resumen/{id}(id=${tutorado.id})}"
                            class="nav-link-item mt-3">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -466,7 +466,7 @@
                             <small>Sin detecciones registradas</small>
                         </div>
 
-                        <a th:href="@{/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item mt-3">
+                        <a th:href="@{/admin/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item mt-3">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -483,21 +483,21 @@
                     <div class="glass-surface td-right h-100">
                         <p class="section-title">Acciones rápidas</p>
                         <div class="d-flex flex-column gap-2">
-                            <a th:href="@{/tutorado/actualizar/{id}(id=${tutorado.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/tutorado/actualizar/{id}(id=${tutorado.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                                 </svg>
                                 Editar tutorado
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/asistencia/resumen/{id}(id=${tutorado.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/asistencia/resumen/{id}(id=${tutorado.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                                 </svg>
                                 Resumen de asistencia
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/deteccion(tipoBusqueda='tutorado',idTutorado=${tutorado.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"/>
                                     <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -505,7 +505,7 @@
                                 Detección de necesidades
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/historial(q=${tutorado.numeroControl})}" class="nav-link-item">
+                            <a th:href="@{/admin/historial(q=${tutorado.numeroControl})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="1 4 1 10 7 10"/>
                                     <path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
@@ -515,7 +515,7 @@
                             </a>
                             <a th:if="${not #lists.isEmpty(gruposTutorado)}"
                                href="javascript:void(0)"
-                               th:attr="data-url=@{/tutorado/pdf/constancia/{id}(id=${tutorado.id},idSemestre=${gruposTutorado[0].grupo.semestre.id})}"
+                               th:attr="data-url=@{/admin/tutorado/pdf/constancia/{id}(id=${tutorado.id},idSemestre=${gruposTutorado[0].grupo.semestre.id})}"
                                class="nav-link-item"
                                onclick="abrirPdf(this)">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -530,7 +530,7 @@
                             <div class="pdf-error alert alert-danger small py-1 px-2 mb-0 d-none"></div>
                             <a th:if="${not #lists.isEmpty(gruposTutorado)}"
                                href="javascript:void(0)"
-                               th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
+                               th:attr="data-url=@{/admin/tutorado/pdf/carnet/{id}(id=${tutorado.id})}"
                                class="nav-link-item"
                                onclick="abrirPdf(this)">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -540,7 +540,7 @@
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
                             <div class="pdf-error alert alert-danger small py-1 px-2 mb-0 d-none"></div>
-                            <a th:href="@{/tutorado/delete/{id}(id=${tutorado.id})}"
+                            <a th:href="@{/admin/tutorado/delete/{id}(id=${tutorado.id})}"
                                class="nav-link-item" style="color:rgba(248,113,113,0.7);">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"/>
@@ -567,7 +567,7 @@
                               th:text="${#lists.size(gruposTutorado)}">
                         </span>
                     </p>
-                    <a th:href="@{/historial(q=${tutorado.numeroControl})}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                    <a th:href="@{/admin/historial(q=${tutorado.numeroControl})}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
                         Ver historial completo
                     </a>
                 </div>
@@ -575,7 +575,7 @@
                 <div th:if="${gruposTutorado != null and !#lists.isEmpty(gruposTutorado)}"
                      class="row g-3">
                     <div th:each="memb : ${gruposTutorado}" class="col-md-6 col-lg-4">
-                        <a th:href="@{/grupo/ver/{id}(id=${memb.grupo.id})}" class="group-card">
+                        <a th:href="@{/admin/grupo/ver/{id}(id=${memb.grupo.id})}" class="group-card">
                             <div class="group-icon">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="1.8">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -591,7 +591,7 @@
                                 <div th:if="${memb.grupo.tutor != null}"
                                      class="d-flex align-items-center gap-1 mt-1">
                                     <img th:if="${memb.grupo.tutor.foto != null}"
-                                         th:src="@{/tutor/{foto}(foto=${memb.grupo.tutor.foto})}"
+                                         th:src="@{/admin/tutor/{foto}(foto=${memb.grupo.tutor.foto})}"
                                          class="tutor-mini-avatar" alt="">
                                     <div th:unless="${memb.grupo.tutor.foto != null}"
                                          style="width:18px;height:18px;border-radius:50%;background:rgba(99,102,241,0.2);flex-shrink:0;"></div>
@@ -631,7 +631,7 @@
                               th:if="${actividades != null}"
                               th:text="${#lists.size(actividades)}">0</span>
                     </div>
-                    <a th:href="@{/actividad}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
+                    <a th:href="@{/admin/actividad}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><polyline points="9 18 15 12 9 6"/></svg>
                         Ver módulo
                     </a>
@@ -641,7 +641,7 @@
                 <div th:if="${actividades != null and !#lists.isEmpty(actividades)}">
                     <div class="d-flex flex-column gap-2">
                         <a th:each="act, stat : ${actividades}"
-                           th:href="@{/actividad/ver/{id}(id=${act.id})}"
+                           th:href="@{/admin/actividad/ver/{id}(id=${act.id})}"
                            class="act-row"
                            th:style="'animation-delay:' + ${stat.index * 0.05} + 's'">
 

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Subdirector | Sistema Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>Panel del Subdirector</h3>
+                    <p>Resumen general del programa de tutorías.</p>
+                </div>
+            </div>
+
+            <div class="row g-3 stagger">
+                <div class="col-6 col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Tutores registrados</div>
+                        <div class="stat-value" th:text="${totalTutores}">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Tutorados registrados</div>
+                        <div class="stat-value" th:text="${totalTutorados}">0</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-label">Grupos activos</div>
+                        <div class="stat-value" th:text="${totalGrupos}">0</div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

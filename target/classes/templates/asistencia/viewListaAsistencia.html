@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +33,7 @@
 
             <div th:if="${filtro != null}" class="mb-3">
                 <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
-                <a th:href="@{/asistencia}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+                <a th:href="@{/admin/asistencia}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
             </div>
 
             <!-- Búsqueda -->
@@ -47,10 +47,10 @@
                 </ul>
                 <div class="tab-content pt-3">
                     <div class="tab-pane fade show active" id="tab-todos">
-                        <a th:href="@{/asistencia}" class="btn btn-primary btn-sm">Ver todas</a>
+                        <a th:href="@{/admin/asistencia}" class="btn btn-primary btn-sm">Ver todas</a>
                     </div>
                     <div class="tab-pane fade" id="tab-sesion">
-                        <form method="get" th:action="@{/asistencia}">
+                        <form method="get" th:action="@{/admin/asistencia}">
                             <input type="hidden" name="tipoBusqueda" value="sesion">
                             <div class="row g-2">
                                 <div class="col-md-8">
@@ -64,7 +64,7 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" id="tab-tutorado">
-                        <form method="get" th:action="@{/asistencia}">
+                        <form method="get" th:action="@{/admin/asistencia}">
                             <input type="hidden" name="tipoBusqueda" value="tutorado">
                             <div class="row g-2">
                                 <div class="col-md-8">
@@ -102,7 +102,7 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th class="sort-th"><a th:href="@{/asistencia(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/admin/asistencia(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>Sesión</th>
                                 <th>Tutorado</th>
                                 <th>No. Control</th>
@@ -131,8 +131,8 @@
                                 <td th:unless="${asistencia.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <a th:href="@{/asistencia/resumen/{id}(id=${asistencia.tutorado.id})}" class="btn btn-sm btn-outline-primary">Resumen</a>
-                                        <a th:href="@{/asistencia/actualizar/{id}(id=${asistencia.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/admin/asistencia/resumen/{id}(id=${asistencia.tutorado.id})}" class="btn btn-sm btn-outline-primary">Resumen</a>
+                                        <a th:href="@{/admin/asistencia/actualizar/{id}(id=${asistencia.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
                                     </div>
                                 </td>
                             </tr>
@@ -147,13 +147,13 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/asistencia(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&laquo;</a>
+                            <a class="page-link" th:href="@{/admin/asistencia(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&laquo;</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/asistencia(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}"></a>
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/asistencia(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/asistencia(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&raquo;</a>
+                            <a class="page-link" th:href="@{/admin/asistencia(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},idSesion=${idSesionSeleccionada},idTutorado=${idTutoradoSeleccionado})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -174,8 +174,8 @@
                 <h5>No hay asistencias registradas</h5>
                 <p>Registra la asistencia desde la vista de sesiones.</p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/asistencia}" class="btn btn-outline-secondary">Refrescar</a>
-                    <a th:href="@{/sesion}" class="btn btn-primary">Ir a Sesiones</a>
+                    <a th:href="@{/admin/asistencia}" class="btn btn-outline-secondary">Refrescar</a>
+                    <a th:href="@{/admin/sesion}" class="btn btn-primary">Ir a Sesiones</a>
                 </div>
             </div>
 

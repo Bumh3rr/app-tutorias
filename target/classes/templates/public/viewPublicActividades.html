@@ -407,7 +407,7 @@
                     <!-- Imagen -->
                     <div class="card-img-wrapper">
                         <img th:if="${actividad.foto != null}"
-                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}"
                              alt="Imagen actividad">
                         <svg th:unless="${actividad.foto != null}"
                              width="40" height="40" viewBox="0 0 24 24" fill="none"

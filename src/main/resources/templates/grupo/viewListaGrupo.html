@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,7 +64,7 @@
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los grupos de tutoría por semestre y carrera.</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <a th:href="@{/grupo/agregar}" class="btn btn-primary btn-icon">
+                    <a th:href="@{/admin/grupo/agregar}" class="btn btn-primary btn-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
                         Agregar Grupo
                     </a>
@@ -73,7 +73,7 @@
 
             <div th:if="${filtro != null}" class="mb-3">
                 <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
-                <a th:href="@{/grupo}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+                <a th:href="@{/admin/grupo}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
             </div>
 
             <!-- Búsqueda -->
@@ -89,10 +89,10 @@
                 </ul>
                 <div class="tab-content pt-3">
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos'} ? 'show active'" id="tab-todos">
-                        <a th:href="@{/grupo}" class="btn btn-primary btn-sm">Ver todos</a>
+                        <a th:href="@{/admin/grupo}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
-                        <form method="get" th:action="@{/grupo}">
+                        <form method="get" th:action="@{/admin/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="nombre">
                             <div class="row g-2">
                                 <div class="col-md-8"><input type="text" name="q" class="form-control" placeholder="Nombre de grupo..." th:value="${q}" autofocus></div>
@@ -101,7 +101,7 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semestre'} ? 'show active'" id="tab-semestre">
-                        <form method="get" th:action="@{/grupo}">
+                        <form method="get" th:action="@{/admin/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="semestre">
                             <div class="row g-2">
                                 <div class="col-md-8"><select name="idSemestre" class="form-select" required><option value="">Selecciona un semestre...</option><option th:each="s : ${semestres}" th:value="${s.id}" th:text="${s.periodo} + ' ' + ${s.anio}" th:selected="${s.id == idSemestreSeleccionado}"></option></select></div>
@@ -110,7 +110,7 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'tutorSemestre'} ? 'show active'" id="tab-tutor-semestre">
-                        <form method="get" th:action="@{/grupo}">
+                        <form method="get" th:action="@{/admin/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="tutorSemestre">
                             <div class="row g-2">
                                 <div class="col-md-4"><select name="idTutor" class="form-select" required><option value="">Tutor...</option><option th:each="t : ${tutores}" th:value="${t.id}" th:text="${t.nombre} + ' ' + ${t.apellido}" th:selected="${t.id == idTutorSeleccionado}"></option></select></div>
@@ -120,7 +120,7 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'show active'" id="tab-carrera-semestre">
-                        <form method="get" th:action="@{/grupo}">
+                        <form method="get" th:action="@{/admin/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="carreraSemestre">
                             <div class="row g-2">
                                 <div class="col-md-4"><select name="idCarrera" class="form-select" required><option value="">Carrera...</option><option th:each="c : ${carreras}" th:value="${c.id}" th:text="${c.nombre}" th:selected="${c.id == idCarreraSeleccionada}"></option></select></div>
@@ -130,7 +130,7 @@
                         </form>
                     </div>
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'fecha'} ? 'show active'" id="tab-fecha">
-                        <form method="get" th:action="@{/grupo}">
+                        <form method="get" th:action="@{/admin/grupo}">
                             <input type="hidden" name="tipoBusqueda" value="fecha">
                             <input type="hidden" id="hidFechaIniGrupo" name="fechaInicio" th:value="${fechaInicio}">
                             <input type="hidden" id="hidFechaFinGrupo" name="fechaFin" th:value="${fechaFin}">
@@ -207,8 +207,8 @@
                                         <span class="rel-badge" data-bs-toggle="tooltip" th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
                                     </span>
                                     <div class="d-flex gap-1 ms-auto">
-                                        <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
-                                        <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">
+                                        <a th:href="@{/admin/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size:12px;">Editar</a>
+                                        <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:12px;">
                                             Ver <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:1px;"><polyline points="9 18 15 12 9 6"/></svg>
                                         </a>
                                     </div>
@@ -224,8 +224,8 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th class="sort-th"><a th:href="@{/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
-                                <th class="sort-th"><a th:href="@{/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/admin/grupo(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/admin/grupo(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>Alumnos</th>
                                 <th>Tutor</th>
                                 <th>Carrera</th>
@@ -245,7 +245,7 @@
                                 <td class="text-center"><span class="badge outline bg-secondary" th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0"></span></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2" th:if="${grupo.tutor != null}">
-                                        <img th:if="${grupo.tutor.foto != null}" th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}" alt="Foto" class="avatar avatar-sm">
+                                        <img th:if="${grupo.tutor.foto != null}" th:src="@{/admin/tutor/{foto}(foto=${grupo.tutor.foto})}" alt="Foto" class="avatar avatar-sm">
                                         <img th:unless="${grupo.tutor.foto != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}" alt="Avatar" class="avatar avatar-sm">
                                         <span th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></span>
                                     </div>
@@ -263,9 +263,9 @@
                                 <td th:unless="${grupo.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
                                 <td>
                                     <div class="d-flex gap-1 flex-wrap">
-                                        <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                        <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                        <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                        <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/admin/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/admin/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
                                     </div>
                                 </td>
                             </tr>
@@ -281,13 +281,13 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/grupo(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
+                            <a class="page-link" th:href="@{/admin/grupo(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">&laquo;</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/grupo(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}"></a>
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/grupo(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/grupo(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">&raquo;</a>
+                            <a class="page-link" th:href="@{/admin/grupo(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idSemestre=${idSemestreSeleccionado},idTutor=${idTutorSeleccionado},idCarrera=${idCarreraSeleccionada})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -308,8 +308,8 @@
                 <h5>No hay grupos registrados</h5>
                 <p>Agrega un nuevo grupo para organizar las tutorías por semestre y carrera.</p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/grupo}" class="btn btn-outline-secondary">Refrescar</a>
-                    <a th:href="@{/grupo/agregar}" class="btn btn-primary">Agregar Grupo</a>
+                    <a th:href="@{/admin/grupo}" class="btn btn-outline-secondary">Refrescar</a>
+                    <a th:href="@{/admin/grupo/agregar}" class="btn btn-primary">Agregar Grupo</a>
                 </div>
             </div>
 

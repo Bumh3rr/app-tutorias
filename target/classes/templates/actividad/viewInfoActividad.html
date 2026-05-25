@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,7 +148,7 @@
             <!-- Header -->
             <div class="page-header ac-hero">
                 <div>
-                    <a th:href="@{/actividad}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/actividad}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -162,8 +162,8 @@
                           th:text="${actividad.activo == 1} ? 'Activo' : 'Inactivo'"
                           th:classappend="${actividad.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
-                    <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/actividad/actualizar/{id}(id=${actividad.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/actividad/delete/{id}(id=${actividad.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -174,7 +174,7 @@
                     <!-- Thumbnail de imagen -->
                     <div style="flex-shrink:0;">
                         <img th:if="${actividad.foto != null}"
-                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}"
                              alt="Imagen actividad"
                              style="width:72px; height:72px; object-fit:cover; border-radius:10px;
                                     border:2px solid rgba(255,255,255,0.1);
@@ -253,7 +253,7 @@
                     <div class="glass-surface ac-left" style="animation-delay:0.08s;"
                          th:if="${actividad.pat != null}">
                         <p class="section-title">Plan de Acción Tutorial</p>
-                        <a th:href="@{/pat/ver/{id}(id=${actividad.pat.id})}" class="pat-card">
+                        <a th:href="@{/admin/pat/ver/{id}(id=${actividad.pat.id})}" class="pat-card">
                             <div class="pat-icon">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2">
                                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -297,7 +297,7 @@
                     <div class="glass-surface ac-right">
                         <p class="section-title">Imagen</p>
                         <img th:if="${actividad.foto != null}"
-                             th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
+                             th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}"
                              alt="Imagen actividad"
                              class="activity-img">
                         <div th:unless="${actividad.foto != null}" class="activity-img-placeholder">
@@ -356,7 +356,7 @@
 
                         <div class="pt-3 mt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
                             <div class="d-flex flex-column gap-2">
-                                <a th:href="@{/actividad/actualizar/{id}(id=${actividad.id})}"
+                                <a th:href="@{/admin/actividad/actualizar/{id}(id=${actividad.id})}"
                                    class="nav-link-item">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -364,7 +364,7 @@
                                     Editar actividad
                                     <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 </a>
-                                <a th:href="@{/actividad/delete/{id}(id=${actividad.id})}"
+                                <a th:href="@{/admin/actividad/delete/{id}(id=${actividad.id})}"
                                    class="nav-link-item" style="color: rgba(248,113,113,0.7);">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"/>

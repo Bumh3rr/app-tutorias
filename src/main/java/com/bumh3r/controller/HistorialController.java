@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "historial")
+@RequestMapping(value = "admin/historial")
 public class HistorialController {
 
     @Autowired

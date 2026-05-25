@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -146,7 +146,7 @@
             <!-- Header -->
             <div class="page-header rp-hero">
                 <div>
-                    <a th:href="@{/reporte}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/reporte}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -160,8 +160,8 @@
                           th:text="${reporte.estatusRevision != null ? reporte.estatusRevision : 'PENDIENTE'}"
                           th:classappend="${reporte.estatusRevision == 'APROBADO' ? 'badge-active' : (reporte.estatusRevision == 'OBSERVADO' ? 'bg-warning text-dark' : 'badge-pendiente')}">
                     </span>
-                    <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/reporte/delete/{id}(id=${reporte.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/reporte/actualizar/{id}(id=${reporte.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/reporte/delete/{id}(id=${reporte.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -336,7 +336,7 @@
                         <p class="section-title">Navegación</p>
                         <div class="d-flex flex-column gap-2">
                             <a th:if="${reporte.sesion != null}"
-                               th:href="@{/sesion/ver/{id}(id=${reporte.sesion.id})}"
+                               th:href="@{/admin/sesion/ver/{id}(id=${reporte.sesion.id})}"
                                class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -346,7 +346,7 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;opacity:0.3;"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
                             <a th:if="${reporte.sesion != null}"
-                               th:href="@{/asistencia(tipoBusqueda='sesion', idSesion=${reporte.sesion.id})}"
+                               th:href="@{/admin/asistencia(tipoBusqueda='sesion', idSesion=${reporte.sesion.id})}"
                                class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -355,7 +355,7 @@
                                 Ver asistencias de la sesión
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;opacity:0.3;"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/reporte/actualizar/{id}(id=${reporte.id})}"
+                            <a th:href="@{/admin/reporte/actualizar/{id}(id=${reporte.id})}"
                                class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -364,7 +364,7 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;opacity:0.3;"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
                             <a href="javascript:void(0)"
-                               th:attr="data-url=@{/reporte/pdf/{id}(id=${reporte.id})}"
+                               th:attr="data-url=@{/admin/reporte/pdf/{id}(id=${reporte.id})}"
                                class="nav-link-item"
                                style="color:rgba(248,113,113,0.85);"
                                onclick="abrirPdf(this)">

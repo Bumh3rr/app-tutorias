@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
-@RequestMapping(value = "notificacion")
+@RequestMapping(value = "admin/notificacion")
 public class NotificacionController {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -101,7 +101,7 @@ public class NotificacionController {
             log.error("Error al enviar recordatorios masivos: {}", e.getMessage(), e);
             attributes.addFlashAttribute("msg_error", "Error al enviar recordatorios: " + e.getMessage());
         }
-        return "redirect:/notificacion";
+        return "redirect:/admin/notificacion";
     }
 
     @PostMapping(value = "enviar/{idCoordinador}")
@@ -112,7 +112,7 @@ public class NotificacionController {
             if (aplicables == null) {
                 attributes.addFlashAttribute("msg_error",
                         "Coordinador no encontrado, inactivo o no pertenece al semestre vigente.");
-                return "redirect:/notificacion";
+                return "redirect:/admin/notificacion";
             }
             if (aplicables.isEmpty()) {
                 CoordinadorCarrera coord = coordinadorCarreraService.obtenerCoordinador(idCoordinador);
@@ -122,7 +122,7 @@ public class NotificacionController {
                 attributes.addFlashAttribute("msg_warning",
                         "El coordinador " + nombre
                         + " no tiene actividades aplicables esta semana, por lo que no se envió correo.");
-                return "redirect:/notificacion";
+                return "redirect:/admin/notificacion";
             }
 
             boolean ok = notificacionService.enviarRecordatorioCoordinador(idCoordinador);
@@ -141,7 +141,7 @@ public class NotificacionController {
             log.error("Error enviando recordatorio al coordinador {}: {}", idCoordinador, e.getMessage(), e);
             attributes.addFlashAttribute("msg_error", "Error al enviar: " + e.getMessage());
         }
-        return "redirect:/notificacion";
+        return "redirect:/admin/notificacion";
     }
 
     @GetMapping(value = "preview/{idCoordinador}")

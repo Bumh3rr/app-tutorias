@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
@@ -19,28 +20,27 @@ public class MainController {
 
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
-    @Autowired
-    private TutorService tutorService;
-    @Autowired
-    private TutoradoService tutoradoService;
-    @Autowired
-    private ActividadService actividadService;
-    @Autowired
-    private GrupoService grupoService;
-    @Autowired
-    private PATService patService;
+    @Autowired private TutorService tutorService;
+    @Autowired private TutoradoService tutoradoService;
+    @Autowired private ActividadService actividadService;
+    @Autowired private GrupoService grupoService;
 
     @GetMapping("/login")
     public String login() {
         return "public/viewLogin";
     }
 
-    @GetMapping({"/", ""})
-    public String root() {
-        return "forward:/public/actividades";
+    @GetMapping("/error/403")
+    public String error403() {
+        return "error/403";
     }
 
-    @GetMapping("/dashboard")
+    @GetMapping({"/", ""})
+    public String root() {
+        return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/admin/dashboard")
     public String dashboard(Model model) {
         try {
             List<Tutor> tutores = tutorService.obtenerTodosTutores();

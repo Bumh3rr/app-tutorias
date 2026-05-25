@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "carrera")
+@RequestMapping(value = "admin/carrera")
 public class CarreraController {
 
     @Autowired
@@ -73,7 +73,7 @@ public class CarreraController {
             model.addAttribute("isEdit", false);
             return "carrera/viewFormCarrera";
         }
-        return "redirect:/carrera";
+        return "redirect:/admin/carrera";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -108,7 +108,7 @@ public class CarreraController {
             model.addAttribute("isEdit", true);
             return "carrera/viewFormCarrera";
         }
-        return "redirect:/carrera";
+        return "redirect:/admin/carrera";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -126,6 +126,6 @@ public class CarreraController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la carrera: " + e.getMessage());
         }
-        return "redirect:/carrera";
+        return "redirect:/admin/carrera";
     }
 }

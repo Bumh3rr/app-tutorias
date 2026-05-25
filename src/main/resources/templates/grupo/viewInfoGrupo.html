@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -237,7 +237,7 @@
             <!-- Header -->
             <div class="page-header gp-hero">
                 <div>
-                    <a th:href="@{/grupo}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/grupo}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -251,8 +251,8 @@
                           th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'"
                           th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
-                    <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/grupo/actualizar/{id}(id=${grupo.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/grupo/delete/{id}(id=${grupo.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -412,9 +412,9 @@
                         <p class="section-title">Tutor asignado</p>
 
                         <div th:if="${grupo.tutor != null}">
-                            <a th:href="@{/tutor/ver/{id}(id=${grupo.tutor.id})}" class="tutor-card mb-3">
+                            <a th:href="@{/admin/tutor/ver/{id}(id=${grupo.tutor.id})}" class="tutor-card mb-3">
                                 <img th:if="${grupo.tutor.foto != null}"
-                                     th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}"
+                                     th:src="@{/admin/tutor/{foto}(foto=${grupo.tutor.foto})}"
                                      alt="Foto tutor"
                                      class="tutor-avatar">
                                 <div th:unless="${grupo.tutor.foto != null}" class="tutor-avatar-placeholder">
@@ -438,7 +438,7 @@
                             Sin tutor asignado
                         </div>
 
-                        <a th:href="@{/grupo/asignar-tutor/{id}(id=${grupo.id})}" class="nav-link-item mt-1">
+                        <a th:href="@{/admin/grupo/asignar-tutor/{id}(id=${grupo.id})}" class="nav-link-item mt-1">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                 <circle cx="12" cy="7" r="4"/>
@@ -453,14 +453,14 @@
                     <div class="glass-surface gp-left" style="animation-delay:0.09s;">
                         <p class="section-title">Acciones</p>
                         <div class="d-flex flex-column gap-2">
-                            <a th:href="@{/grupo/actualizar/{id}(id=${grupo.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/grupo/actualizar/{id}(id=${grupo.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                                 </svg>
                                 Editar grupo
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/grupo/asignar/{id}(id=${grupo.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                                     <circle cx="9" cy="7" r="4"/>
@@ -469,7 +469,7 @@
                                 Asignar tutorados
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/sesion(tipoBusqueda='grupo',idGrupo=${grupo.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/sesion(tipoBusqueda='grupo',idGrupo=${grupo.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2"/>
                                     <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -477,7 +477,7 @@
                                 Ver sesiones
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/grupo/delete/{id}(id=${grupo.id})}" class="nav-link-item" style="color:rgba(248,113,113,0.7);">
+                            <a th:href="@{/admin/grupo/delete/{id}(id=${grupo.id})}" class="nav-link-item" style="color:rgba(248,113,113,0.7);">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"/>
                                     <path d="M19 6l-1 14H6L5 6"/>
@@ -577,7 +577,7 @@
                                       th:text="${#lists.size(tutorados)}">
                                 </span>
                             </p>
-                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}"
+                            <a th:href="@{/admin/grupo/asignar/{id}(id=${grupo.id})}"
                                class="btn btn-sm btn-outline-primary" style="font-size:12px;">
                                 + Asignar
                             </a>
@@ -599,14 +599,14 @@
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <img th:if="${item.tutorado.foto != null}"
-                                                     th:src="@{/tutorado/{foto}(foto=${item.tutorado.foto})}"
+                                                     th:src="@{/admin/tutorado/{foto}(foto=${item.tutorado.foto})}"
                                                      alt="Foto"
                                                      class="tutorado-avatar">
                                                 <img th:unless="${item.tutorado.foto != null}"
                                                      th:src="@{|https://ui-avatars.com/api/?size=60&background=random&color=fff&rounded=true&bold=true&name=${item.tutorado.nombre}+${item.tutorado.apellido}|}"
                                                      alt="Avatar"
                                                      class="tutorado-avatar">
-                                                <a th:href="@{/tutorado/ver/{id}(id=${item.tutorado.id})}"
+                                                <a th:href="@{/admin/tutorado/ver/{id}(id=${item.tutorado.id})}"
                                                    class="text-decoration-none"
                                                    th:text="${item.tutorado.nombre} + ' ' + ${item.tutorado.apellido}"
                                                    style="font-size:13px;"></a>
@@ -621,7 +621,7 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <form th:action="@{/grupo/tutorado/quitar/{id}(id=${item.id})}"
+                                            <form th:action="@{/admin/grupo/tutorado/quitar/{id}(id=${item.id})}"
                                                   method="post" style="display:inline;">
                                                 <input type="hidden" name="idGrupo" th:value="${grupo.id}">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
@@ -645,7 +645,7 @@
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                             </svg>
                             <p class="small mb-2">No hay tutorados asignados</p>
-                            <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}"
+                            <a th:href="@{/admin/grupo/asignar/{id}(id=${grupo.id})}"
                                class="btn btn-sm btn-outline-primary">Asignar ahora</a>
                         </div>
                     </div>
@@ -662,7 +662,7 @@
                                       th:text="${#lists.size(sesiones)}">
                                 </span>
                             </p>
-                            <a th:href="@{/sesion/agregar}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                            <a th:href="@{/admin/sesion/agregar}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
                                 + Nueva
                             </a>
                         </div>
@@ -670,7 +670,7 @@
                         <div th:if="${sesiones != null and !#lists.isEmpty(sesiones)}"
                              class="d-flex flex-column gap-2">
                             <a th:each="s : ${sesiones}"
-                               th:href="@{/sesion/ver/{id}(id=${s.id})}"
+                               th:href="@{/admin/sesion/ver/{id}(id=${s.id})}"
                                class="sesion-row">
                                 <!-- Semana badge -->
                                 <div class="semana-badge"
@@ -706,7 +706,7 @@
                                 <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                             </svg>
                             <p class="small mb-2">No hay sesiones registradas</p>
-                            <a th:href="@{/sesion/agregar}" class="btn btn-sm btn-outline-primary">Nueva sesión</a>
+                            <a th:href="@{/admin/sesion/agregar}" class="btn btn-sm btn-outline-primary">Nueva sesión</a>
                         </div>
                     </div>
                 </div>

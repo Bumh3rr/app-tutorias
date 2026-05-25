@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Controller
-@RequestMapping(value = "grupo")
+@RequestMapping(value = "admin/grupo")
 public class GrupoController {
 
     @Autowired
@@ -151,7 +151,7 @@ public class GrupoController {
             model.addAttribute("isEdit", false);
             return "grupo/viewFormGrupo";
         }
-        return "redirect:/grupo";
+        return "redirect:/admin/grupo";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -207,7 +207,7 @@ public class GrupoController {
             model.addAttribute("isEdit", true);
             return "grupo/viewFormGrupo";
         }
-        return "redirect:/grupo";
+        return "redirect:/admin/grupo";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -225,7 +225,7 @@ public class GrupoController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el grupo: " + e.getMessage());
         }
-        return "redirect:/grupo";
+        return "redirect:/admin/grupo";
     }
 
     @GetMapping(value = "asignar/{idGrupo}")
@@ -248,7 +248,7 @@ public class GrupoController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al quitar el tutorado: " + e.getMessage());
         }
-        return "redirect:/grupo/ver/" + idGrupo;
+        return "redirect:/admin/grupo/ver/" + idGrupo;
     }
 
     @PostMapping(value = "asignar/{idGrupo}")
@@ -262,7 +262,7 @@ public class GrupoController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al asignar tutorados: " + e.getMessage());
         }
-        return "redirect:/grupo/ver/" + idGrupo;
+        return "redirect:/admin/grupo/ver/" + idGrupo;
     }
 
     // ── Módulo Asignar Tutor ──────────────────────────────────────────────────
@@ -331,7 +331,7 @@ public class GrupoController {
     public String obtenerVistaFormAsignarTutor(@PathVariable Integer idGrupo, Model model) {
         Grupo grupo = this.grupoService.obtenerGrupo(idGrupo);
         if (grupo == null) {
-            return "redirect:/grupo/asignar-tutor";
+            return "redirect:/admin/grupo/asignar-tutor";
         }
         model.addAttribute("grupo", grupo);
         model.addAttribute("tutores", this.tutorService.obtenerTodosTutores());
@@ -345,19 +345,19 @@ public class GrupoController {
             RedirectAttributes attributes) {
         if (idTutor == null) {
             attributes.addFlashAttribute("msg_error", "Debe seleccionar un tutor");
-            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+            return "redirect:/admin/grupo/asignar-tutor/" + idGrupo;
         }
         try {
             this.grupoService.asignarTutor(idGrupo, idTutor);
             attributes.addFlashAttribute("msg_success", "Tutor asignado correctamente");
         } catch (NoSuchElementException e) {
             attributes.addFlashAttribute("msg_error", e.getMessage());
-            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+            return "redirect:/admin/grupo/asignar-tutor/" + idGrupo;
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al asignar el tutor: " + e.getMessage());
-            return "redirect:/grupo/asignar-tutor/" + idGrupo;
+            return "redirect:/admin/grupo/asignar-tutor/" + idGrupo;
         }
-        return "redirect:/grupo/asignar-tutor";
+        return "redirect:/admin/grupo/asignar-tutor";
     }
 
     @PostMapping(value = "quitar-tutor/{idGrupo}")
@@ -370,6 +370,6 @@ public class GrupoController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al quitar el tutor: " + e.getMessage());
         }
-        return "redirect:/grupo/asignar-tutor";
+        return "redirect:/admin/grupo/asignar-tutor";
     }
 }

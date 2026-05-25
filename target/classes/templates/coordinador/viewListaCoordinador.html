@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@
                     <p class="text-body-secondary fs-6 mb-0">Gestiona los coordinadores de tutoría por carrera.</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <a th:href="@{/coordinador/agregar}" class="btn btn-primary btn-icon">
+                    <a th:href="@{/admin/coordinador/agregar}" class="btn btn-primary btn-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 12.998h-5v5a1 1 0 0 1-2 0v-5H6a1 1 0 0 1 0-2h5v-5a1 1 0 0 1 2 0v5h5a1 1 0 0 1 0 2"/></svg>
                         Agregar Coordinador
                     </a>
@@ -51,7 +51,7 @@
 
             <div th:if="${filtro != null}" class="mb-3">
                 <span class="badge bg-info text-dark" th:text="'Filtro: ' + ${filtro}"></span>
-                <a th:href="@{/coordinador}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
+                <a th:href="@{/admin/coordinador}" class="btn btn-sm btn-outline-secondary ms-2">Limpiar filtro</a>
             </div>
 
             <!-- Búsqueda -->
@@ -82,11 +82,11 @@
                 <div class="tab-content pt-3">
 
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'todos' or tipoBusqueda == null} ? 'show active'" id="tab-todos">
-                        <a th:href="@{/coordinador}" class="btn btn-primary btn-sm">Ver todos</a>
+                        <a th:href="@{/admin/coordinador}" class="btn btn-primary btn-sm">Ver todos</a>
                     </div>
 
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'nombre'} ? 'show active'" id="tab-nombre">
-                        <form method="get" th:action="@{/coordinador}">
+                        <form method="get" th:action="@{/admin/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="nombre">
                             <div class="row g-2">
                                 <div class="col-md-8">
@@ -102,7 +102,7 @@
                     </div>
 
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carrera'} ? 'show active'" id="tab-carrera">
-                        <form method="get" th:action="@{/coordinador}">
+                        <form method="get" th:action="@{/admin/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="carrera">
                             <div class="row g-2">
                                 <div class="col-md-8">
@@ -123,7 +123,7 @@
                     </div>
 
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'semestre'} ? 'show active'" id="tab-semestre">
-                        <form method="get" th:action="@{/coordinador}">
+                        <form method="get" th:action="@{/admin/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="semestre">
                             <div class="row g-2">
                                 <div class="col-md-8">
@@ -144,7 +144,7 @@
                     </div>
 
                     <div class="tab-pane fade" th:classappend="${tipoBusqueda == 'carreraSemestre'} ? 'show active'" id="tab-carrera-semestre">
-                        <form method="get" th:action="@{/coordinador}">
+                        <form method="get" th:action="@{/admin/coordinador}">
                             <input type="hidden" name="tipoBusqueda" value="carreraSemestre">
                             <div class="row g-2">
                                 <div class="col-md-4">
@@ -189,9 +189,9 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th class="sort-th"><a th:href="@{/coordinador(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/admin/coordinador(sortBy='id',sort=${sortBy == 'id' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">ID <span th:if="${sortBy == 'id'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>Foto</th>
-                                <th class="sort-th"><a th:href="@{/coordinador(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
+                                <th class="sort-th"><a th:href="@{/admin/coordinador(sortBy='nombre',sort=${sortBy == 'nombre' ? (sort == 'asc' ? 'desc' : 'asc') : 'asc'},page=0,pageSize=${pageSize},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">Nombre <span th:if="${sortBy == 'nombre'}" th:text="${sort == 'asc' ? '↑' : '↓'}"></span></a></th>
                                 <th>No. Control</th>
                                 <th>Cargo</th>
                                 <th>Carrera</th>
@@ -206,7 +206,7 @@
                                 <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${coordinador.id}"></td>
                                 <td>
                                     <img th:if="${coordinador.foto != null}"
-                                         th:src="@{/coordinador/{foto}(foto=${coordinador.foto})}"
+                                         th:src="@{/admin/coordinador/{foto}(foto=${coordinador.foto})}"
                                          alt="Foto" class="avatar avatar-sm">
                                     <img th:unless="${coordinador.foto != null}"
                                          th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${coordinador.nombre}+${coordinador.apellido}|}"
@@ -240,9 +240,9 @@
                                 <td th:unless="${coordinador.fechaRegistro != null}"><span class="badge rounded-pill badge-sin-asignar">—</span></td>
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <a th:href="@{/coordinador/ver/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
-                                        <a th:href="@{/coordinador/actualizar/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                        <a th:href="@{/coordinador/delete/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                                        <a th:href="@{/admin/coordinador/ver/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                        <a th:href="@{/admin/coordinador/actualizar/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                        <a th:href="@{/admin/coordinador/delete/{id}(id=${coordinador.id})}" class="btn btn-sm btn-outline-danger">Eliminar</a>
                                     </div>
                                 </td>
                             </tr>
@@ -257,13 +257,13 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0 gap-1">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
-                            <a class="page-link" th:href="@{/coordinador(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&laquo;</a>
+                            <a class="page-link" th:href="@{/admin/coordinador(page=${paginaActual - 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&laquo;</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}" th:classappend="${i == paginaActual} ? 'active'">
-                            <a class="page-link" th:text="${i + 1}" th:href="@{/coordinador(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}"></a>
+                            <a class="page-link" th:text="${i + 1}" th:href="@{/admin/coordinador(page=${i},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}"></a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
-                            <a class="page-link" th:href="@{/coordinador(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&raquo;</a>
+                            <a class="page-link" th:href="@{/admin/coordinador(page=${paginaActual + 1},pageSize=${pageSize},sort=${sort},sortBy=${sortBy},tipoBusqueda=${tipoBusqueda},q=${q},idCarrera=${idCarreraSeleccionada},idSemestre=${idSemestreSeleccionado})}">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
@@ -284,8 +284,8 @@
                 <h5>No hay coordinadores registrados</h5>
                 <p>Agrega un coordinador para comenzar a gestionar las carreras.</p>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/coordinador}" class="btn btn-outline-secondary">Limpiar filtros</a>
-                    <a th:href="@{/coordinador/agregar}" class="btn btn-primary">Agregar Coordinador</a>
+                    <a th:href="@{/admin/coordinador}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                    <a th:href="@{/admin/coordinador/agregar}" class="btn btn-primary">Agregar Coordinador</a>
                 </div>
             </div>
 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Tutoría | Sistema Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>Mi Tutoría</h3>
+                    <p th:if="${tutor != null}"
+                       th:text="${tutor.nombre + ' ' + tutor.apellido}">Tutor</p>
+                </div>
+            </div>
+
+            <div th:if="${tutor == null}" class="alert alert-warning">
+                No se encontró información de tutor asociada a tu cuenta.
+            </div>
+
+            <div th:if="${tutor != null}">
+
+                <!-- Datos del tutor -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header"><h6 class="mb-0">Mis datos</h6></div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <p class="text-muted small mb-1">Nombre</p>
+                                        <p class="fw-semibold" th:text="${tutor.nombre + ' ' + tutor.apellido}">—</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="text-muted small mb-1">Correo</p>
+                                        <p th:text="${tutor.email ?: '—'}">—</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="text-muted small mb-1">Estado</p>
+                                        <span class="badge"
+                                              th:classappend="${tutor.activo == 1 ? 'bg-success' : 'bg-secondary'}"
+                                              th:text="${tutor.activo == 1 ? 'Activo' : 'Inactivo'}">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mis grupos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Mis grupos activos</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${grupos == null or grupos.isEmpty()}" class="p-4 text-center text-muted">
+                            No tienes grupos asignados en el semestre actual.
+                        </div>
+                        <div th:if="${grupos != null and !grupos.isEmpty()}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Grupo</th>
+                                        <th>Carrera</th>
+                                        <th>Semestre</th>
+                                        <th>Aula</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="g : ${grupos}" class="fade-in-up">
+                                        <td th:text="${g.nombre}">—</td>
+                                        <td th:text="${g.carrera?.nombre ?: '—'}">—</td>
+                                        <td th:text="${g.semestre != null ? g.semestre.periodo + ' ' + g.semestre.anio : '—'}">—</td>
+                                        <td th:text="${g.aula ?: '—'}">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

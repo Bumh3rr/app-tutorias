@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "semestre")
+@RequestMapping(value = "admin/semestre")
 public class SemestreController {
 
     @Autowired
@@ -73,7 +73,7 @@ public class SemestreController {
             model.addAttribute("isEdit", false);
             return "semestre/viewFormSemestre";
         }
-        return "redirect:/semestre";
+        return "redirect:/admin/semestre";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -108,7 +108,7 @@ public class SemestreController {
             model.addAttribute("isEdit", true);
             return "semestre/viewFormSemestre";
         }
-        return "redirect:/semestre";
+        return "redirect:/admin/semestre";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -126,6 +126,6 @@ public class SemestreController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el semestre: " + e.getMessage());
         }
-        return "redirect:/semestre";
+        return "redirect:/admin/semestre";
     }
 }

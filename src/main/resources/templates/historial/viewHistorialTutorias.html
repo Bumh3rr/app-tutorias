@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +26,7 @@
             <!-- Filtros -->
             <div class="search-filters mb-4">
                 <h6 class="mb-3">Filtrar historial</h6>
-                <form method="get" th:action="@{/historial}" id="form-filtros">
+                <form method="get" th:action="@{/admin/historial}" id="form-filtros">
                     <input type="hidden" name="page" value="0">
                     <input type="hidden" name="pageSize" th:value="${pageSize}">
                     <div class="row g-2 align-items-end">
@@ -79,7 +79,7 @@
                         </div>
                         <div class="col-md-2 d-flex gap-2">
                             <button type="submit" class="btn btn-primary flex-grow-1">Buscar</button>
-                            <a th:href="@{/historial}" class="btn btn-outline-secondary">
+                            <a th:href="@{/admin/historial}" class="btn btn-outline-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
                                 </svg>
@@ -133,7 +133,7 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <img th:if="${reg.tutorado.foto != null}"
-                                         th:src="@{/tutorado/{foto}(foto=${reg.tutorado.foto})}"
+                                         th:src="@{/admin/tutorado/{foto}(foto=${reg.tutorado.foto})}"
                                          alt="Foto" class="avatar avatar-sm">
                                     <img th:unless="${reg.tutorado.foto != null}"
                                          th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${reg.tutorado.nombre}+${reg.tutorado.apellido}|}"
@@ -157,7 +157,7 @@
                             </td>
                             <!-- Grupo -->
                             <td>
-                                <a th:href="@{/grupo/ver/{id}(id=${reg.grupo.id})}"
+                                <a th:href="@{/admin/grupo/ver/{id}(id=${reg.grupo.id})}"
                                    class="text-decoration-none fw-medium"
                                    th:text="${reg.grupo.nombre}"></a>
                             </td>
@@ -216,7 +216,7 @@
                                     <!-- Carnet: siempre disponible -->
                                     <button type="button"
                                             class="btn btn-sm btn-outline-secondary pdf-btn"
-                                            th:attr="data-url=@{/tutorado/pdf/carnet/{id}(id=${reg.tutorado.id})}"
+                                            th:attr="data-url=@{/admin/tutorado/pdf/carnet/{id}(id=${reg.tutorado.id})}"
                                             onclick="abrirPdf(this)"
                                             data-bs-toggle="tooltip"
                                             title="Carnet PDF">
@@ -229,7 +229,7 @@
                                     <button th:if="${reg.grupo.semestre != null}"
                                             type="button"
                                             class="btn btn-sm btn-outline-secondary pdf-btn"
-                                            th:attr="data-url=@{/tutorado/pdf/constancia/{id}(id=${reg.tutorado.id}, idSemestre=${reg.grupo.semestre.id})}"
+                                            th:attr="data-url=@{/admin/tutorado/pdf/constancia/{id}(id=${reg.tutorado.id}, idSemestre=${reg.grupo.semestre.id})}"
                                             onclick="abrirPdf(this)"
                                             data-bs-toggle="tooltip"
                                             title="Constancia PDF">
@@ -263,7 +263,7 @@
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/historial(page=${paginaActual - 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
+                               th:href="@{/admin/historial(page=${paginaActual - 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                                 &laquo;
                             </a>
                         </li>
@@ -272,12 +272,12 @@
                             th:classappend="${i == paginaActual} ? 'active'">
                             <a class="page-link"
                                th:text="${i + 1}"
-                               th:href="@{/historial(page=${i},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
+                               th:href="@{/admin/historial(page=${i},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                             </a>
                         </li>
                         <li class="page-item" th:classappend="${paginaActual + 1 == totalPaginas} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/historial(page=${paginaActual + 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
+                               th:href="@{/admin/historial(page=${paginaActual + 1},pageSize=${pageSize},q=${q},idSemestre=${idSemestreSeleccionado},idCarrera=${idCarreraSeleccionada},idGrupo=${idGrupoSeleccionado},estatusAcreditacion=${estatusAcreditacion})}">
                                 &raquo;
                             </a>
                         </li>
@@ -303,7 +303,7 @@
                 <img th:src="@{/images/utils/img.png}" alt="Sin resultados">
                 <h5>No hay registros</h5>
                 <p>No se encontraron tutorías con los filtros aplicados.</p>
-                <a th:href="@{/historial}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                <a th:href="@{/admin/historial}" class="btn btn-outline-secondary">Limpiar filtros</a>
             </div>
 
         </main>

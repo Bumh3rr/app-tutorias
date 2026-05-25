@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -143,7 +143,7 @@
             <!-- Header -->
             <div class="page-header tu-hero">
                 <div>
-                    <a th:href="@{/tutor}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/tutor}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -157,8 +157,8 @@
                           th:text="${tutor.activo == 1} ? 'Activo' : 'Inactivo'"
                           th:classappend="${tutor.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
-                    <a th:href="@{/tutor/actualizar/{id}(id=${tutor.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/tutor/delete/{id}(id=${tutor.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/tutor/actualizar/{id}(id=${tutor.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/tutor/delete/{id}(id=${tutor.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -168,7 +168,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${tutor.foto != null}"
-                         th:src="@{/tutor/{foto}(foto=${tutor.foto})}"
+                         th:src="@{/admin/tutor/{foto}(foto=${tutor.foto})}"
                          alt="Foto tutor" class="avatar-hero">
                     <img th:unless="${tutor.foto != null}"
                          th:src="@{|https://ui-avatars.com/api/?size=160&background=random&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}"
@@ -289,14 +289,14 @@
                     <div class="glass-surface tu-left" style="animation-delay:0.05s;">
                         <p class="section-title">Acciones</p>
                         <div class="d-flex flex-column gap-2">
-                            <a th:href="@{/tutor/actualizar/{id}(id=${tutor.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/tutor/actualizar/{id}(id=${tutor.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                                 </svg>
                                 Editar tutor
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/grupo/agregar}" class="nav-link-item">
+                            <a th:href="@{/admin/grupo/agregar}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                                     <circle cx="9" cy="7" r="4"/>
@@ -305,7 +305,7 @@
                                 Nuevo grupo
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/sesion(tipoBusqueda='tutor',idTutor=${tutor.id})}" class="nav-link-item">
+                            <a th:href="@{/admin/sesion(tipoBusqueda='tutor',idTutor=${tutor.id})}" class="nav-link-item">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2"/>
                                     <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
@@ -313,7 +313,7 @@
                                 Ver sesiones
                                 <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                             </a>
-                            <a th:href="@{/tutor/delete/{id}(id=${tutor.id})}" class="nav-link-item" style="color:rgba(248,113,113,0.7);">
+                            <a th:href="@{/admin/tutor/delete/{id}(id=${tutor.id})}" class="nav-link-item" style="color:rgba(248,113,113,0.7);">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"/>
                                     <path d="M19 6l-1 14H6L5 6"/>
@@ -338,7 +338,7 @@
                                       th:text="${grupos != null} ? ${#lists.size(grupos)} : 0">
                                 </span>
                             </p>
-                            <a th:href="@{/grupo/agregar}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
+                            <a th:href="@{/admin/grupo/agregar}" class="btn btn-sm btn-outline-primary" style="font-size:12px;">
                                 + Nuevo grupo
                             </a>
                         </div>
@@ -353,7 +353,7 @@
                                 <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                            <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}"
+                                            <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}"
                                                class="grupo-card-title"
                                                th:text="${grupo.nombre}"></a>
                                             <span class="badge rounded-pill"
@@ -421,18 +421,18 @@
 
                                 <!-- Botones de acción -->
                                 <div class="d-flex gap-2">
-                                    <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}"
+                                    <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}"
                                        class="btn btn-sm btn-outline-secondary flex-grow-1">
                                         Ver detalle
                                     </a>
-                                    <a th:href="@{/grupo/asignar/{id}(id=${grupo.id})}"
+                                    <a th:href="@{/admin/grupo/asignar/{id}(id=${grupo.id})}"
                                        class="btn btn-sm btn-outline-primary flex-grow-1">
                                         Asignar tutorados
                                     </a>
                                 </div>
                                 <th:block th:if="${grupo.semestre != null}">
                                     <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-1"
-                                            th:attr="data-url=@{/tutor/pdf/constancia/{id}(id=${tutor.id},idSemestre=${grupo.semestre.id})}"
+                                            th:attr="data-url=@{/admin/tutor/pdf/constancia/{id}(id=${tutor.id},idSemestre=${grupo.semestre.id})}"
                                             onclick="abrirPdf(this)">
                                         <i class="bi bi-file-earmark-pdf"></i>
                                         Constancia PDF
@@ -454,7 +454,7 @@
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                             </svg>
                             <p class="mb-2 small">Este tutor no tiene grupos asignados</p>
-                            <a th:href="@{/grupo/agregar}" class="btn btn-sm btn-outline-primary">Crear grupo</a>
+                            <a th:href="@{/admin/grupo/agregar}" class="btn btn-sm btn-outline-primary">Crear grupo</a>
                         </div>
 
                     </div>
@@ -472,7 +472,7 @@
                               th:if="${actividades != null}"
                               th:text="${#lists.size(actividades)}">0</span>
                     </div>
-                    <a th:href="@{/actividad}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
+                    <a th:href="@{/admin/actividad}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><polyline points="9 18 15 12 9 6"/></svg>
                         Ver módulo
                     </a>
@@ -482,7 +482,7 @@
                 <div th:if="${actividades != null and !#lists.isEmpty(actividades)}">
                     <div class="d-flex flex-column gap-2">
                         <a th:each="act, stat : ${actividades}"
-                           th:href="@{/actividad/ver/{id}(id=${act.id})}"
+                           th:href="@{/admin/actividad/ver/{id}(id=${act.id})}"
                            class="act-row"
                            th:style="'animation-delay:' + ${stat.index * 0.05} + 's'">
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -233,7 +233,7 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex gap-1 justify-content-end">
-                                    <a th:href="@{/notificacion/preview/{id}(id=${dto.coordinador.id})}"
+                                    <a th:href="@{/admin/notificacion/preview/{id}(id=${dto.coordinador.id})}"
                                        target="_blank"
                                        class="btn btn-sm btn-outline-secondary"
                                        title="Ver preview del correo">
@@ -248,7 +248,7 @@
                                             class="btn btn-sm btn-outline-primary"
                                             th:attr="disabled=${!dto.puedeRecibirCorreo ? 'disabled' : null}"
                                             th:data-nombre="${dto.coordinador.nombre + ' ' + dto.coordinador.apellido}"
-                                            th:data-action="@{/notificacion/enviar/{id}(id=${dto.coordinador.id})}"
+                                            th:data-action="@{/admin/notificacion/enviar/{id}(id=${dto.coordinador.id})}"
                                             th:title="${!dto.puedeRecibirCorreo ? 'Este coordinador no tiene actividades aplicables para esta semana' : 'Enviar recordatorio a este coordinador'}"
                                             data-bs-toggle="modal"
                                             data-bs-target="#modalEnviarUno">
@@ -274,7 +274,7 @@
                     No se encontraron coordinadores activos para el semestre
                     <strong th:text="${semestreVigente.periodo + ' ' + semestreVigente.anio}"></strong>.
                 </p>
-                <a th:href="@{/coordinador/agregar}" class="btn btn-primary">Agregar Coordinador</a>
+                <a th:href="@{/admin/coordinador/agregar}" class="btn btn-primary">Agregar Coordinador</a>
             </div>
 
         </main>
@@ -308,7 +308,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form th:action="@{/notificacion/enviar/todos}" method="post" class="d-inline">
+                <form th:action="@{/admin/notificacion/enviar/todos}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-primary">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="1.5" style="width:14px;height:14px;" class="me-1">

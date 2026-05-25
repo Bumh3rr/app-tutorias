@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +31,7 @@
             <div class="row g-3 mb-4 stagger">
 
                 <div class="col-6 col-md-3">
-                    <a th:href="@{/tutor}" class="text-decoration-none">
+                    <a th:href="@{/admin/tutor}" class="text-decoration-none">
                         <div class="stat-card">
                             <div class="stat-label">Tutores activos</div>
                             <div class="stat-value" th:text="${totalTutores}">0</div>
@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="col-6 col-md-3">
-                    <a th:href="@{/tutorado}" class="text-decoration-none">
+                    <a th:href="@{/admin/tutorado}" class="text-decoration-none">
                         <div class="stat-card">
                             <div class="stat-label">Tutorados</div>
                             <div class="stat-value" th:text="${totalTutorados}">0</div>
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="col-6 col-md-3">
-                    <a th:href="@{/actividad}" class="text-decoration-none">
+                    <a th:href="@{/admin/actividad}" class="text-decoration-none">
                         <div class="stat-card">
                             <div class="stat-label">Actividades PAT</div>
                             <div class="stat-value" th:text="${totalActividades}">0</div>
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="col-6 col-md-3">
-                    <a th:href="@{/grupo}" class="text-decoration-none">
+                    <a th:href="@{/admin/grupo}" class="text-decoration-none">
                         <div class="stat-card">
                             <div class="stat-label">Grupos activos</div>
                             <div class="stat-value" th:text="${totalGrupos}">0</div>
@@ -76,7 +76,7 @@
             <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Próximas actividades</h5>
-                    <a th:href="@{/actividad}" class="btn btn-sm btn-outline-secondary">Ver todas</a>
+                    <a th:href="@{/admin/actividad}" class="btn btn-sm btn-outline-secondary">Ver todas</a>
                 </div>
 
                 <div th:if="${proximasActividades != null and !#lists.isEmpty(proximasActividades)}">
@@ -106,7 +106,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/actividad/ver/{id}(id=${actividad.id})}"
+                                    <a th:href="@{/admin/actividad/ver/{id}(id=${actividad.id})}"
                                        class="btn btn-sm btn-outline-primary">Ver</a>
                                 </td>
                             </tr>
@@ -122,7 +122,7 @@
                     <p>Agrega actividades al PAT para verlas aquí.</p>
                     <div class="d-flex gap-2">
                         <a th:href="@{/}" class="btn btn-outline-secondary">Refrescar</a>
-                        <a th:href="@{/actividad/agregar}" class="btn btn-primary">Agregar Actividad</a>
+                        <a th:href="@{/admin/actividad/agregar}" class="btn btn-primary">Agregar Actividad</a>
                     </div>
                 </div>
 
@@ -134,7 +134,7 @@
                 <div class="row g-3 stagger">
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/tutor/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/tutor/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3" style="transition: transform 0.2s, box-shadow 0.2s;">
                                 <div class="icon-circle" style="background: rgba(99,102,241,0.15);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -150,7 +150,7 @@
                     </div>
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/tutorado/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/tutorado/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3">
                                 <div class="icon-circle" style="background: rgba(16,185,129,0.12);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -165,7 +165,7 @@
                     </div>
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/grupo/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/grupo/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3">
                                 <div class="icon-circle" style="background: rgba(168,85,247,0.12);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -182,7 +182,7 @@
                     </div>
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/pat/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/pat/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3">
                                 <div class="icon-circle" style="background: rgba(245,158,11,0.12);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -199,7 +199,7 @@
                     </div>
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/actividad/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/actividad/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3">
                                 <div class="icon-circle" style="background: rgba(14,165,233,0.12);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -214,7 +214,7 @@
                     </div>
 
                     <div class="col-6 col-md-4">
-                        <a th:href="@{/semestre/agregar}" class="text-decoration-none">
+                        <a th:href="@{/admin/semestre/agregar}" class="text-decoration-none">
                             <div class="glass-surface d-flex align-items-center gap-3">
                                 <div class="icon-circle" style="background: rgba(239,68,68,0.1);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
                        th:text="(${grupo.carrera != null} ? ${grupo.carrera.nombre} : '') + ' | ' + (${grupo.semestre != null} ? ${grupo.semestre.periodo} + ' ' + ${grupo.semestre.anio} : '')">
                     </p>
                 </div>
-                <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-outline-secondary">
+                <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-outline-secondary">
                     Volver al grupo
                 </a>
             </div>
@@ -33,7 +33,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <form th:action="@{/grupo/asignar/{id}(id=${grupo.id})}" method="post">
+            <form th:action="@{/admin/grupo/asignar/{id}(id=${grupo.id})}" method="post">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Tutorados disponibles</h5>
@@ -73,7 +73,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <img th:if="${tutorado.foto != null}"
-                                             th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
+                                             th:src="@{/admin/tutorado/{foto}(foto=${tutorado.foto})}"
                                              alt="Foto"
                                              class="avatar avatar-sm">
                                         <img th:unless="${tutorado.foto != null}"
@@ -103,7 +103,7 @@
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end">
-                    <a th:href="@{/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-secondary">Cancelar</a>
+                    <a th:href="@{/admin/grupo/ver/{id}(id=${grupo.id})}" class="btn btn-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-success"
                             th:disabled="${tutoradosDisponibles == null or #lists.isEmpty(tutoradosDisponibles)}">
                         Asignar Tutorados

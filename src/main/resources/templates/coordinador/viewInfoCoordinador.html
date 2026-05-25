@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,7 +112,7 @@
             <!-- Header -->
             <div class="page-header co-hero">
                 <div>
-                    <a th:href="@{/coordinador}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
+                    <a th:href="@{/admin/coordinador}" class="text-body-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-2"
                        style="opacity:0.6; transition:opacity 0.15s ease;"
                        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -126,8 +126,8 @@
                           th:text="${coordinador.activo == 1} ? 'Activo' : 'Inactivo'"
                           th:classappend="${coordinador.activo == 1} ? 'badge-active' : 'badge-inactive'">
                     </span>
-                    <a th:href="@{/coordinador/actualizar/{id}(id=${coordinador.id})}" class="btn btn-primary btn-sm">Editar</a>
-                    <a th:href="@{/coordinador/delete/{id}(id=${coordinador.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    <a th:href="@{/admin/coordinador/actualizar/{id}(id=${coordinador.id})}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{/admin/coordinador/delete/{id}(id=${coordinador.id})}" class="btn btn-outline-danger btn-sm">Eliminar</a>
                 </div>
             </div>
 
@@ -137,7 +137,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${coordinador.foto != null}"
-                         th:src="@{/coordinador/{foto}(foto=${coordinador.foto})}"
+                         th:src="@{/admin/coordinador/{foto}(foto=${coordinador.foto})}"
                          alt="Foto coordinador"
                          class="avatar-hero">
                     <img th:unless="${coordinador.foto != null}"
@@ -292,7 +292,7 @@
 
                         <div class="pt-3 mt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
                             <div class="d-flex flex-column gap-2">
-                                <a th:href="@{/coordinador/actualizar/{id}(id=${coordinador.id})}"
+                                <a th:href="@{/admin/coordinador/actualizar/{id}(id=${coordinador.id})}"
                                    class="nav-link-item">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -302,7 +302,7 @@
                                 </a>
                                 <button type="button"
                                         class="nav-link-item"
-                                        th:attr="data-url=@{/coordinador/pdf/nombramiento/{id}(id=${coordinador.id})}"
+                                        th:attr="data-url=@{/admin/coordinador/pdf/nombramiento/{id}(id=${coordinador.id})}"
                                         onclick="abrirPdf(this)">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -313,7 +313,7 @@
                                     Nombramiento oficial (PDF)
                                     <svg class="link-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                 </button>
-                                <a th:href="@{/coordinador/delete/{id}(id=${coordinador.id})}"
+                                <a th:href="@{/admin/coordinador/delete/{id}(id=${coordinador.id})}"
                                    class="nav-link-item" style="color: rgba(248,113,113,0.7);">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"/>

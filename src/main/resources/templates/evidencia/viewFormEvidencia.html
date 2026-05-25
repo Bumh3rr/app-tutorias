@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,7 +37,7 @@
                 <form method="post"
                       enctype="multipart/form-data"
                       th:object="${evidencia}"
-                      th:action="${isEdit} ? @{/evidencia/actualizar/{id}(id=${evidencia.id})} : @{/evidencia/guardar}">
+                      th:action="${isEdit} ? @{/admin/evidencia/actualizar/{id}(id=${evidencia.id})} : @{/admin/evidencia/guardar}">
 
                     <div class="mb-3" th:if="${evidencia.id != null}">
                         <label class="form-label">ID</label>
@@ -65,7 +65,7 @@
                     <div class="mb-3">
                         <label class="form-label">Archivo de evidencia</label>
                         <div class="fp-wrapper"
-                             th:attr="data-current-url=${evidencia.archivoUrl != null} ? @{/evidencia/{f}(f=${evidencia.archivoUrl})} : ''"
+                             th:attr="data-current-url=${evidencia.archivoUrl != null} ? @{/admin/evidencia/{f}(f=${evidencia.archivoUrl})} : ''"
                              th:data-current-name="${evidencia.archivoUrl}">
                             <input type="file" class="fp-file-input" name="archivoFile" accept="image/*">
                             <input type="hidden" th:field="*{archivoUrl}">
@@ -89,7 +89,7 @@
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end mt-4">
-                        <a th:href="@{/evidencia}" class="btn btn-secondary">Cancelar</a>
+                        <a th:href="@{/admin/evidencia}" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
                             <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
                         </button>

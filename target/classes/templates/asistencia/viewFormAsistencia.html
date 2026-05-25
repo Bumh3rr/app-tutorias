@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,7 @@
 
                 <form method="post"
                       th:object="${asistencia}"
-                      th:action="${isEdit} ? @{/asistencia/actualizar/{id}(id=${asistencia.id})} : @{/asistencia/guardar}">
+                      th:action="${isEdit} ? @{/admin/asistencia/actualizar/{id}(id=${asistencia.id})} : @{/admin/asistencia/guardar}">
 
                     <div class="mb-3" th:if="${asistencia.id != null}">
                         <label class="form-label">ID</label>
@@ -74,7 +74,7 @@
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end">
-                        <a th:href="@{/asistencia}" class="btn btn-secondary">Cancelar</a>
+                        <a th:href="@{/admin/asistencia}" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">Guardar</button>
                     </div>
 

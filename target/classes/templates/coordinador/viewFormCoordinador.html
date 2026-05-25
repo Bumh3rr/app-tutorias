@@ -35,7 +35,7 @@
                 <form method="post"
                       enctype="multipart/form-data"
                       th:object="${coordinador}"
-                      th:action="${isEdit} ? @{/coordinador/actualizar/{id}(id=${coordinador.id})} : @{/coordinador/guardar}">
+                      th:action="${isEdit} ? @{/admin/coordinador/actualizar/{id}(id=${coordinador.id})} : @{/admin/coordinador/guardar}">
 
                     <div class="mb-3" th:if="${coordinador.id != null}">
                         <label class="form-label">ID</label>
@@ -106,7 +106,7 @@
                     <div class="mb-3">
                         <label class="form-label">Foto del Coordinador</label>
                         <div class="fp-wrapper"
-                             th:attr="data-current-url=${coordinador.foto != null} ? @{/coordinador/{f}(f=${coordinador.foto})} : ''"
+                             th:attr="data-current-url=${coordinador.foto != null} ? @{/admin/coordinador/{f}(f=${coordinador.foto})} : ''"
                              th:data-current-name="${coordinador.foto}">
                             <input type="file" class="fp-file-input" name="fotoFile" accept="image/*">
                             <input type="hidden" th:field="*{foto}">
@@ -139,7 +139,7 @@
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end mt-4">
-                        <a th:href="@{/coordinador}" class="btn btn-secondary">Cancelar</a>
+                        <a th:href="@{/admin/coordinador}" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
                             <span th:text="${isEdit} ? 'Actualizar' : 'Guardar'"></span>
                         </button>

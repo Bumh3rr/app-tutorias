@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "sesion")
+@RequestMapping(value = "admin/sesion")
 public class SesionController {
 
     @Autowired
@@ -146,7 +146,7 @@ public class SesionController {
             model.addAttribute("isEdit", false);
             return "sesion/viewFormSesion";
         }
-        return "redirect:/sesion";
+        return "redirect:/admin/sesion";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -197,7 +197,7 @@ public class SesionController {
             model.addAttribute("isEdit", true);
             return "sesion/viewFormSesion";
         }
-        return "redirect:/sesion";
+        return "redirect:/admin/sesion";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -215,7 +215,7 @@ public class SesionController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la sesión: " + e.getMessage());
         }
-        return "redirect:/sesion";
+        return "redirect:/admin/sesion";
     }
 
     @InitBinder

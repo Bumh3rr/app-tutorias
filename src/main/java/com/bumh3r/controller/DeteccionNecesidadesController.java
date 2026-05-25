@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "deteccion")
+@RequestMapping(value = "admin/deteccion")
 public class DeteccionNecesidadesController {
 
     @Autowired
@@ -175,7 +175,7 @@ public class DeteccionNecesidadesController {
             model.addAttribute("isEdit", false);
             return "deteccion/viewFormDeteccion";
         }
-        return "redirect:/deteccion";
+        return "redirect:/admin/deteccion";
     }
 
     @GetMapping(value = "ver/{id}")
@@ -220,7 +220,7 @@ public class DeteccionNecesidadesController {
             model.addAttribute("isEdit", true);
             return "deteccion/viewFormDeteccion";
         }
-        return "redirect:/deteccion";
+        return "redirect:/admin/deteccion";
     }
 
     @GetMapping(value = "delete/{id}")
@@ -238,7 +238,7 @@ public class DeteccionNecesidadesController {
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar la detección: " + e.getMessage());
         }
-        return "redirect:/deteccion";
+        return "redirect:/admin/deteccion";
     }
 
     @GetMapping(value = "pdf/{id}")

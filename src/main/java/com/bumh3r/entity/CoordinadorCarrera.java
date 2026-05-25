@@ -51,4 +51,7 @@ public class CoordinadorCarrera {
     @Column(name = "fecha_registro", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaRegistro;
+
+    @OneToOne(mappedBy = "coordinador", fetch = FetchType.LAZY)
+    private Usuario usuario;
 }

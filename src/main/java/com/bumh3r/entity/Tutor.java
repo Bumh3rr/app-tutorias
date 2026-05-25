@@ -42,4 +42,7 @@ public class Tutor {
     @Column(name = "fecha_registro", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaRegistro;
+
+    @OneToOne(mappedBy = "tutor", fetch = FetchType.LAZY)
+    private Usuario usuario;
 }
