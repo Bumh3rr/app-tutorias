@@ -168,7 +168,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${tutor.foto != null}"
-                         th:src="@{/admin/tutor/{foto}(foto=${tutor.foto})}"
+                         th:src="@{/tutor/{foto}(foto=${tutor.foto})}"
                          alt="Foto tutor" class="avatar-hero">
                     <img th:unless="${tutor.foto != null}"
                          th:src="@{|https://ui-avatars.com/api/?size=160&background=random&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}"

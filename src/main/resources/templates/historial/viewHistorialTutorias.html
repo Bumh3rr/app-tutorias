@@ -133,7 +133,7 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <img th:if="${reg.tutorado.foto != null}"
-                                         th:src="@{/admin/tutorado/{foto}(foto=${reg.tutorado.foto})}"
+                                         th:src="@{/tutorado/{foto}(foto=${reg.tutorado.foto})}"
                                          alt="Foto" class="avatar avatar-sm">
                                     <img th:unless="${reg.tutorado.foto != null}"
                                          th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${reg.tutorado.nombre}+${reg.tutorado.apellido}|}"

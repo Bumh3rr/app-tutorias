@@ -206,7 +206,7 @@
                                 <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${coordinador.id}"></td>
                                 <td>
                                     <img th:if="${coordinador.foto != null}"
-                                         th:src="@{/admin/coordinador/{foto}(foto=${coordinador.foto})}"
+                                         th:src="@{/coordinador/{foto}(foto=${coordinador.foto})}"
                                          alt="Foto" class="avatar avatar-sm">
                                     <img th:unless="${coordinador.foto != null}"
                                          th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${coordinador.nombre}+${coordinador.apellido}|}"

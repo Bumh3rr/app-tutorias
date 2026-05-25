@@ -60,7 +60,7 @@
                         <small class="text-body-secondary d-block mb-1">Tutor actual</small>
                         <div class="d-flex align-items-center gap-2">
                             <img th:if="${grupo.tutor.foto != null}"
-                                 th:src="@{/admin/tutor/{foto}(foto=${grupo.tutor.foto})}"
+                                 th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}"
                                  style="width:36px;height:36px;object-fit:cover;border-radius:50%;" alt="foto">
                             <img th:unless="${grupo.tutor.foto != null}"
                                  th:src="@{|https://ui-avatars.com/api/?background=random&color=fff&rounded=true&bold=true&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}"

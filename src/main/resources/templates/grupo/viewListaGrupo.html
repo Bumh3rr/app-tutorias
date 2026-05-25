@@ -245,7 +245,7 @@
                                 <td class="text-center"><span class="badge outline bg-secondary" th:text="${conteoAlumnos != null and conteoAlumnos[grupo.id] != null} ? ${conteoAlumnos[grupo.id]} : 0"></span></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2" th:if="${grupo.tutor != null}">
-                                        <img th:if="${grupo.tutor.foto != null}" th:src="@{/admin/tutor/{foto}(foto=${grupo.tutor.foto})}" alt="Foto" class="avatar avatar-sm">
+                                        <img th:if="${grupo.tutor.foto != null}" th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}" alt="Foto" class="avatar avatar-sm">
                                         <img th:unless="${grupo.tutor.foto != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${grupo.tutor.nombre}+${grupo.tutor.apellido}|}" alt="Avatar" class="avatar avatar-sm">
                                         <span th:text="${grupo.tutor.nombre} + ' ' + ${grupo.tutor.apellido}"></span>
                                     </div>

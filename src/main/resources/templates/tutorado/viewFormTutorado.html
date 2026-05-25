@@ -103,7 +103,7 @@
                     <div class="mb-3">
                         <label class="form-label">Foto del Tutorado</label>
                         <div class="fp-wrapper"
-                             th:attr="data-current-url=${tutorado.foto != null} ? @{/admin/tutorado/{f}(f=${tutorado.foto})} : ''"
+                             th:attr="data-current-url=${tutorado.foto != null} ? @{/tutorado/{f}(f=${tutorado.foto})} : ''"
                              th:data-current-name="${tutorado.foto}">
                             <input type="file" class="fp-file-input" name="fotoFile" accept="image/*">
                             <input type="hidden" th:field="*{foto}">

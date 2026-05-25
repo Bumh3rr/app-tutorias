@@ -137,7 +137,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${coordinador.foto != null}"
-                         th:src="@{/admin/coordinador/{foto}(foto=${coordinador.foto})}"
+                         th:src="@{/coordinador/{foto}(foto=${coordinador.foto})}"
                          alt="Foto coordinador"
                          class="avatar-hero">
                     <img th:unless="${coordinador.foto != null}"

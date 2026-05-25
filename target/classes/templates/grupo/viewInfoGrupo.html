@@ -414,7 +414,7 @@
                         <div th:if="${grupo.tutor != null}">
                             <a th:href="@{/admin/tutor/ver/{id}(id=${grupo.tutor.id})}" class="tutor-card mb-3">
                                 <img th:if="${grupo.tutor.foto != null}"
-                                     th:src="@{/admin/tutor/{foto}(foto=${grupo.tutor.foto})}"
+                                     th:src="@{/tutor/{foto}(foto=${grupo.tutor.foto})}"
                                      alt="Foto tutor"
                                      class="tutor-avatar">
                                 <div th:unless="${grupo.tutor.foto != null}" class="tutor-avatar-placeholder">
@@ -599,7 +599,7 @@
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <img th:if="${item.tutorado.foto != null}"
-                                                     th:src="@{/admin/tutorado/{foto}(foto=${item.tutorado.foto})}"
+                                                     th:src="@{/tutorado/{foto}(foto=${item.tutorado.foto})}"
                                                      alt="Foto"
                                                      class="tutorado-avatar">
                                                 <img th:unless="${item.tutorado.foto != null}"

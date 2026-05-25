@@ -131,7 +131,7 @@
                                 <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${evidencia.id}"></td>
                                 <td>
                                     <img th:if="${evidencia.archivoUrl != null}"
-                                         th:src="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                                         th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                                          alt="Evidencia"
                                          style="width:45px;height:45px;object-fit:cover;border-radius:8px;">
                                     <span th:unless="${evidencia.archivoUrl != null}"

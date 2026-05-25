@@ -73,7 +73,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <img th:if="${tutorado.foto != null}"
-                                             th:src="@{/admin/tutorado/{foto}(foto=${tutorado.foto})}"
+                                             th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
                                              alt="Foto"
                                              class="avatar avatar-sm">
                                         <img th:unless="${tutorado.foto != null}"

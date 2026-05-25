@@ -201,7 +201,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"
-                         th:src="@{/admin/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
+                         th:src="@{/tutorado/{foto}(foto=${deteccion.tutorado.foto})}"
                          alt="Foto tutorado"
                          class="avatar-hero">
                     <img th:unless="${deteccion.tutorado != null and deteccion.tutorado.foto != null}"

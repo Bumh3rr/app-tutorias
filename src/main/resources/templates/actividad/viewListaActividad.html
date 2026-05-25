@@ -125,7 +125,7 @@
                             <tr th:each="actividad : ${actividades}" class="fade-in-up">
                                 <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${actividad.id}"></td>
                                 <td>
-                                    <img th:if="${actividad.foto != null}" th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}" alt="Foto" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
+                                    <img th:if="${actividad.foto != null}" th:src="@{/actividad/{foto}(foto=${actividad.foto})}" alt="Foto" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
                                     <div th:unless="${actividad.foto != null}" style="width:40px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(99,102,241,0.08);display:flex;align-items:center;justify-content:center;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.5)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </div>

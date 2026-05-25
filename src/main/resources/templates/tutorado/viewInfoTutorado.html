@@ -220,7 +220,7 @@
 
                     <!-- Avatar -->
                     <img th:if="${tutorado.foto != null}"
-                         th:src="@{/admin/tutorado/{foto}(foto=${tutorado.foto})}"
+                         th:src="@{/tutorado/{foto}(foto=${tutorado.foto})}"
                          alt="Foto tutorado" class="avatar-hero">
                     <img th:unless="${tutorado.foto != null}"
                          th:src="@{|https://ui-avatars.com/api/?size=160&background=random&color=fff&rounded=true&bold=true&name=${tutorado.nombre}+${tutorado.apellido}|}"
@@ -591,7 +591,7 @@
                                 <div th:if="${memb.grupo.tutor != null}"
                                      class="d-flex align-items-center gap-1 mt-1">
                                     <img th:if="${memb.grupo.tutor.foto != null}"
-                                         th:src="@{/admin/tutor/{foto}(foto=${memb.grupo.tutor.foto})}"
+                                         th:src="@{/tutor/{foto}(foto=${memb.grupo.tutor.foto})}"
                                          class="tutor-mini-avatar" alt="">
                                     <div th:unless="${memb.grupo.tutor.foto != null}"
                                          style="width:18px;height:18px;border-radius:50%;background:rgba(99,102,241,0.2);flex-shrink:0;"></div>

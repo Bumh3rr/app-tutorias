@@ -106,7 +106,7 @@
                     <div class="mb-3">
                         <label class="form-label">Foto del Coordinador</label>
                         <div class="fp-wrapper"
-                             th:attr="data-current-url=${coordinador.foto != null} ? @{/admin/coordinador/{f}(f=${coordinador.foto})} : ''"
+                             th:attr="data-current-url=${coordinador.foto != null} ? @{/coordinador/{f}(f=${coordinador.foto})} : ''"
                              th:data-current-name="${coordinador.foto}">
                             <input type="file" class="fp-file-input" name="fotoFile" accept="image/*">
                             <input type="hidden" th:field="*{foto}">

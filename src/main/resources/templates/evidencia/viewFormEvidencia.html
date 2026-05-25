@@ -65,7 +65,7 @@
                     <div class="mb-3">
                         <label class="form-label">Archivo de evidencia</label>
                         <div class="fp-wrapper"
-                             th:attr="data-current-url=${evidencia.archivoUrl != null} ? @{/admin/evidencia/{f}(f=${evidencia.archivoUrl})} : ''"
+                             th:attr="data-current-url=${evidencia.archivoUrl != null} ? @{/evidencia/{f}(f=${evidencia.archivoUrl})} : ''"
                              th:data-current-name="${evidencia.archivoUrl}">
                             <input type="file" class="fp-file-input" name="archivoFile" accept="image/*">
                             <input type="hidden" th:field="*{archivoUrl}">

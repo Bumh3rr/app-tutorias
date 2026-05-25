@@ -310,7 +310,7 @@
 
                     <!-- Thumbnail -->
                     <img th:if="${pat.foto != null}"
-                         th:src="@{/admin/pat/{foto}(foto=${pat.foto})}"
+                         th:src="@{/pat/{foto}(foto=${pat.foto})}"
                          alt="Imagen PAT"
                          class="thumb-hero">
                     <div th:unless="${pat.foto != null}" class="thumb-placeholder">
@@ -450,7 +450,7 @@
                     <div class="glass-surface pt-right">
                         <p class="section-title">Imagen</p>
                         <img th:if="${pat.foto != null}"
-                             th:src="@{/admin/pat/{foto}(foto=${pat.foto})}"
+                             th:src="@{/pat/{foto}(foto=${pat.foto})}"
                              alt="Imagen PAT"
                              class="pat-img-preview">
                         <div th:unless="${pat.foto != null}" class="pat-img-placeholder">

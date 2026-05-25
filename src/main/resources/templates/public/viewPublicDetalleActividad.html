@@ -259,7 +259,7 @@
             <!-- Miniatura -->
             <div style="flex-shrink:0;">
                 <img th:if="${actividad.foto != null}"
-                     th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}"
+                     th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
                      alt="Imagen actividad"
                      style="width:72px; height:72px; object-fit:cover; border-radius:10px;
                             border:2px solid rgba(255,255,255,0.1);">
@@ -370,7 +370,7 @@
             <div class="glass-card">
                 <p class="section-title">Imagen</p>
                 <img th:if="${actividad.foto != null}"
-                     th:src="@{/admin/actividad/{foto}(foto=${actividad.foto})}"
+                     th:src="@{/actividad/{foto}(foto=${actividad.foto})}"
                      alt="Imagen actividad"
                      class="activity-img">
                 <div th:unless="${actividad.foto != null}" class="activity-img-placeholder">

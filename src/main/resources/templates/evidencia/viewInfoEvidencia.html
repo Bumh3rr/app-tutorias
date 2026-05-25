@@ -197,7 +197,7 @@
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.png') or
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.gif') or
                                        #strings.endsWith(#strings.toLowerCase(evidencia.archivoUrl), '.webp')}">
-                        <img th:src="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
+                        <img th:src="@{/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                              alt="Evidencia">
                         <a th:href="@{/admin/evidencia/{archivo}(archivo=${evidencia.archivoUrl})}"
                            target="_blank" class="file-preview-link">
