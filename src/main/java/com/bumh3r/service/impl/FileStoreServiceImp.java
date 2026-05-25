@@ -26,6 +26,9 @@ public class FileStoreServiceImp implements FileStoreService {
     public String save(MultipartFile file, FileType fileType) throws IOException {
         if (file == null || file.isEmpty()) return null;
 
+        log.info("urlBase: {}", this.urlBase);  // <- agrega esto
+        log.info("fileType: {}", fileType.getValue());
+
         String ruta = String.format("%s/%s",this.urlBase,fileType.getValue()); // <- Se obtiene la ruta de subida del archivo
 
         Path uploadPath = Paths.get(ruta);
