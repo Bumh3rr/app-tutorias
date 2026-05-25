@@ -124,7 +124,7 @@
                                     <div th:if="${tutor.foto != null}"
                                          class="rounded-circle overflow-hidden mb-3 mx-auto"
                                          style="width:72px;height:72px;background:rgba(255,255,255,0.06)">
-                                        <img th:src="${tutor.foto}" alt="Foto"
+                                        <img th:src="@{/tutor/{f}(f=${tutor.foto})}" alt="Foto"
                                              style="width:100%;height:100%;object-fit:cover">
                                     </div>
                                     <div th:if="${tutor.foto == null}"

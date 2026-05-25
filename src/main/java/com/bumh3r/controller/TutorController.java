@@ -125,6 +125,7 @@ public class TutorController {
                     model.addAttribute("filtro", null);
                 }
             }
+            paginaTutores.getContent().forEach(t -> log.info("Tutor: {}", t.getFoto()));
         } catch (Exception e) {
             paginaTutores = this.tutorService.obtenerTodosTutoresPaginado(0, pageSize, "id", "desc");
             model.addAttribute("msg_error", "Error en la búsqueda: " + e.getMessage());

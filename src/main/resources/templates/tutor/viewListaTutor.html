@@ -142,7 +142,7 @@
                         <tr th:each="tutor : ${tutores}" class="fade-in-up">
                             <td class="text-body-secondary font-monospace" style="font-size:12px;" th:text="'#' + ${tutor.id}"></td>
                             <td>
-                                <img th:if="${tutor.foto != null}" th:src="@{/admin/tutor/{foto}(foto=${tutor.foto})}" alt="Foto" class="avatar avatar-sm">
+                                <img th:if="${tutor.foto != null}" th:src="@{/tutor/{foto}(foto=${tutor.foto})}" alt="Foto" class="avatar avatar-sm">
                                 <img th:unless="${tutor.foto != null}" th:src="@{|https://ui-avatars.com/api/?background=6366f1&color=fff&rounded=true&bold=true&name=${tutor.nombre}+${tutor.apellido}|}" alt="Avatar" class="avatar avatar-sm">
                             </td>
                             <td class="fw-medium" th:text="${tutor.nombre} + ' ' + ${tutor.apellido}"></td>

@@ -62,6 +62,20 @@ public class SecurityConfig {
                 // Recursos estáticos y rutas públicas
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/styles/**",
                                  "/webjars/**", "/login", "/error", "/error/**", "/public/**").permitAll()
+                // Imágenes subidas (fotos de tutores, tutorados, coordinadores, etc.)
+                // Deben ir ANTES de las reglas de rol para que cualquier usuario autenticado pueda verlas
+                .requestMatchers(
+                    "/tutor/*.jpg",  "/tutor/*.jpeg",  "/tutor/*.png",  "/tutor/*.gif",  "/tutor/*.webp",
+                    "/tutor/*.JPG",  "/tutor/*.JPEG",  "/tutor/*.PNG",
+                    "/tutorado/*.jpg", "/tutorado/*.jpeg", "/tutorado/*.png", "/tutorado/*.gif", "/tutorado/*.webp",
+                    "/tutorado/*.JPG", "/tutorado/*.JPEG", "/tutorado/*.PNG",
+                    "/coordinador/*.jpg", "/coordinador/*.jpeg", "/coordinador/*.png", "/coordinador/*.gif",
+                    "/coordinador/*.JPG", "/coordinador/*.JPEG", "/coordinador/*.PNG",
+                    "/pat/*.jpg", "/pat/*.jpeg", "/pat/*.png", "/pat/*.gif",
+                    "/actividad/*.jpg", "/actividad/*.jpeg", "/actividad/*.png", "/actividad/*.gif",
+                    "/evidencia/*.jpg", "/evidencia/*.jpeg", "/evidencia/*.png", "/evidencia/*.gif",
+                    "/evidencia/*.pdf"
+                ).authenticated()
                 // Área administrativa (DDA y CIT)
                 .requestMatchers("/admin/**").hasAnyRole("DDA", "CIT")
                 // Dashboard raíz redirige según rol — requiere autenticación
