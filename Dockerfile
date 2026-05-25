@@ -9,5 +9,6 @@ RUN mvn clean package -DskipTests -B -q
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=builder /build/target/app-tutorias-0.0.1-SNAPSHOT.jar app.jar
+RUN mkdir -p /app/uploads
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
