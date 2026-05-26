@@ -98,11 +98,13 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
     }
 
     @Override
+    @Transactional
     public void eliminarCoordinador(Integer id) {
         CoordinadorCarrera coordinador = this.iCoordinadorCarreraRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coordinador no encontrado"));
         coordinador.setActivo(0);
         this.iCoordinadorCarreraRepository.save(coordinador);
+        this.usuarioService.desactivarPorCoordinador(id);
     }
 
     @Override
@@ -173,6 +175,7 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
         });
         coordinador.setActivo(1);
         this.iCoordinadorCarreraRepository.save(coordinador);
+        this.usuarioService.reactivarPorCoordinador(id);
     }
 
     @Override

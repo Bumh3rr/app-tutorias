@@ -78,11 +78,13 @@ public class TutorServiceImpl implements TutorService {
     }
 
     @Override
+    @Transactional
     public void eliminarTutor(Integer id) {
         Tutor tutor = this.iTutorRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
         tutor.setActivo(0);
         this.iTutorRepository.save(tutor);
+        this.usuarioService.desactivarPorTutor(id);
     }
 
     @Override
@@ -142,8 +144,7 @@ public class TutorServiceImpl implements TutorService {
         });
         tutor.setActivo(1);
         this.iTutorRepository.save(tutor);
-        // Nota: este soft-delete/reactivación no afecta al Usuario asociado.
-        // La gestión de la cuenta de usuario es independiente y queda en manos del admin.
+        this.usuarioService.reactivarPorTutor(id);
     }
 
     @Override

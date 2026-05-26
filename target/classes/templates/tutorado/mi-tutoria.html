@@ -143,6 +143,13 @@
                     <div class="col-lg-4">
                         <div class="glass-surface h-100 d-flex flex-column">
                             <h6 class="section-title">Mi tutor asignado</h6>
+                            <div th:if="${tutor != null and tutor.activo != 1}"
+                                 class="alert alert-warning d-flex align-items-center gap-2 mb-3 w-100" role="alert" style="font-size:.85rem">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <span>Tu tutor asignado está actualmente <strong>inactivo</strong>.</span>
+                            </div>
                             <div th:if="${tutor != null}" class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center">
                                 <div th:if="${tutor.foto != null}"
                                      class="rounded-circle overflow-hidden mb-3"

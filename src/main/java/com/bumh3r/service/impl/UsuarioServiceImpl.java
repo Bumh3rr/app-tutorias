@@ -6,6 +6,7 @@ import com.bumh3r.entity.Tutor;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.entity.Usuario;
 import com.bumh3r.repository.IUsuarioRepository;
+import com.bumh3r.service.SessionRegistryService;
 import com.bumh3r.service.UsuarioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired private IUsuarioRepository usuarioRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private SessionRegistryService sessionRegistryService;
 
     @Override
     public Optional<Usuario> findByUsername(String username) {
@@ -119,6 +121,63 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void desactivar(Integer idUsuario) {
         usuarioRepository.findById(idUsuario).ifPresent(u -> {
             u.setActivo(false);
+            usuarioRepository.save(u);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void desactivarPorTutor(Integer tutorId) {
+        usuarioRepository.findByTutorId(tutorId).ifPresent(u -> {
+            u.setActivo(false);
+            usuarioRepository.save(u);
+            sessionRegistryService.invalidarSesionesDeUsuario(u.getUsername());
+        });
+    }
+
+    @Override
+    @Transactional
+    public void reactivarPorTutor(Integer tutorId) {
+        usuarioRepository.findByTutorId(tutorId).ifPresent(u -> {
+            u.setActivo(true);
+            usuarioRepository.save(u);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void desactivarPorTutorado(Integer tutoradoId) {
+        usuarioRepository.findByTutoradoId(tutoradoId).ifPresent(u -> {
+            u.setActivo(false);
+            usuarioRepository.save(u);
+            sessionRegistryService.invalidarSesionesDeUsuario(u.getUsername());
+        });
+    }
+
+    @Override
+    @Transactional
+    public void reactivarPorTutorado(Integer tutoradoId) {
+        usuarioRepository.findByTutoradoId(tutoradoId).ifPresent(u -> {
+            u.setActivo(true);
+            usuarioRepository.save(u);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void desactivarPorCoordinador(Integer coordinadorId) {
+        usuarioRepository.findByCoordinadorId(coordinadorId).ifPresent(u -> {
+            u.setActivo(false);
+            usuarioRepository.save(u);
+            sessionRegistryService.invalidarSesionesDeUsuario(u.getUsername());
+        });
+    }
+
+    @Override
+    @Transactional
+    public void reactivarPorCoordinador(Integer coordinadorId) {
+        usuarioRepository.findByCoordinadorId(coordinadorId).ifPresent(u -> {
+            u.setActivo(true);
             usuarioRepository.save(u);
         });
     }

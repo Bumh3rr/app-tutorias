@@ -14,6 +14,7 @@ com/bumh3r/entity/CoordinadorCarrera.class
 com/bumh3r/controller/NotificacionController.class
 com/bumh3r/entity/PAT$PATBuilder.class
 com/bumh3r/service/impl/DeteccionPdfServiceImpl$HeaderFooterEvent.class
+com/bumh3r/service/SessionRegistryService.class
 com/bumh3r/entity/ReporteSesion.class
 com/bumh3r/repository/ISemestreRepository.class
 com/bumh3r/entity/Sesion$SesionBuilder.class
@@ -45,6 +46,7 @@ com/bumh3r/dto/CoordinadorNotificacionDTO$CoordinadorNotificacionDTOBuilder.clas
 com/bumh3r/controller/GrupoController.class
 com/bumh3r/entity/DeteccionNecesidades$DeteccionNecesidadesBuilder.class
 com/bumh3r/entity/GrupoTutorado$GrupoTutoradoBuilder.class
+com/bumh3r/service/impl/SessionRegistryServiceImpl.class
 com/bumh3r/controller/PATController.class
 com/bumh3r/controller/SemestreController.class
 com/bumh3r/dto/ResumenAsistenciaDTO.class

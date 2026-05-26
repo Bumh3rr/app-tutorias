@@ -93,11 +93,13 @@ public class TutoradoServiceImpl implements TutoradoService {
     }
 
     @Override
+    @Transactional
     public void eliminarTutorado(Integer id) {
         Tutorado tutorado = this.iTutoradoRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
         tutorado.setActivo(0);
         this.iTutoradoRepository.save(tutorado);
+        this.usuarioService.desactivarPorTutorado(id);
     }
 
     @Override
@@ -153,8 +155,7 @@ public class TutoradoServiceImpl implements TutoradoService {
         });
         tutorado.setActivo(1);
         this.iTutoradoRepository.save(tutorado);
-        // Nota: este soft-delete/reactivación no afecta al Usuario asociado.
-        // La gestión de la cuenta de usuario es independiente y queda en manos del admin.
+        this.usuarioService.reactivarPorTutorado(id);
     }
 
     @Override

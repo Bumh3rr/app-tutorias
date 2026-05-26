@@ -66,6 +66,8 @@
                                     <td>
                                         <span class="fw-semibold"
                                               th:text="${asignacion.tutorado.nombre + ' ' + asignacion.tutorado.apellido}">—</span>
+                                        <span th:if="${asignacion.tutorado.activo != 1}"
+                                              class="badge bg-danger ms-1" style="font-size:.65rem">INACTIVO</span>
                                     </td>
                                     <td class="text-body-secondary small"
                                         th:text="${asignacion.tutorado.numeroControl}">—</td>

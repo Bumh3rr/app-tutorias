@@ -95,8 +95,12 @@
                                  class="d-flex align-items-center gap-2 py-2"
                                  style="border-bottom: 1px solid rgba(255,255,255,0.05)">
                                 <div class="flex-grow-1 min-w-0">
-                                    <div class="fw-semibold small text-truncate"
-                                         th:text="${asignacion.tutorado.nombre + ' ' + asignacion.tutorado.apellido}">—</div>
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        <span class="fw-semibold small text-truncate"
+                                              th:text="${asignacion.tutorado.nombre + ' ' + asignacion.tutorado.apellido}">—</span>
+                                        <span th:if="${asignacion.tutorado.activo != 1}"
+                                              class="badge bg-danger" style="font-size:.65rem">INACTIVO</span>
+                                    </div>
                                     <div class="text-body-secondary" style="font-size:0.75rem"
                                          th:text="'NC: ' + ${asignacion.tutorado.numeroControl}">—</div>
                                 </div>

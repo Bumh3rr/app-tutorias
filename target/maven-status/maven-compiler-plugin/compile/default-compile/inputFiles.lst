@@ -81,6 +81,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ReporteSesionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SemestreService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SesionService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SessionRegistryService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/TutorService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/TutoradoService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/UsuarioService.java
@@ -105,6 +106,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ReporteSesionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SemestreServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SesionServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SessionRegistryServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/TutorServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/TutoradoServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/UsuarioDetailsServiceImpl.java

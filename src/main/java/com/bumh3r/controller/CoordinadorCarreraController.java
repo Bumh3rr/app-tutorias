@@ -236,7 +236,7 @@ public class CoordinadorCarreraController {
     public String eliminarCoordinador(@PathVariable Integer id, RedirectAttributes attributes) {
         try {
             this.coordinadorCarreraService.eliminarCoordinador(id);
-            attributes.addFlashAttribute("msg_success", "Coordinador eliminado correctamente");
+            attributes.addFlashAttribute("msg_success", "Coordinador dado de baja. El acceso a la plataforma ha sido bloqueado.");
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el coordinador: " + e.getMessage());
         }
@@ -247,7 +247,7 @@ public class CoordinadorCarreraController {
     public String reactivarCoordinador(@PathVariable Integer id, RedirectAttributes attributes) {
         try {
             this.coordinadorCarreraService.reactivar(id);
-            attributes.addFlashAttribute("msg_success", "Coordinador reactivado correctamente");
+            attributes.addFlashAttribute("msg_success", "Coordinador reactivado. El acceso a la plataforma ha sido restaurado.");
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
         }

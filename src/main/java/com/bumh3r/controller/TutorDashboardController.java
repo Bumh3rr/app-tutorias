@@ -357,9 +357,15 @@ public class TutorDashboardController {
             grupoPorTutorado.putIfAbsent(gt.getTutorado().getId(), gt.getGrupo());
         }
 
+        Map<Integer, Integer> activoPorTutorado = new LinkedHashMap<>();
+        for (GrupoTutorado gt : todasAsignaciones) {
+            activoPorTutorado.putIfAbsent(gt.getTutorado().getId(), gt.getTutorado().getActivo());
+        }
+
         model.addAttribute("tutor", tutor);
         model.addAttribute("resumenes", resumenes);
         model.addAttribute("grupoPorTutorado", grupoPorTutorado);
+        model.addAttribute("activoPorTutorado", activoPorTutorado);
         model.addAttribute("semestreVigente", vigente);
         return "tutor/asistencias";
     }

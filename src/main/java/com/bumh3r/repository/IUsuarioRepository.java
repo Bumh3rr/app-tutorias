@@ -15,4 +15,7 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findByRol(Rol rol);
     List<Usuario> findByActivoAndRol(Boolean activo, Rol rol);
     List<Usuario> findByActivo(Boolean activo);
+    Optional<Usuario> findByTutorId(Integer tutorId);
+    Optional<Usuario> findByTutoradoId(Integer tutoradoId);
+    Optional<Usuario> findByCoordinadorId(Integer coordinadorId);
 }

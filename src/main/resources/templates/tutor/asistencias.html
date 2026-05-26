@@ -85,6 +85,8 @@
                                         th:classappend="${r.porcentaje < 80 ? 'table-warning bg-opacity-10' : ''}">
                                         <td>
                                             <span class="fw-semibold" th:text="${r.nombreTutorado}">—</span>
+                                            <span th:if="${activoPorTutorado[r.idTutorado] != null and activoPorTutorado[r.idTutorado] != 1}"
+                                                  class="badge bg-danger ms-1" style="font-size:.65rem">INACTIVO</span>
                                         </td>
                                         <td class="small text-body-secondary"
                                             th:text="${grupoPorTutorado[r.idTutorado]?.nombre ?: '—'}">—</td>

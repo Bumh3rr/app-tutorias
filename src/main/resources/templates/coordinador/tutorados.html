@@ -49,10 +49,12 @@
                             <tbody>
                                 <tr th:each="ins : ${grupoTutorados}">
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
                                             <div style="width:32px;height:32px;border-radius:50%;background:rgba(117,183,152,.2);color:#75b798;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;flex-shrink:0"
                                                  th:text="${(ins.tutorado?.nombre != null ? #strings.substring(ins.tutorado.nombre,0,1) : '') + (ins.tutorado?.apellido != null ? #strings.substring(ins.tutorado.apellido,0,1) : '')}">AB</div>
                                             <span th:text="${(ins.tutorado?.nombre ?: '') + ' ' + (ins.tutorado?.apellido ?: '')}">—</span>
+                                            <span th:if="${ins.tutorado?.activo != null and ins.tutorado.activo != 1}"
+                                                  class="badge bg-danger" style="font-size:.65rem">INACTIVO</span>
                                         </div>
                                     </td>
                                     <td class="text-body-secondary small" th:text="${ins.tutorado?.numeroControl ?: '—'}">—</td>

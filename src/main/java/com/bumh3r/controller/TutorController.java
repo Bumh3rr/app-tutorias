@@ -277,7 +277,7 @@ public class TutorController {
     public String eliminarTutor(@PathVariable Integer id, RedirectAttributes attributes) {
         try {
             this.tutorService.eliminarTutor(id);
-            attributes.addFlashAttribute("msg_success", "Tutor eliminado correctamente");
+            attributes.addFlashAttribute("msg_success", "Tutor dado de baja. El acceso a la plataforma ha sido bloqueado.");
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el tutor: " + e.getMessage());
         }
@@ -288,7 +288,7 @@ public class TutorController {
     public String reactivarTutor(@PathVariable Integer id, RedirectAttributes attributes) {
         try {
             this.tutorService.reactivar(id);
-            attributes.addFlashAttribute("msg_success", "Tutor reactivado correctamente");
+            attributes.addFlashAttribute("msg_success", "Tutor reactivado. El acceso a la plataforma ha sido restaurado.");
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
         }

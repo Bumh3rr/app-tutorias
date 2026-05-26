@@ -18,4 +18,10 @@ public interface UsuarioService {
     void actualizarUsername(Integer idUsuario, String nuevoUsername);
     void cambiarPassword(Integer idUsuario, String nuevaPasswordRaw);
     void desactivar(Integer idUsuario);
+    void desactivarPorTutor(Integer tutorId);
+    void reactivarPorTutor(Integer tutorId);
+    void desactivarPorTutorado(Integer tutoradoId);
+    void reactivarPorTutorado(Integer tutoradoId);
+    void desactivarPorCoordinador(Integer coordinadorId);
+    void reactivarPorCoordinador(Integer coordinadorId);
 }
