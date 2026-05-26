@@ -1,6 +1,7 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.CoordinadorCarrera;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.CoordinadorCarreraService;
 import com.bumh3r.service.FileStoreService;
@@ -49,6 +50,7 @@ public class CoordinadorCarreraController {
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
@@ -85,7 +87,7 @@ public class CoordinadorCarreraController {
                 try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.coordinadorCarreraService.buscarPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable); }
                 model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
-                pageResult = this.coordinadorCarreraService.obtenerTodosCoordinadoresPage(pageable);
+                pageResult = this.coordinadorCarreraService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
@@ -105,6 +107,7 @@ public class CoordinadorCarreraController {
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("idSemestreSeleccionado", idSemestre);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("q", q);
                 model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
@@ -148,6 +151,10 @@ public class CoordinadorCarreraController {
             log.info("Guardar coordinador: {}", coordinador);
             this.coordinadorCarreraService.guardarCoordinador(coordinador);
             attributes.addFlashAttribute("msg_success", "Coordinador guardado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/coordinador?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/coordinador";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el coordinador: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -200,6 +207,10 @@ public class CoordinadorCarreraController {
             log.info("Actualizar coordinador {}: {}", id, coordinador);
             this.coordinadorCarreraService.actualizarCoordinador(id, coordinador);
             attributes.addFlashAttribute("msg_success", "Coordinador actualizado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/coordinador?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/coordinador";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el coordinador: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -226,6 +237,17 @@ public class CoordinadorCarreraController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el coordinador: " + e.getMessage());
         }
         return "redirect:/admin/coordinador";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarCoordinador(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.coordinadorCarreraService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Coordinador reactivado correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/coordinador?filtroEstado=activos";
     }
 
     @GetMapping(value = "pdf/nombramiento/{id}")

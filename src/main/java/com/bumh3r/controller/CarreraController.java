@@ -1,6 +1,7 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Carrera;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.CarreraService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class CarreraController {
 
     @GetMapping()
     public String obtenerVistaListaCarreras(
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
@@ -36,9 +38,7 @@ public class CarreraController {
         List<String> validSortFields = List.of("id", "nombre", "clave");
         if (!validSortFields.contains(sortBy)) sortBy = "nombre";
 
-        Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
-        Page<Carrera> pageResult = this.carreraService.obtenerTodasCarrerasPage(pageable);
+        Page<Carrera> pageResult = this.carreraService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
 
         log.info("carreras page: {}", pageResult.getContent());
         model.addAttribute("carreras", pageResult.getContent());
@@ -48,6 +48,7 @@ public class CarreraController {
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sort", sort);
         model.addAttribute("sortBy", sortBy);
+        model.addAttribute("filtroEstado", filtroEstado);
         return "carrera/viewListaCarrera";
     }
 
@@ -68,6 +69,10 @@ public class CarreraController {
             log.info("Guardar carrera: {}", carrera);
             this.carreraService.guardarCarrera(carrera);
             attributes.addFlashAttribute("msg_success", "Carrera guardada correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/carrera?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/carrera";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar la carrera: " + e.getMessage());
             model.addAttribute("isEdit", false);
@@ -103,6 +108,10 @@ public class CarreraController {
             log.info("Actualizar carrera {}: {}", id, carrera);
             this.carreraService.actualizarCarrera(id, carrera);
             attributes.addFlashAttribute("msg_success", "Carrera actualizada correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/carrera?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/carrera";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar la carrera: " + e.getMessage());
             model.addAttribute("isEdit", true);
@@ -116,6 +125,17 @@ public class CarreraController {
         Carrera carrera = this.carreraService.obtenerCarrera(id);
         model.addAttribute("carrera", carrera);
         return "carrera/viewConfirmDeleteCarrera";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarCarrera(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.carreraService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Carrera reactivada correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/carrera?filtroEstado=activos";
     }
 
     @PostMapping(value = "confirm/delete/{id}")

@@ -31,6 +31,10 @@
                     <span th:text="${msg_error}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                <div th:if="${msg_warning}" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                    <span th:utext="${msg_warning}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
 
                 <form method="post"
                       enctype="multipart/form-data"

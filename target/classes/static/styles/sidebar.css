@@ -214,7 +214,7 @@ body {
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
-    animation: fadeInUp 0.38s cubic-bezier(.4, 0, .2, 1) both;
+    animation: fadeInUp 0.38s cubic-bezier(.4, 0, .2, 1) backwards;
 }
 
 /* ══════════════════════════════════════

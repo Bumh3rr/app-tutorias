@@ -2,6 +2,7 @@ package com.bumh3r.service.impl;
 
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.Tutorado;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.ITutoradoRepository;
 import com.bumh3r.service.TutoradoService;
@@ -36,12 +37,16 @@ public class TutoradoServiceImpl implements TutoradoService {
     @Override
     public void guardarTutorado(Tutorado tutorado) {
         resolverRelaciones(tutorado);
-        if (this.iTutoradoRepository.existsByNumeroControlAndActivo(tutorado.getNumeroControl(), 1)) {
-            throw new IllegalArgumentException("Ya existe un tutorado activo con el número de control " + tutorado.getNumeroControl());
-        }
-        if (this.iTutoradoRepository.existsByEmailAndActivo(tutorado.getEmail(), 1)) {
-            throw new IllegalArgumentException("Ya existe un tutorado activo con el email " + tutorado.getEmail());
-        }
+        this.iTutoradoRepository.findByNumeroControl(tutorado.getNumeroControl()).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutorado activo con el número de control " + tutorado.getNumeroControl());
+            throw new RegistroInactivoExistenteException("Tutorado", "Número de control", tutorado.getNumeroControl(), existente.getId());
+        });
+        this.iTutoradoRepository.findByEmail(tutorado.getEmail()).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutorado activo con el email " + tutorado.getEmail());
+            throw new RegistroInactivoExistenteException("Tutorado", "Email", tutorado.getEmail(), existente.getId());
+        });
         tutorado.setActivo(1);
         this.iTutoradoRepository.save(tutorado);
     }
@@ -53,12 +58,16 @@ public class TutoradoServiceImpl implements TutoradoService {
 
         resolverRelaciones(tutorado);
 
-        if (this.iTutoradoRepository.existsByNumeroControlAndActivoAndIdNot(tutorado.getNumeroControl(), 1, id)) {
-            throw new IllegalArgumentException("Ya existe un tutorado activo con el número de control " + tutorado.getNumeroControl());
-        }
-        if (this.iTutoradoRepository.existsByEmailAndActivoAndIdNot(tutorado.getEmail(), 1, id)) {
-            throw new IllegalArgumentException("Ya existe un tutorado activo con el email " + tutorado.getEmail());
-        }
+        this.iTutoradoRepository.findByNumeroControlAndIdNot(tutorado.getNumeroControl(), id).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutorado activo con el número de control " + tutorado.getNumeroControl());
+            throw new RegistroInactivoExistenteException("Tutorado", "Número de control", tutorado.getNumeroControl(), existente.getId());
+        });
+        this.iTutoradoRepository.findByEmailAndIdNot(tutorado.getEmail(), id).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutorado activo con el email " + tutorado.getEmail());
+            throw new RegistroInactivoExistenteException("Tutorado", "Email", tutorado.getEmail(), existente.getId());
+        });
 
         tutoradoDB.setNombre(tutorado.getNombre());
         tutoradoDB.setApellido(tutorado.getApellido());
@@ -119,6 +128,37 @@ public class TutoradoServiceImpl implements TutoradoService {
     public Page<Tutorado> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin, int page, int pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iTutoradoRepository.searchByFechaRegistro(inicio, fin, pageable);
+    }
+
+    @Override
+    public void reactivar(Integer id) {
+        Tutorado tutorado = this.iTutoradoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tutorado no encontrado"));
+        if (tutorado.getActivo() == 1)
+            throw new IllegalStateException("Este Tutorado ya está activo.");
+        // Verificar que no exista otro activo con el mismo número de control
+        this.iTutoradoRepository.findByNumeroControlAndIdNot(tutorado.getNumeroControl(), id).ifPresent(otro -> {
+            if (otro.getActivo() == 1)
+                throw new IllegalStateException("No se puede reactivar: ya existe otro Tutorado activo con el número de control " + tutorado.getNumeroControl());
+        });
+        this.iTutoradoRepository.findByEmailAndIdNot(tutorado.getEmail(), id).ifPresent(otro -> {
+            if (otro.getActivo() == 1)
+                throw new IllegalStateException("No se puede reactivar: ya existe otro Tutorado activo con el email " + tutorado.getEmail());
+        });
+        tutorado.setActivo(1);
+        this.iTutoradoRepository.save(tutorado);
+        // Nota: este soft-delete/reactivación no afecta al Usuario asociado.
+        // La gestión de la cuenta de usuario es independiente y queda en manos del admin.
+    }
+
+    @Override
+    public Page<Tutorado> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return switch (filtroEstado) {
+            case "inactivos" -> this.iTutoradoRepository.findByActivo(0, pageable);
+            case "todos"     -> this.iTutoradoRepository.findAll(pageable);
+            default          -> this.iTutoradoRepository.findByActivo(1, pageable);
+        };
     }
 
     private void resolverRelaciones(Tutorado tutorado) {

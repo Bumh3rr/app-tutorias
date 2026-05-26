@@ -3,6 +3,7 @@ package com.bumh3r.controller;
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.AsistenciaService;
 import com.bumh3r.service.CarnetPdfService;
@@ -68,6 +69,7 @@ public class TutoradoController {
     @GetMapping()
     public String obtenerVistaListaTutorados(
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
@@ -133,7 +135,7 @@ public class TutoradoController {
                     }
                 }
                 default -> {
-                    paginaTutorados = this.tutoradoService.obtenerTodosTutoradosPaginado(page, pageSize, sortBy, sort);
+                    paginaTutorados = this.tutoradoService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
                     model.addAttribute("filtro", null);
                 }
             }
@@ -158,6 +160,7 @@ public class TutoradoController {
         model.addAttribute("sort", sort);
         model.addAttribute("mapSort", mapSort);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("q", q);
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
@@ -194,6 +197,10 @@ public class TutoradoController {
             log.info("Guardar tutorado: {}", tutorado);
             this.tutoradoService.guardarTutorado(tutorado);
             attributes.addFlashAttribute("msg_success", "Tutorado guardado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/tutorado?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/tutorado";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el tutorado: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -252,6 +259,10 @@ public class TutoradoController {
             log.info("Actualizar tutorado {}: {}", id, tutorado);
             this.tutoradoService.actualizarTutorado(id, tutorado);
             attributes.addFlashAttribute("msg_success", "Tutorado actualizado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/tutorado?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/tutorado";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el tutorado: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -296,6 +307,17 @@ public class TutoradoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarTutorado(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.tutoradoService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Tutorado reactivado correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/tutorado?filtroEstado=activos";
     }
 
     @GetMapping(value = "pdf/constancia/{id}")

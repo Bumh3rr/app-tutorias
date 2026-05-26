@@ -24,4 +24,7 @@ public interface PATService {
     Page<PAT> obtenerTodosPATPaginacion(Integer page, Integer pageSize, String sortBy, String sort);
 
     Page<PAT> buscarPorFechaRegistroPaginacion(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort);
+
+    void reactivar(Integer id);
+    Page<PAT> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

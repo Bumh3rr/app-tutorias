@@ -14,4 +14,7 @@ public interface CarreraService {
     void eliminarCarrera(Integer id);
 
     Page<Carrera> obtenerTodasCarrerasPage(Pageable pageable);
+
+    void reactivar(Integer id);
+    Page<Carrera> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

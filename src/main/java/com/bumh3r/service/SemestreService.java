@@ -16,4 +16,7 @@ public interface SemestreService {
     Page<Semestre> obtenerTodosSemestresPage(Pageable pageable);
 
     Semestre obtenerSemestreVigente();
+
+    void reactivar(Integer id);
+    Page<Semestre> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

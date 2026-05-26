@@ -19,4 +19,7 @@ public interface TutoradoService {
     Page<Tutorado> buscarPorEmail(String q, int page, int pageSize, String sortBy, String sort);
     Page<Tutorado> buscarPorCarrera(Integer idCarrera, int page, int pageSize, String sortBy, String sort);
     Page<Tutorado> buscarPorFechaRegistro(java.util.Date inicio, java.util.Date fin, int page, int pageSize, String sortBy, String sort);
+
+    void reactivar(Integer id);
+    Page<Tutorado> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

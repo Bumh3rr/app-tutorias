@@ -1,6 +1,7 @@
 package com.bumh3r.controller;
 
 import com.bumh3r.entity.Semestre;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.SemestreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class SemestreController {
 
     @GetMapping()
     public String obtenerVistaListaSemestres(
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "sort", required = false, defaultValue = "desc") String sort,
@@ -36,9 +38,7 @@ public class SemestreController {
         List<String> validSortFields = List.of("id", "anio", "periodo");
         if (!validSortFields.contains(sortBy)) sortBy = "anio";
 
-        Sort.Direction direction = sort.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
-        Page<Semestre> pageResult = this.semestreService.obtenerTodosSemestresPage(pageable);
+        Page<Semestre> pageResult = this.semestreService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
 
         log.info("semestres page: {}", pageResult.getContent());
         model.addAttribute("semestres", pageResult.getContent());
@@ -48,6 +48,7 @@ public class SemestreController {
         model.addAttribute("pageSize", pageSize);
         model.addAttribute("sort", sort);
         model.addAttribute("sortBy", sortBy);
+        model.addAttribute("filtroEstado", filtroEstado);
         return "semestre/viewListaSemestre";
     }
 
@@ -68,6 +69,10 @@ public class SemestreController {
             log.info("Guardar semestre: {}", semestre);
             this.semestreService.guardarSemestre(semestre);
             attributes.addFlashAttribute("msg_success", "Semestre guardado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/semestre?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/semestre";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el semestre: " + e.getMessage());
             model.addAttribute("isEdit", false);
@@ -103,6 +108,10 @@ public class SemestreController {
             log.info("Actualizar semestre {}: {}", id, semestre);
             this.semestreService.actualizarSemestre(id, semestre);
             attributes.addFlashAttribute("msg_success", "Semestre actualizado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/semestre?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/semestre";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el semestre: " + e.getMessage());
             model.addAttribute("isEdit", true);
@@ -116,6 +125,17 @@ public class SemestreController {
         Semestre semestre = this.semestreService.obtenerSemestre(id);
         model.addAttribute("semestre", semestre);
         return "semestre/viewConfirmDeleteSemestre";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarSemestre(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.semestreService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Semestre reactivado correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/semestre?filtroEstado=activos";
     }
 
     @PostMapping(value = "confirm/delete/{id}")

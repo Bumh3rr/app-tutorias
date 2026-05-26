@@ -42,4 +42,10 @@ public interface ITutoradoRepository extends JpaRepository<Tutorado, Integer> {
     Page<Tutorado> searchByFechaRegistro(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
 
     Optional<Tutorado> findByNumeroControlAndActivo(String numeroControl, Integer activo);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    Optional<Tutorado> findByNumeroControl(String numeroControl);
+    Optional<Tutorado> findByEmail(String email);
+    Optional<Tutorado> findByNumeroControlAndIdNot(String numeroControl, Integer id);
+    Optional<Tutorado> findByEmailAndIdNot(String email, Integer id);
 }

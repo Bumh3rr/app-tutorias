@@ -28,4 +28,7 @@ public interface ActividadService {
     Page<Actividad> buscarActividadesPorRangoFechasPaginado(LocalDate fInicio, LocalDate fFin, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> buscarActividadesPorPATPaginado(Integer idPat, Integer page, Integer pageSize, String sortBy, String sort);
     Page<Actividad> obtenerTodasActividadesPaginado(Integer page, Integer pageSize, String sortBy, String sort);
+
+    void reactivar(Integer id);
+    Page<Actividad> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

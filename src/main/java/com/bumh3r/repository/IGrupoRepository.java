@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
@@ -63,4 +64,11 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
 
     @Query("SELECT e FROM Grupo e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     Page<Grupo> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    @Query("SELECT g FROM Grupo g WHERE g.nombre = :nombre AND g.semestre.id = :idSemestre AND g.carrera.id = :idCarrera")
+    Optional<Grupo> findByNombreAndSemestreAndCarrera(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera);
+
+    @Query("SELECT g FROM Grupo g WHERE g.nombre = :nombre AND g.semestre.id = :idSemestre AND g.carrera.id = :idCarrera AND g.id <> :id")
+    Optional<Grupo> findByNombreAndSemestreAndCarreraAndIdNot(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera, @Param("id") Integer id);
 }

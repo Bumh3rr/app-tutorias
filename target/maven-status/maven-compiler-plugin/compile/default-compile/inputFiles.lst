@@ -44,6 +44,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Tutor.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Tutorado.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Usuario.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/exception/RegistroInactivoExistenteException.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/repository/IActividadRepository.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/repository/IAsistenciaRepository.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/repository/ICarreraRepository.java

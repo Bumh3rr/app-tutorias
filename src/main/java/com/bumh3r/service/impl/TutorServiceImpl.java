@@ -1,6 +1,7 @@
 package com.bumh3r.service.impl;
 
 import com.bumh3r.entity.Tutor;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ITutorRepository;
 import com.bumh3r.service.TutorService;
 import com.bumh3r.service.utils.PaginationUtil;
@@ -24,12 +25,16 @@ public class TutorServiceImpl implements TutorService {
 
     @Override
     public void guardarTutor(Tutor tutor) {
-        if (this.iTutorRepository.existsByNumeroControlAndActivo(tutor.getNumeroControl(), 1)) {
-            throw new IllegalArgumentException("Ya existe un tutor activo con el número de control " + tutor.getNumeroControl());
-        }
-        if (this.iTutorRepository.existsByEmailAndActivo(tutor.getEmail(), 1)) {
-            throw new IllegalArgumentException("Ya existe un tutor activo con el email " + tutor.getEmail());
-        }
+        this.iTutorRepository.findByNumeroControl(tutor.getNumeroControl()).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutor activo con el número de control " + tutor.getNumeroControl());
+            throw new RegistroInactivoExistenteException("Tutor", "Número de control", tutor.getNumeroControl(), existente.getId());
+        });
+        this.iTutorRepository.findByEmail(tutor.getEmail()).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutor activo con el email " + tutor.getEmail());
+            throw new RegistroInactivoExistenteException("Tutor", "Email", tutor.getEmail(), existente.getId());
+        });
         tutor.setActivo(1);
         this.iTutorRepository.save(tutor);
     }
@@ -39,12 +44,16 @@ public class TutorServiceImpl implements TutorService {
         Tutor tutorDB = this.iTutorRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
 
-        if (this.iTutorRepository.existsByNumeroControlAndActivoAndIdNot(tutor.getNumeroControl(), 1, id)) {
-            throw new IllegalArgumentException("Ya existe un tutor activo con el número de control " + tutor.getNumeroControl());
-        }
-        if (this.iTutorRepository.existsByEmailAndActivoAndIdNot(tutor.getEmail(), 1, id)) {
-            throw new IllegalArgumentException("Ya existe un tutor activo con el email " + tutor.getEmail());
-        }
+        this.iTutorRepository.findByNumeroControlAndIdNot(tutor.getNumeroControl(), id).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutor activo con el número de control " + tutor.getNumeroControl());
+            throw new RegistroInactivoExistenteException("Tutor", "Número de control", tutor.getNumeroControl(), existente.getId());
+        });
+        this.iTutorRepository.findByEmailAndIdNot(tutor.getEmail(), id).ifPresent(existente -> {
+            if (existente.getActivo() == 1)
+                throw new IllegalArgumentException("Ya existe un Tutor activo con el email " + tutor.getEmail());
+            throw new RegistroInactivoExistenteException("Tutor", "Email", tutor.getEmail(), existente.getId());
+        });
 
         tutorDB.setNombre(tutor.getNombre());
         tutorDB.setApellido(tutor.getApellido());
@@ -109,5 +118,35 @@ public class TutorServiceImpl implements TutorService {
     @Override
     public List<Tutor> obtenerTodosTutores() {
         return this.iTutorRepository.findByActivo(1);
+    }
+
+    @Override
+    public void reactivar(Integer id) {
+        Tutor tutor = this.iTutorRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tutor no encontrado"));
+        if (tutor.getActivo() == 1)
+            throw new IllegalStateException("Este Tutor ya está activo.");
+        this.iTutorRepository.findByNumeroControlAndIdNot(tutor.getNumeroControl(), id).ifPresent(otro -> {
+            if (otro.getActivo() == 1)
+                throw new IllegalStateException("No se puede reactivar: ya existe otro Tutor activo con el número de control " + tutor.getNumeroControl());
+        });
+        this.iTutorRepository.findByEmailAndIdNot(tutor.getEmail(), id).ifPresent(otro -> {
+            if (otro.getActivo() == 1)
+                throw new IllegalStateException("No se puede reactivar: ya existe otro Tutor activo con el email " + tutor.getEmail());
+        });
+        tutor.setActivo(1);
+        this.iTutorRepository.save(tutor);
+        // Nota: este soft-delete/reactivación no afecta al Usuario asociado.
+        // La gestión de la cuenta de usuario es independiente y queda en manos del admin.
+    }
+
+    @Override
+    public Page<Tutor> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return switch (filtroEstado) {
+            case "inactivos" -> this.iTutorRepository.findByActivo(0, pageable);
+            case "todos"     -> this.iTutorRepository.findAll(pageable);
+            default          -> this.iTutorRepository.findByActivo(1, pageable);
+        };
     }
 }

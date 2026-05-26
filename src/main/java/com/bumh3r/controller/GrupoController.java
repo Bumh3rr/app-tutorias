@@ -3,6 +3,7 @@ package com.bumh3r.controller;
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
 import com.bumh3r.entity.Tutorado;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.GrupoService;
 import com.bumh3r.service.GrupoTutoradoService;
@@ -52,6 +53,7 @@ public class GrupoController {
             @RequestParam(value = "idTutor", required = false) Integer idTutor,
             @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
@@ -87,7 +89,7 @@ public class GrupoController {
                 try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pageResult = this.grupoService.buscarPorFechaRegistroPage(ini, fin2, pageable); } catch (Exception ex) { pageResult = this.grupoService.obtenerTodosGruposPage(pageable); }
                 model.addAttribute("filtro", "Fecha: " + fechaInicio + " \u2013 " + fechaFin);
             } else {
-                pageResult = this.grupoService.obtenerTodosGruposPage(pageable);
+                pageResult = this.grupoService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
@@ -111,6 +113,7 @@ public class GrupoController {
         model.addAttribute("idTutorSeleccionado", idTutor);
         model.addAttribute("idCarreraSeleccionada", idCarrera);
         model.addAttribute("q", q);
+        model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("conteoAlumnos", conteoAlumnos);
                 model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
@@ -144,6 +147,10 @@ public class GrupoController {
             log.info("Guardar grupo: {}", grupo);
             this.grupoService.guardarGrupo(grupo);
             attributes.addFlashAttribute("msg_success", "Grupo guardado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/grupo?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/grupo";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el grupo: " + e.getMessage());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
@@ -200,6 +207,10 @@ public class GrupoController {
             log.info("Actualizar grupo {}: {}", id, grupo);
             this.grupoService.actualizarGrupo(id, grupo);
             attributes.addFlashAttribute("msg_success", "Grupo actualizado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/grupo?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/grupo";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el grupo: " + e.getMessage());
             model.addAttribute("semestres", this.semestreService.obtenerTodosSemestres());
@@ -226,6 +237,17 @@ public class GrupoController {
             attributes.addFlashAttribute("msg_error", "Error al eliminar el grupo: " + e.getMessage());
         }
         return "redirect:/admin/grupo";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarGrupo(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.grupoService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Grupo reactivado correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/grupo?filtroEstado=activos";
     }
 
     @GetMapping(value = "asignar/{idGrupo}")

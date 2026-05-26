@@ -3,6 +3,7 @@ package com.bumh3r.service.impl;
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.PAT;
 import com.bumh3r.entity.Semestre;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.IPATRepository;
 import com.bumh3r.repository.ISemestreRepository;
@@ -33,8 +34,13 @@ public class PATServiceImpl implements PATService {
     @Override
     public void guardarPAT(PAT pat) {
         resolverRelaciones(pat);
-        if (this.iPATRepository.existsByNombreAndActivo(pat.getNombre(), 1)) {
-            throw new IllegalArgumentException("Ya existe un PAT activo con el nombre \"" + pat.getNombre() + "\"");
+        Integer idCarrera = (pat.getCarrera() != null) ? pat.getCarrera().getId() : null;
+        Integer idSemestre = (pat.getSemestre() != null) ? pat.getSemestre().getId() : null;
+        if (idSemestre != null) {
+            this.iPATRepository.findByUniqueCombo(pat.getNombre(), idSemestre, idCarrera).ifPresent(existente -> {
+                if (existente.getActivo() == 1) throw new IllegalArgumentException("Ya existe un PAT activo con ese nombre, semestre y carrera.");
+                throw new RegistroInactivoExistenteException("PAT", "Nombre/Semestre", pat.getNombre(), existente.getId());
+            });
         }
         pat.setActivo(1);
         this.iPATRepository.save(pat);
@@ -47,8 +53,13 @@ public class PATServiceImpl implements PATService {
 
         resolverRelaciones(pat);
 
-        if (this.iPATRepository.existsByNombreAndActivoAndIdNot(pat.getNombre(), 1, id)) {
-            throw new IllegalArgumentException("Ya existe un PAT activo con el nombre \"" + pat.getNombre() + "\"");
+        Integer idCarreraUpd = (pat.getCarrera() != null) ? pat.getCarrera().getId() : null;
+        Integer idSemestreUpd = (pat.getSemestre() != null) ? pat.getSemestre().getId() : null;
+        if (idSemestreUpd != null) {
+            this.iPATRepository.findByUniqueComboAndIdNot(pat.getNombre(), idSemestreUpd, idCarreraUpd, id).ifPresent(existente -> {
+                if (existente.getActivo() == 1) throw new IllegalArgumentException("Ya existe un PAT activo con ese nombre, semestre y carrera.");
+                throw new RegistroInactivoExistenteException("PAT", "Nombre/Semestre", pat.getNombre(), existente.getId());
+            });
         }
 
         patDB.setNombre(pat.getNombre());
@@ -137,5 +148,35 @@ public class PATServiceImpl implements PATService {
     public org.springframework.data.domain.Page<com.bumh3r.entity.PAT> buscarPorFechaRegistroPaginacion(java.util.Date inicio, java.util.Date fin, Integer page, Integer pageSize, String sortBy, String sort) {
         org.springframework.data.domain.Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iPATRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
+
+    @Override
+    public void reactivar(Integer id) {
+        PAT pat = this.iPATRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("PAT no encontrado"));
+        if (pat.getActivo() == 1)
+            throw new IllegalStateException("Este PAT ya está activo.");
+        Integer idCarrera = (pat.getCarrera() != null) ? pat.getCarrera().getId() : null;
+        Integer idSemestre = (pat.getSemestre() != null) ? pat.getSemestre().getId() : null;
+        if (idSemestre != null) {
+            this.iPATRepository.findByUniqueComboAndIdNot(pat.getNombre(), idSemestre, idCarrera, id).ifPresent(otro -> {
+                if (otro.getActivo() == 1)
+                    throw new IllegalStateException("No se puede reactivar: ya existe otro PAT activo con ese nombre, semestre y carrera.");
+            });
+        }
+        // Nota: soft-delete de PAT no afecta a Actividades relacionadas.
+        // Si se requiere validación en cascada, implementarla en una fase posterior.
+        pat.setActivo(1);
+        this.iPATRepository.save(pat);
+    }
+
+    @Override
+    public Page<PAT> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return switch (filtroEstado) {
+            case "inactivos" -> this.iPATRepository.findByActivo(0, pageable);
+            case "todos"     -> this.iPATRepository.findAll(pageable);
+            default          -> this.iPATRepository.findByActivo(1, pageable);
+        };
     }
 }

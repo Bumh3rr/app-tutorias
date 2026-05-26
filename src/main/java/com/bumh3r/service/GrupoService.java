@@ -33,4 +33,7 @@ public interface GrupoService {
     Page<Grupo> buscarSinTutorPorCarreraPage(Integer idCarrera, Pageable pageable);
 
     Page<Grupo> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
+
+    void reactivar(Integer id);
+    Page<Grupo> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

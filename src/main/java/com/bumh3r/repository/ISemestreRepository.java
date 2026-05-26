@@ -25,4 +25,10 @@ public interface ISemestreRepository extends JpaRepository<Semestre, Integer> {
 
     @Query("SELECT COUNT(s) > 0 FROM Semestre s WHERE s.periodo = :periodo AND s.anio = :anio AND s.activo = 1 AND s.id <> :id")
     boolean existsByPeriodoAndAnioAndActivoExcludingId(@Param("periodo") String periodo, @Param("anio") Integer anio, @Param("id") Integer id);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    Optional<Semestre> findByPeriodoAndAnio(String periodo, Integer anio);
+
+    @Query("SELECT s FROM Semestre s WHERE s.periodo = :periodo AND s.anio = :anio AND s.id <> :id")
+    Optional<Semestre> findByPeriodoAndAnioAndIdNot(@Param("periodo") String periodo, @Param("anio") Integer anio, @Param("id") Integer id);
 }

@@ -19,4 +19,7 @@ public interface TutorService {
     Page<Tutor> buscarPorSemestre(Integer idSemestre, Integer page, Integer pageSize, String sortBy, String sort);
 
     List<Tutor> obtenerTodosTutores();
+
+    void reactivar(Integer id);
+    Page<Tutor> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

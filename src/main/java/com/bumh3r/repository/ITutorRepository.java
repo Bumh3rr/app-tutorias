@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ITutorRepository extends JpaRepository<Tutor, Integer> {
@@ -36,4 +37,10 @@ public interface ITutorRepository extends JpaRepository<Tutor, Integer> {
 
     @Query("SELECT DISTINCT t FROM Tutor t WHERE t.activo = 1 AND EXISTS (SELECT g FROM Grupo g WHERE g.tutor = t AND g.activo = 1 AND g.semestre.id = :idSemestre)")
     Page<Tutor> searchBySemestre(@Param("idSemestre") Integer idSemestre, Pageable pageable);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    Optional<Tutor> findByNumeroControl(String numeroControl);
+    Optional<Tutor> findByEmail(String email);
+    Optional<Tutor> findByNumeroControlAndIdNot(String numeroControl, Integer id);
+    Optional<Tutor> findByEmailAndIdNot(String email, Integer id);
 }

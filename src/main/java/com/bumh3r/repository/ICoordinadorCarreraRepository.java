@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ICoordinadorCarreraRepository extends JpaRepository<CoordinadorCarrera, Integer> {
@@ -33,4 +34,16 @@ public interface ICoordinadorCarreraRepository extends JpaRepository<Coordinador
 
     @Query("SELECT e FROM CoordinadorCarrera e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     Page<CoordinadorCarrera> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
+
+    // ── Active-aware uniqueness (with activo filter) ──────────────────────────
+    boolean existsByNumeroControlAndActivo(String numeroControl, Integer activo);
+    boolean existsByNumeroControlAndActivoAndIdNot(String numeroControl, Integer activo, Integer id);
+    boolean existsByEmailAndActivo(String email, Integer activo);
+    boolean existsByEmailAndActivoAndIdNot(String email, Integer activo, Integer id);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    Optional<CoordinadorCarrera> findByNumeroControl(String numeroControl);
+    Optional<CoordinadorCarrera> findByEmail(String email);
+    Optional<CoordinadorCarrera> findByNumeroControlAndIdNot(String numeroControl, Integer id);
+    Optional<CoordinadorCarrera> findByEmailAndIdNot(String email, Integer id);
 }

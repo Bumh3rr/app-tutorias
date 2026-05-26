@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IPATRepository extends JpaRepository<PAT, Integer> {
@@ -34,4 +35,13 @@ public interface IPATRepository extends JpaRepository<PAT, Integer> {
 
     @Query("SELECT e FROM PAT e WHERE e.activo = 1 AND e.fechaRegistro BETWEEN :inicio AND :fin")
     Page<PAT> findByFechaRegistroRange(@Param("inicio") java.util.Date inicio, @Param("fin") java.util.Date fin, Pageable pageable);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    // PAT con esGeneral=1 es único por (nombre, semestre).
+    // PAT con esGeneral=0 es único por (nombre, semestre, carrera).
+    @Query("SELECT p FROM PAT p WHERE p.nombre = :nombre AND p.semestre.id = :idSemestre AND (p.esGeneral = 1 OR p.carrera.id = :idCarrera)")
+    Optional<PAT> findByUniqueCombo(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera);
+
+    @Query("SELECT p FROM PAT p WHERE p.nombre = :nombre AND p.semestre.id = :idSemestre AND (p.esGeneral = 1 OR p.carrera.id = :idCarrera) AND p.id <> :id")
+    Optional<PAT> findByUniqueComboAndIdNot(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera, @Param("id") Integer id);
 }

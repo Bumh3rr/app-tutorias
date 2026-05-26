@@ -20,4 +20,7 @@ public interface CoordinadorCarreraService {
     Page<CoordinadorCarrera> buscarPorNombrePage(String q, Pageable pageable);
 
     Page<CoordinadorCarrera> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, Pageable pageable);
+
+    void reactivar(Integer id);
+    Page<CoordinadorCarrera> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
 }

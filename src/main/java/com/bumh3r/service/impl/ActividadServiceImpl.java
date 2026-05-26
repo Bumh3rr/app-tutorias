@@ -2,6 +2,7 @@ package com.bumh3r.service.impl;
 
 import com.bumh3r.entity.Actividad;
 import com.bumh3r.entity.PAT;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.IActividadRepository;
 import com.bumh3r.repository.IPATRepository;
 import com.bumh3r.service.ActividadService;
@@ -37,9 +38,11 @@ public class ActividadServiceImpl implements ActividadService {
     @Override
     public void guardarActividad(Actividad actividad) {
         resolverRelaciones(actividad);
-        if (actividad.getPat() != null && this.iActividadRepository.existsByPatAndSemanaAndActivo(actividad.getPat(), actividad.getSemana(), 1)) {
-            throw new IllegalArgumentException(
-                "Este PAT ya tiene una actividad en la Semana " + actividad.getSemana());
+        if (actividad.getPat() != null) {
+            this.iActividadRepository.findByPatAndSemana(actividad.getPat(), actividad.getSemana()).ifPresent(existente -> {
+                if (existente.getActivo() == 1) throw new IllegalArgumentException("Este PAT ya tiene una actividad activa en la Semana " + actividad.getSemana());
+                throw new RegistroInactivoExistenteException("Actividad", "Semana en PAT", String.valueOf(actividad.getSemana()), existente.getId());
+            });
         }
         actividad.setActivo(1);
         this.iActividadRepository.save(actividad);
@@ -52,9 +55,11 @@ public class ActividadServiceImpl implements ActividadService {
 
         resolverRelaciones(actividad);
 
-        if (actividad.getPat() != null && this.iActividadRepository.existsByPatAndSemanaAndActivoExcludingId(actividad.getPat(), actividad.getSemana(), id)) {
-            throw new IllegalArgumentException(
-                "Este PAT ya tiene una actividad en la Semana " + actividad.getSemana());
+        if (actividad.getPat() != null) {
+            this.iActividadRepository.findByPatAndSemanaAndIdNot(actividad.getPat(), actividad.getSemana(), id).ifPresent(existente -> {
+                if (existente.getActivo() == 1) throw new IllegalArgumentException("Este PAT ya tiene una actividad activa en la Semana " + actividad.getSemana());
+                throw new RegistroInactivoExistenteException("Actividad", "Semana en PAT", String.valueOf(actividad.getSemana()), existente.getId());
+            });
         }
 
         actividadDB.setNombre(actividad.getNombre());
@@ -153,6 +158,32 @@ public class ActividadServiceImpl implements ActividadService {
     public Page<Actividad> obtenerTodasActividadesPaginado(Integer page, Integer pageSize, String sortBy, String sort) {
         Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
         return this.iActividadRepository.findByActivo(1, pageable);
+    }
+
+    @Override
+    public void reactivar(Integer id) {
+        Actividad actividad = this.iActividadRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Actividad no encontrada"));
+        if (actividad.getActivo() == 1)
+            throw new IllegalStateException("Esta Actividad ya está activa.");
+        if (actividad.getPat() != null) {
+            this.iActividadRepository.findByPatAndSemanaAndIdNot(actividad.getPat(), actividad.getSemana(), id).ifPresent(otro -> {
+                if (otro.getActivo() == 1)
+                    throw new IllegalStateException("No se puede reactivar: este PAT ya tiene una actividad activa en la Semana " + actividad.getSemana());
+            });
+        }
+        actividad.setActivo(1);
+        this.iActividadRepository.save(actividad);
+    }
+
+    @Override
+    public Page<Actividad> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort) {
+        Pageable pageable = this.paginationUtil.getPageable(page, pageSize, sortBy, sort);
+        return switch (filtroEstado) {
+            case "inactivos" -> this.iActividadRepository.findByActivo(0, pageable);
+            case "todos"     -> this.iActividadRepository.findAll(pageable);
+            default          -> this.iActividadRepository.findByActivo(1, pageable);
+        };
     }
 
     private void resolverRelaciones(Actividad actividad) {

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ICarreraRepository extends JpaRepository<Carrera, Integer> {
@@ -20,4 +21,8 @@ public interface ICarreraRepository extends JpaRepository<Carrera, Integer> {
 
     @Query("SELECT c FROM Carrera c WHERE (:q IS NULL OR :q = '' OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Carrera> searchByName(@Param("q") String q, Pageable pageable);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    Optional<Carrera> findByClave(String clave);
+    Optional<Carrera> findByClaveAndIdNot(String clave, Integer id);
 }

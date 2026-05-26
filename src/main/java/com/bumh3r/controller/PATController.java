@@ -4,6 +4,7 @@ import com.bumh3r.entity.Actividad;
 import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.PAT;
 import com.bumh3r.entity.Semestre;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.CarreraService;
 import com.bumh3r.service.FileStoreService;
@@ -51,6 +52,7 @@ public class PATController {
             @RequestParam(value = "idSemestre", required = false) Integer idSemestre,
             @RequestParam(value = "soloGenerales", required = false) Boolean soloGenerales,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "fechaInicio", required = false, defaultValue = "") String fechaInicio,
             @RequestParam(value = "fechaFin", required = false, defaultValue = "") String fechaFin,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -74,7 +76,7 @@ public class PATController {
                 try { Date ini = new SimpleDateFormat("yyyy-MM-dd").parse(fechaInicio); Date fin2 = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(fechaFin).getTime() + 86399999L); pats = this.patService.buscarPorFechaRegistroPaginacion(ini, fin2, page, pageSize, sortBy, sort); } catch (Exception ex) { pats = this.patService.obtenerTodosPATPaginacion(0,pageSize,sortBy,"desc"); }
                 model.addAttribute("filtro", "Fecha: " + fechaInicio + " – " + fechaFin);
             } else {
-                pats = this.patService.obtenerTodosPATPaginacion(page, pageSize, sortBy, sort);
+                pats = this.patService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
@@ -102,6 +104,7 @@ public class PATController {
         model.addAttribute("mapSort", mapSort);
 
                 model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
         return "pat/viewListaPAT";
@@ -138,6 +141,10 @@ public class PATController {
             log.info("Guardar PAT: {}", pat);
             this.patService.guardarPAT(pat);
             attributes.addFlashAttribute("msg_success", "PAT guardado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/pat?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/pat";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar el PAT: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -192,6 +199,10 @@ public class PATController {
             log.info("Actualizar PAT {}: {}", id, pat);
             this.patService.actualizarPAT(id, pat);
             attributes.addFlashAttribute("msg_success", "PAT actualizado correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/pat?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/pat";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar el PAT: " + e.getMessage());
             model.addAttribute("carreras", this.carreraService.obtenerTodasCarreras());
@@ -207,6 +218,17 @@ public class PATController {
         PAT pat = this.patService.obtenerPAT(id);
         model.addAttribute("pat", pat);
         return "pat/viewConfirmDeletePAT";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarPAT(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.patService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "PAT reactivado correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/pat?filtroEstado=activos";
     }
 
     @PostMapping(value = "confirm/delete/{id}")

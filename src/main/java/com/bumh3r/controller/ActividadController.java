@@ -2,6 +2,7 @@ package com.bumh3r.controller;
 
 import com.bumh3r.entity.Actividad;
 import com.bumh3r.entity.PAT;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.service.ActividadService;
 import com.bumh3r.service.FileStoreService;
 import com.bumh3r.service.PATService;
@@ -43,6 +44,7 @@ public class ActividadController {
             @RequestParam(value = "fechaFin", required = false) String fechaFin,
             @RequestParam(value = "idPat", required = false) Integer idPat,
             @RequestParam(value = "tipoBusqueda", required = false, defaultValue = "todos") String tipoBusqueda,
+            @RequestParam(value = "filtroEstado", defaultValue = "activos") String filtroEstado,
             @RequestParam(value = "q", required = false, defaultValue = "") String q,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
@@ -74,7 +76,7 @@ public class ActividadController {
                 model.addAttribute("filtro", "Por PAT seleccionado");
 
             } else {
-                actividades = this.actividadService.obtenerTodasActividadesPaginado(page, pageSize, sortBy, sort);
+                actividades = this.actividadService.obtenerPorEstadoPaginado(filtroEstado, page, pageSize, sortBy, sort);
                 model.addAttribute("filtro", null);
             }
         } catch (Exception e) {
@@ -100,6 +102,7 @@ public class ActividadController {
         model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
         model.addAttribute("tipoBusqueda", tipoBusqueda);
+        model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("q", q);
 
         model.addAttribute("sortBy", sortBy);
@@ -139,6 +142,10 @@ public class ActividadController {
             log.info("Guardar actividad: {}", actividad);
             this.actividadService.guardarActividad(actividad);
             attributes.addFlashAttribute("msg_success", "Actividad guardada correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/actividad?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/actividad";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al guardar la actividad: " + e.getMessage());
             model.addAttribute("pats", this.patService.obtenerTodosPAT());
@@ -293,6 +300,10 @@ public class ActividadController {
             log.info("Actualizar actividad {}: {}", id, actividad);
             this.actividadService.actualizarActividad(id, actividad);
             attributes.addFlashAttribute("msg_success", "Actividad actualizada correctamente");
+        } catch (RegistroInactivoExistenteException e) {
+            attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
+                e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/actividad?filtroEstado=inactivos'>Ver inactivos →</a>");
+            return "redirect:/admin/actividad";
         } catch (Exception e) {
             model.addAttribute("msg_error", "Error al actualizar la actividad: " + e.getMessage());
             model.addAttribute("pats", this.patService.obtenerTodosPAT());
@@ -307,6 +318,17 @@ public class ActividadController {
         Actividad actividad = this.actividadService.obtenerActividad(id);
         model.addAttribute("actividad", actividad);
         return "actividad/viewConfirmDeleteActividad";
+    }
+
+    @PostMapping(value = "reactivar/{id}")
+    public String reactivarActividad(@PathVariable Integer id, RedirectAttributes attributes) {
+        try {
+            this.actividadService.reactivar(id);
+            attributes.addFlashAttribute("msg_success", "Actividad reactivada correctamente");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("msg_error", "Error al reactivar: " + e.getMessage());
+        }
+        return "redirect:/admin/actividad?filtroEstado=activos";
     }
 
     @PostMapping(value = "confirm/delete/{id}")

@@ -136,7 +136,6 @@ public class MainController {
             model.addAttribute("proximasActividades", List.of());
             model.addAttribute("msg_error", "Error al cargar el dashboard: " + e.getMessage());
         }
-
         return "index";
     }
 }

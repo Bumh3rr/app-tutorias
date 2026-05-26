@@ -89,6 +89,7 @@ com/bumh3r/service/impl/CarnetPdfServiceImpl.class
 com/bumh3r/entity/Tutor.class
 com/bumh3r/entity/Semestre.class
 com/bumh3r/service/SemestreService.class
+com/bumh3r/exception/RegistroInactivoExistenteException.class
 com/bumh3r/AppTutoriasApplication.class
 com/bumh3r/service/impl/AsistenciaServiceImpl.class
 com/bumh3r/service/ReporteSesionService.class

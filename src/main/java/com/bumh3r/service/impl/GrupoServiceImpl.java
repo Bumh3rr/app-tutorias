@@ -4,6 +4,7 @@ import com.bumh3r.entity.Carrera;
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.Semestre;
 import com.bumh3r.entity.Tutor;
+import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.IGrupoRepository;
 import com.bumh3r.repository.ISemestreRepository;
@@ -12,7 +13,9 @@ import com.bumh3r.service.GrupoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,11 +43,10 @@ public class GrupoServiceImpl implements GrupoService {
     public void guardarGrupo(Grupo grupo) {
         resolverRelaciones(grupo);
 
-        if (this.iGrupoRepository.existsByNombreAndSemestreAndCarreraAndActivo(
-                grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId())) {
-            throw new IllegalArgumentException(
-                "Ya existe un grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
-        }
+        this.iGrupoRepository.findByNombreAndSemestreAndCarrera(grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId()).ifPresent(existente -> {
+            if (existente.getActivo() == 1) throw new IllegalArgumentException("Ya existe un Grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
+            throw new RegistroInactivoExistenteException("Grupo", "Nombre/Semestre/Carrera", grupo.getNombre(), existente.getId());
+        });
 
         if (grupo.getTutor() != null) {
             long gruposDelTutor = this.iGrupoRepository.countByActivoAndTutorAndSemestre(1, grupo.getTutor(), grupo.getSemestre());
@@ -74,11 +76,10 @@ public class GrupoServiceImpl implements GrupoService {
 
         resolverRelaciones(grupo);
 
-        if (this.iGrupoRepository.existsByNombreAndSemestreAndCarreraAndActivoExcludingId(
-                grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId(), id)) {
-            throw new IllegalArgumentException(
-                "Ya existe un grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
-        }
+        this.iGrupoRepository.findByNombreAndSemestreAndCarreraAndIdNot(grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId(), id).ifPresent(existente -> {
+            if (existente.getActivo() == 1) throw new IllegalArgumentException("Ya existe un Grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
+            throw new RegistroInactivoExistenteException("Grupo", "Nombre/Semestre/Carrera", grupo.getNombre(), existente.getId());
+        });
 
         // Si el grupo tiene tutor y el semestre cambia, verificar que el tutor no supere 2 grupos en el nuevo semestre
         if (grupoDB.getTutor() != null) {
@@ -265,5 +266,44 @@ public class GrupoServiceImpl implements GrupoService {
     @Override
     public org.springframework.data.domain.Page<com.bumh3r.entity.Grupo> buscarPorFechaRegistroPage(java.util.Date inicio, java.util.Date fin, org.springframework.data.domain.Pageable pageable) {
         return this.iGrupoRepository.findByFechaRegistroRange(inicio, fin, pageable);
+    }
+
+    @Override
+    public void reactivar(Integer id) {
+        Grupo grupo = this.iGrupoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
+        if (grupo.getActivo() == 1)
+            throw new IllegalStateException("Este Grupo ya está activo.");
+        // Verificar conflicto de nombre/semestre/carrera
+        this.iGrupoRepository.findByNombreAndSemestreAndCarreraAndIdNot(
+                grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId(), id)
+            .ifPresent(otro -> {
+                if (otro.getActivo() == 1)
+                    throw new IllegalStateException("No se puede reactivar: ya existe un Grupo activo con el nombre \"" + grupo.getNombre() + "\" en ese semestre y carrera.");
+            });
+        // Verificar conflicto de aula (si aplica)
+        if (grupo.getAula() != null && grupo.getDiaSemana() != null && grupo.getHorario() != null
+                && !grupo.getAula().isBlank() && !grupo.getDiaSemana().isBlank() && !grupo.getHorario().isBlank()) {
+            if (this.iGrupoRepository.existsByAulaAndDiaSemanaAndHorarioAndSemestreAndActivoAndIdNot(
+                    grupo.getAula(), grupo.getDiaSemana(), grupo.getHorario(), grupo.getSemestre(), 1, id)) {
+                throw new IllegalStateException("No se puede reactivar: el aula " + grupo.getAula() +
+                        " ya está ocupada en ese día y horario por otro grupo activo. Edítalo después de reactivar para asignar otra aula.");
+            }
+        }
+        // Nota: soft-delete de Grupo no afecta GrupoTutorado ni Sesion relacionadas.
+        // Si se requiere validación en cascada, implementarla en una fase posterior.
+        grupo.setActivo(1);
+        this.iGrupoRepository.save(grupo);
+    }
+
+    @Override
+    public Page<Grupo> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort) {
+        Sort.Direction dir = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(dir, sortBy));
+        return switch (filtroEstado) {
+            case "inactivos" -> this.iGrupoRepository.findByActivo(0, pageable);
+            case "todos"     -> this.iGrupoRepository.findAll(pageable);
+            default          -> this.iGrupoRepository.findByActivo(1, pageable);
+        };
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IActividadRepository extends JpaRepository<Actividad, Integer> {
@@ -53,4 +54,11 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
 
     @Query("SELECT DISTINCT s.actividad FROM Sesion s WHERE s.actividad IS NOT NULL AND s.actividad.activo = 1 AND s.grupo.tutor.id = :idTutor ORDER BY s.actividad.semana ASC")
     List<Actividad> findActividadesByTutor(@Param("idTutor") Integer idTutor);
+
+    // ── Inactive-aware validation (no activo filter) ──────────────────────────
+    @Query("SELECT a FROM Actividad a WHERE a.pat = :pat AND a.semana = :semana")
+    Optional<Actividad> findByPatAndSemana(@Param("pat") PAT pat, @Param("semana") Integer semana);
+
+    @Query("SELECT a FROM Actividad a WHERE a.pat = :pat AND a.semana = :semana AND a.id <> :id")
+    Optional<Actividad> findByPatAndSemanaAndIdNot(@Param("pat") PAT pat, @Param("semana") Integer semana, @Param("id") Integer id);
 }
