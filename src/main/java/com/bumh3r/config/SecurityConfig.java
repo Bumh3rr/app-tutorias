@@ -61,7 +61,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Recursos estáticos y rutas públicas
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/styles/**",
-                                 "/webjars/**", "/login", "/error", "/error/**", "/public/**").permitAll()
+                                 "/webjars/**", "/login", "/error", "/error/**", "/public/**", "/").permitAll()
                 // Imágenes subidas (fotos de tutores, tutorados, coordinadores, etc.)
                 // Deben ir ANTES de las reglas de rol para que cualquier usuario autenticado pueda verlas
                 .requestMatchers(
