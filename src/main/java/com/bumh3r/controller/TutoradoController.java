@@ -196,7 +196,11 @@ public class TutoradoController {
             }
             log.info("Guardar tutorado: {}", tutorado);
             this.tutoradoService.guardarTutorado(tutorado);
-            attributes.addFlashAttribute("msg_success", "Tutorado guardado correctamente");
+            attributes.addFlashAttribute("credenciales_creadas", true);
+            attributes.addFlashAttribute("credenciales_nombre", tutorado.getNombre() + " " + tutorado.getApellido());
+            attributes.addFlashAttribute("credenciales_rol", "Tutorado");
+            attributes.addFlashAttribute("credenciales_correo", tutorado.getEmail());
+            attributes.addFlashAttribute("credenciales_password", tutorado.getNumeroControl());
         } catch (RegistroInactivoExistenteException e) {
             attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
                 e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/tutorado?filtroEstado=inactivos'>Ver inactivos →</a>");

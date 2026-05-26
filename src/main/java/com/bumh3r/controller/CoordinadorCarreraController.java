@@ -150,7 +150,11 @@ public class CoordinadorCarreraController {
             }
             log.info("Guardar coordinador: {}", coordinador);
             this.coordinadorCarreraService.guardarCoordinador(coordinador);
-            attributes.addFlashAttribute("msg_success", "Coordinador guardado correctamente");
+            attributes.addFlashAttribute("credenciales_creadas", true);
+            attributes.addFlashAttribute("credenciales_nombre", coordinador.getNombre() + " " + coordinador.getApellido());
+            attributes.addFlashAttribute("credenciales_rol", "Coordinador");
+            attributes.addFlashAttribute("credenciales_correo", coordinador.getEmail());
+            attributes.addFlashAttribute("credenciales_password", coordinador.getNumeroControl());
         } catch (RegistroInactivoExistenteException e) {
             attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
                 e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/coordinador?filtroEstado=inactivos'>Ver inactivos →</a>");

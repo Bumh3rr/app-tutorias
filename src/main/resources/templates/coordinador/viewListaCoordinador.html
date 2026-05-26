@@ -28,6 +28,46 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Tarjeta de credenciales -->
+            <div th:if="${credenciales_creadas}" id="credentialsCard" class="credentials-card mb-4">
+                <div class="credentials-card__header">
+                    <div class="credentials-card__icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="credentials-card__title">Cuenta de acceso creada</h6>
+                        <p class="credentials-card__subtitle">Para: <strong th:text="${credenciales_nombre}"></strong> &mdash; <span th:text="${credenciales_rol}"></span></p>
+                    </div>
+                </div>
+                <div class="credentials-card__credentials">
+                    <div class="credential-field">
+                        <span class="credential-field__label">Correo (usuario)</span>
+                        <div class="credential-field__row">
+                            <span class="credential-field__value" id="credEmail" th:text="${credenciales_correo}"></span>
+                            <button class="credential-copy-btn" onclick="copyCredential('credEmail', this)" title="Copiar correo">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="credential-field">
+                        <span class="credential-field__label">Contraseña inicial</span>
+                        <div class="credential-field__row">
+                            <span class="credential-field__value" id="credPassword" th:text="${credenciales_password}"></span>
+                            <button class="credential-copy-btn" onclick="copyCredential('credPassword', this)" title="Copiar contraseña">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="credentials-card__hint">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>La contraseña inicial es el número de control. Por seguridad, recomienda al usuario cambiarla en su primer acceso desde <strong>Mi Cuenta</strong>.</span>
+                </div>
+                <div class="credentials-card__actions">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="dismissCredentialsCard()">Entendido</button>
+                </div>
+            </div>
+
             <!-- Header -->
             <div class="page-header">
                 <div>
@@ -348,6 +388,7 @@
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/fn_pagination.js}"></script>
 <script th:src="@{/js/custom-select.js}"></script>
+<script th:src="@{/js/credentials-card.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
 <script>
     function cambiarPageSize(size) {

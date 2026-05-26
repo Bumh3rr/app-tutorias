@@ -1865,3 +1865,153 @@ th.sort-th a:hover {
 .sidebar.collapsed .sidebar-user .user-role {
     display: none;
 }
+
+/* ══════════════════════════════════════
+   CREDENTIALS CARD
+══════════════════════════════════════ */
+.credentials-card {
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-left: 4px solid rgba(16, 185, 129, 0.7);
+    border-radius: 14px;
+    padding: 22px 26px;
+    box-shadow: 0 4px 24px rgba(16, 185, 129, 0.07), 0 0 0 1px rgba(16, 185, 129, 0.04);
+    animation: fadeSlide 0.4s cubic-bezier(.4, 0, .2, 1) both;
+    overflow: hidden;
+    transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.38s ease,
+    padding-top 0.35s ease, padding-bottom 0.35s ease, margin-bottom 0.35s ease;
+    max-height: 700px;
+}
+
+.credentials-card--dismissing {
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.credentials-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.credentials-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #34d399;
+}
+
+.credentials-card__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #34d399;
+    margin: 0 0 3px;
+    letter-spacing: -0.01em;
+}
+
+.credentials-card__subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0;
+}
+
+.credentials-card__credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.credential-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.credential-field__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.32);
+}
+
+.credential-field__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.credential-field__value {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: #e2e8f0;
+    letter-spacing: 0.025em;
+    word-break: break-all;
+}
+
+.credential-copy-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.credential-copy-btn:hover {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.32);
+    color: #34d399;
+}
+
+.credential-copy-btn.copied {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.45);
+    color: #34d399;
+}
+
+.credentials-card__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 16px;
+    line-height: 1.55;
+}
+
+.credentials-card__hint svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.credentials-card__actions {
+    display: flex;
+    justify-content: flex-end;
+}
