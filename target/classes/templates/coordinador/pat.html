@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAT de mi Carrera | Sistema Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3>PAT de mi Carrera</h3>
+                    <p class="text-body-secondary mb-0"
+                       th:text="${coordinador?.carrera?.nombre ?: ''}">Carrera</p>
+                </div>
+                <a th:href="@{/coordinador}" class="btn btn-outline-secondary btn-sm">← Inicio</a>
+            </div>
+
+            <div th:if="${pats == null or pats.isEmpty()}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3" style="opacity:.3">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <h5>Sin PAT registrados</h5>
+                <p>No hay Planes de Acción Tutorial disponibles para tu carrera en este semestre.</p>
+            </div>
+
+            <div th:if="${pats != null and !pats.isEmpty()}" class="glass-surface">
+                <div class="table-wrapper">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Semestre</th>
+                                    <th class="text-center">Tipo</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="pat : ${pats}">
+                                    <td class="fw-semibold" th:text="${pat.nombre ?: '—'}">—</td>
+                                    <td class="small text-body-secondary" th:text="${pat.descripcion ?: '—'}">—</td>
+                                    <td class="small text-body-secondary"
+                                        th:text="${pat.semestre != null ? pat.semestre.periodo + ' ' + pat.semestre.anio : '—'}">—</td>
+                                    <td class="text-center">
+                                        <span class="badge"
+                                              th:classappend="${pat.esGeneral == 1 ? 'bg-info text-dark' : 'bg-primary'}"
+                                              th:text="${pat.esGeneral == 1 ? 'General' : 'Por carrera'}">—</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{'/coordinador/pat/' + ${pat.id} + '/actividades'}"
+                                           class="btn btn-outline-secondary btn-sm">Ver actividades</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

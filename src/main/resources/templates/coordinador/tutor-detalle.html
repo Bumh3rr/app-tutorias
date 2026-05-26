@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Tutor | Sistema Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3 th:text="${tutor?.nombre + ' ' + tutor?.apellido}">Tutor</h3>
+                    <p class="text-body-secondary mb-0" th:text="${tutor?.email ?: ''}">—</p>
+                </div>
+                <a th:href="@{/coordinador/tutores}" class="btn btn-outline-secondary btn-sm">← Mis Tutores</a>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Datos del tutor -->
+                <div class="col-md-4">
+                    <div class="glass-surface h-100">
+                        <p class="section-title">Datos del tutor</p>
+                        <div class="text-center mb-4">
+                            <div th:if="${tutor?.foto != null and !tutor?.foto.isEmpty()}"
+                                 style="width:88px;height:88px;border-radius:50%;overflow:hidden;margin:0 auto">
+                                <img th:src="@{${tutor.foto}}" alt="Foto" style="width:100%;height:100%;object-fit:cover">
+                            </div>
+                            <div th:if="${tutor?.foto == null or tutor?.foto.isEmpty()}"
+                                 style="width:88px;height:88px;border-radius:50%;background:rgba(99,102,241,.25);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto"
+                                 th:text="${(tutor?.nombre != null ? #strings.substring(tutor.nombre,0,1) : '') + (tutor?.apellido != null ? #strings.substring(tutor.apellido,0,1) : '')}">AB</div>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Nombre</span>
+                            <span th:text="${tutor?.nombre + ' ' + tutor?.apellido}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">N° Control</span>
+                            <span th:text="${tutor?.numeroControl ?: '—'}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Correo</span>
+                            <span th:text="${tutor?.email ?: '—'}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Estado</span>
+                            <span class="badge"
+                                  th:classappend="${tutor?.activo == 1 ? 'bg-success' : 'bg-secondary'}"
+                                  th:text="${tutor?.activo == 1 ? 'Activo' : 'Inactivo'}">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grupos del tutor -->
+                <div class="col-md-8">
+                    <div class="glass-surface mb-4">
+                        <p class="section-title">Grupos asignados en este semestre</p>
+                        <div th:if="${grupos == null or grupos.isEmpty()}" class="text-body-secondary small">
+                            Sin grupos asignados en el semestre vigente.
+                        </div>
+                        <div th:if="${grupos != null and !grupos.isEmpty()}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Grupo</th>
+                                        <th>Carrera</th>
+                                        <th>Aula</th>
+                                        <th>Horario</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="g : ${grupos}">
+                                        <td th:text="${g.nombre ?: '—'}">—</td>
+                                        <td class="small text-body-secondary" th:text="${g.carrera?.nombre ?: '—'}">—</td>
+                                        <td class="small" th:text="${g.aula ?: '—'}">—</td>
+                                        <td class="small" th:text="${(g.diaSemana ?: '') + (g.horario != null ? ' ' + g.horario : '')}">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Evidencias del tutor -->
+                    <div class="glass-surface">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <p class="section-title mb-0">Evidencias de sesiones</p>
+                            <a th:href="@{/coordinador/evidencias}" class="btn btn-outline-secondary btn-sm">Ver todas</a>
+                        </div>
+                        <div th:if="${evidencias == null or evidencias.isEmpty()}" class="text-body-secondary small">
+                            Sin evidencias registradas.
+                        </div>
+                        <div th:if="${evidencias != null and !evidencias.isEmpty()}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Semana</th>
+                                        <th>Grupo</th>
+                                        <th class="text-center">Estatus</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="e : ${evidencias}">
+                                        <td class="small" th:text="${e.sesion?.semana != null ? 'Semana ' + e.sesion.semana : '—'}">—</td>
+                                        <td class="small text-body-secondary" th:text="${e.sesion?.grupo?.nombre ?: '—'}">—</td>
+                                        <td class="text-center">
+                                            <span class="badge"
+                                                  th:classappend="${'VALIDADA'.equals(e.estatusValidacion) ? 'bg-success' : ('RECHAZADA'.equals(e.estatusValidacion) ? 'bg-danger' : 'bg-warning text-dark')}"
+                                                  th:text="${e.estatusValidacion ?: 'PENDIENTE'}">—</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a th:href="@{'/coordinador/evidencias/' + ${e.id}}"
+                                               class="btn btn-outline-secondary btn-sm">Ver</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

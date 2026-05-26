@@ -71,9 +71,19 @@ public class TutoradoDashboardController {
     @GetMapping("/sesiones")
     public String misSesiones(Authentication auth, Model model) {
         Tutorado tutorado = resolverTutorado(auth);
-        model.addAttribute("semestreVigente", semestreVigente());
+        Semestre vigente = semestreVigente();
+        model.addAttribute("tutorado", tutorado);
+        model.addAttribute("semestreVigente", vigente);
 
         List<GrupoTutorado> tutorias = grupoTutoradoService.buscarTutoriasPorTutorado(tutorado.getId());
+        GrupoTutorado tutoriaVigente = tutorias.stream()
+                .filter(gt -> vigente != null && gt.getGrupo() != null
+                        && gt.getGrupo().getSemestre() != null
+                        && vigente.getId().equals(gt.getGrupo().getSemestre().getId())
+                        && Integer.valueOf(1).equals(gt.getActivo()))
+                .findFirst().orElse(null);
+        model.addAttribute("tutoriaVigente", tutoriaVigente);
+
         List<Sesion> sesiones = tutorias.stream()
                 .filter(gt -> gt.getGrupo() != null)
                 .flatMap(gt -> sesionService.buscarSesionesPorGrupo(gt.getGrupo().getId()).stream())
@@ -85,8 +95,16 @@ public class TutoradoDashboardController {
                 .filter(a -> a.getSesion() != null)
                 .collect(Collectors.toMap(a -> a.getSesion().getId(), a -> a, (a, b) -> a));
 
+        ResumenAsistenciaDTO resumen = null;
+        try {
+            resumen = asistenciaService.calcularResumenAsistencia(tutorado.getId());
+        } catch (Exception e) {
+            log.warn("No se pudo calcular resumen de asistencia para tutorado {}", tutorado.getId());
+        }
+
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("mapaAsistencias", mapaAsistencias);
+        model.addAttribute("resumen", resumen);
         return "tutorado/sesiones";
     }
 

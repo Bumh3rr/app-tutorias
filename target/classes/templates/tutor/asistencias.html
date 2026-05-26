@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
     <style>
         .progress { height: 6px; }
-        .pct-ok  { color: #75b798; }
+        .pct-ok   { color: #75b798; }
         .pct-warn { color: #ffda6a; }
         .pct-bad  { color: #ea868f; }
     </style>
@@ -29,42 +29,44 @@
                 <a th:href="@{/tutor/dashboard}" class="btn btn-outline-secondary btn-sm">← Dashboard</a>
             </div>
 
-            <div th:if="${resumenes == null or resumenes.isEmpty()}" class="alert alert-info">
-                No hay tutorados asignados o aún no se han registrado sesiones en este semestre.
+            <div th:if="${resumenes == null or resumenes.isEmpty()}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                <h5>Sin datos de asistencias</h5>
+                <p>No hay tutorados asignados o aún no se han registrado sesiones en este semestre.</p>
             </div>
 
             <div th:if="${resumenes != null and !resumenes.isEmpty()}">
 
                 <!-- Resumen rápido -->
-                <div class="row g-3 mb-4">
+                <div class="row g-3 mb-4 stagger">
                     <div class="col-md-4">
-                        <div class="card text-center py-3">
-                            <div class="h2 fw-bold text-success mb-0"
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-success"
                                  th:text="${#lists.size(resumenes.?[porcentaje >= 80])}">0</div>
-                            <div class="text-body-secondary small">Acreditados (≥ 80%)</div>
+                            <div class="stat-label">Acreditados (≥ 80%)</div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card text-center py-3">
-                            <div class="h2 fw-bold text-warning mb-0"
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-warning"
                                  th:text="${#lists.size(resumenes.?[porcentaje < 80])}">0</div>
-                            <div class="text-body-secondary small">En riesgo (&lt; 80%)</div>
+                            <div class="stat-label">En riesgo (&lt; 80%)</div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card text-center py-3">
-                            <div class="h2 fw-bold mb-0" th:text="${resumenes.size()}">0</div>
-                            <div class="text-body-secondary small">Total de tutorados</div>
+                        <div class="stat-card text-center">
+                            <div class="stat-value" th:text="${resumenes.size()}">0</div>
+                            <div class="stat-label">Total de tutorados</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tabla detallada -->
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">Detalle por tutorado</h6>
-                    </div>
-                    <div class="card-body p-0">
+                <div class="glass-surface">
+                    <h6 class="section-title">Detalle por tutorado</h6>
+                    <div class="table-wrapper">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead>

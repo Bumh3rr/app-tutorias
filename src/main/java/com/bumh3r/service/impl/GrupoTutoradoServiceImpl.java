@@ -2,6 +2,7 @@ package com.bumh3r.service.impl;
 
 import com.bumh3r.entity.Grupo;
 import com.bumh3r.entity.GrupoTutorado;
+import com.bumh3r.entity.Semestre;
 import com.bumh3r.entity.Tutorado;
 import com.bumh3r.repository.IGrupoRepository;
 import com.bumh3r.repository.IGrupoTutoradoRepository;
@@ -36,13 +37,17 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
     }
 
     @Override
-    public void asignarTutorados(Integer idGrupo, Integer[] idsTutorados) {
+    public List<String> asignarTutorados(Integer idGrupo, Integer[] idsTutorados) {
         Grupo grupo = this.iGrupoRepository.findById(idGrupo)
                 .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
 
+        List<String> advertencias = new java.util.ArrayList<>();
+
         if (idsTutorados == null || idsTutorados.length == 0) {
-            return;
+            return advertencias;
         }
+
+        Semestre semestreDestino = grupo.getSemestre();
 
         for (Integer idTutorado : idsTutorados) {
             Tutorado tutorado = this.iTutoradoRepository.findById(idTutorado)
@@ -52,9 +57,22 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
                 continue;
             }
 
+            // Validación defensiva: un tutorado no puede estar en dos grupos del mismo semestre
+            if (semestreDestino != null) {
+                List<GrupoTutorado> enMismoSemestre = this.iGrupoTutoradoRepository
+                        .findByTutoradoAndGrupoSemestreAndActivo(tutorado, semestreDestino, 1);
+                if (!enMismoSemestre.isEmpty()) {
+                    advertencias.add("El tutorado " + tutorado.getNombre() + " " + tutorado.getApellido()
+                            + " ya está asignado a otro grupo en este semestre.");
+                    continue;
+                }
+            }
+
             long totalGrupos = this.iGrupoTutoradoRepository.countByTutoradoAndActivo(tutorado, 1);
             if (totalGrupos >= 2) {
-                throw new IllegalStateException("El tutorado ya tiene el máximo de 2 asignaciones permitidas.");
+                advertencias.add("El tutorado " + tutorado.getNombre() + " " + tutorado.getApellido()
+                        + " ya tiene el máximo de 2 asignaciones activas permitidas.");
+                continue;
             }
 
             GrupoTutorado gt = GrupoTutorado.builder()
@@ -64,6 +82,8 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
                     .build();
             this.iGrupoTutoradoRepository.save(gt);
         }
+
+        return advertencias;
     }
 
     @Override
@@ -78,7 +98,7 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
     public List<GrupoTutorado> buscarPorGrupo(Integer idGrupo) {
         Grupo grupo = this.iGrupoRepository.findById(idGrupo)
                 .orElseThrow(() -> new NoSuchElementException("Grupo no encontrado"));
-        return this.iGrupoTutoradoRepository.findByActivoAndGrupo(1, grupo);
+        return this.iGrupoTutoradoRepository.findActiveByGrupo(grupo);
     }
 
     @Override
@@ -115,8 +135,11 @@ public class GrupoTutoradoServiceImpl implements GrupoTutoradoService {
             return List.of();
         }
 
+        Integer idSemestre = grupo.getSemestre() != null ? grupo.getSemestre().getId() : null;
+
         return this.iGrupoTutoradoRepository.findTutoradosDisponibles(
                 grupo.getCarrera().getId(),
-                idGrupo);
+                idGrupo,
+                idSemestre);
     }
 }

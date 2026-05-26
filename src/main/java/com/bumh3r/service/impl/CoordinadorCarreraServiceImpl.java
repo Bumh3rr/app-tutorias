@@ -8,6 +8,7 @@ import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.ICoordinadorCarreraRepository;
 import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.service.CoordinadorCarreraService;
+import com.bumh3r.service.UsuarioService;
 import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,6 +33,8 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
     @Autowired
     private ISemestreRepository iSemestreRepository;
     @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
     private PaginationUtil paginationUtil;
 
     @Override
@@ -44,6 +48,7 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
     }
 
     @Override
+    @Transactional
     public void guardarCoordinador(CoordinadorCarrera coordinador) {
         resolverRelaciones(coordinador);
         this.iCoordinadorCarreraRepository.findByNumeroControl(coordinador.getNumeroControl()).ifPresent(existente -> {
@@ -56,6 +61,7 @@ public class CoordinadorCarreraServiceImpl implements CoordinadorCarreraService 
         });
         coordinador.setActivo(1);
         this.iCoordinadorCarreraRepository.save(coordinador);
+        this.usuarioService.crearParaCoordinador(coordinador);
     }
 
     @Override

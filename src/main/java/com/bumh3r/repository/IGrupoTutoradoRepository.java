@@ -35,6 +35,9 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
             @Param("semestre") Semestre semestre,
             @Param("activo") Integer activo);
 
+    @Query("SELECT gt FROM GrupoTutorado gt WHERE gt.grupo = :grupo AND (gt.activo IS NULL OR gt.activo = 1)")
+    List<GrupoTutorado> findActiveByGrupo(@Param("grupo") Grupo grupo);
+
     @Query("SELECT gt.grupo.id, COUNT(gt) FROM GrupoTutorado gt WHERE gt.activo = 1 GROUP BY gt.grupo.id")
     List<Object[]> countActivoByGrupo();
 
@@ -157,8 +160,12 @@ public interface IGrupoTutoradoRepository extends JpaRepository<GrupoTutorado, I
         AND t.id NOT IN (
             SELECT gt.tutorado.id FROM GrupoTutorado gt
             WHERE gt.grupo.id = :idGrupo AND gt.activo = 1)
+        AND (:idSemestre IS NULL OR t.id NOT IN (
+            SELECT gt2.tutorado.id FROM GrupoTutorado gt2
+            WHERE gt2.grupo.semestre.id = :idSemestre AND gt2.activo = 1))
     """)
     List<Tutorado> findTutoradosDisponibles(
             @Param("idCarrera") Integer idCarrera,
-            @Param("idGrupo") Integer idGrupo);
+            @Param("idGrupo") Integer idGrupo,
+            @Param("idSemestre") Integer idSemestre);
 }

@@ -27,7 +27,7 @@
                     <p class="text-body-secondary mb-0">
                         <span th:text="${sesion.grupo?.nombre ?: '—'}"></span>
                         <span th:if="${sesion.fechaImparticion != null}"
-                              th:text="' · ' + ${#temporals.format(sesion.fechaImparticion, 'dd/MM/yyyy')}"></span>
+                              th:text="${sesion.fechaImparticion != null ? ' · ' + #dates.format(sesion.fechaImparticion, 'dd/MM/yyyy') : ''}"></span>
                     </p>
                 </div>
                 <a th:href="@{/tutor/sesiones}" class="btn btn-outline-secondary btn-sm">← Sesiones</a>
@@ -39,9 +39,8 @@
             </div>
 
             <!-- Info de la sesión -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="row g-3">
+            <div class="glass-surface mb-4">
+                <div class="row g-3">
                         <div class="col-md-3 col-6">
                             <p class="text-body-secondary small mb-1">Grupo</p>
                             <p class="fw-semibold mb-0" th:text="${sesion.grupo?.nombre ?: '—'}">—</p>
@@ -52,7 +51,7 @@
                         </div>
                         <div class="col-md-3 col-6">
                             <p class="text-body-secondary small mb-1">Fecha</p>
-                            <p class="mb-0" th:text="${sesion.fechaImparticion != null ? #temporals.format(sesion.fechaImparticion, 'dd/MM/yyyy') : '—'}">—</p>
+                            <p class="mb-0" th:text="${sesion.fechaImparticion != null ? #dates.format(sesion.fechaImparticion, 'dd/MM/yyyy') : '—'}">—</p>
                         </div>
                         <div class="col-md-3 col-6">
                             <p class="text-body-secondary small mb-1">Estatus</p>
@@ -61,7 +60,6 @@
                                   th:text="${sesion.estatusRegistro ?: 'PENDIENTE'}">—</span>
                         </div>
                     </div>
-                </div>
             </div>
 
             <!-- 4 Acciones operativas -->
@@ -87,7 +85,7 @@
                                 Marca quiénes de tus tutorados asistieron a esta sesión.
                             </p>
                         </div>
-                        <a th:href="@{/asistencia/registrar/{id}(id=${sesion.id})}"
+                        <a th:href="@{/tutor/sesiones/{id}/asistencia(id=${sesion.id})}"
                            class="btn btn-sm btn-primary w-100">
                             <span th:text="${asistenciaRegistrada ? 'Editar asistencia' : 'Registrar asistencia'}">Registrar</span>
                         </a>
@@ -112,7 +110,7 @@
                                 Adjunta foto o PDF como evidencia de la sesión realizada.
                             </p>
                         </div>
-                        <a th:href="@{/evidencia/agregar(idSesion=${sesion.id})}"
+                        <a th:href="@{/tutor/sesiones/{id}/evidencia(id=${sesion.id})}"
                            class="btn btn-sm btn-warning text-dark w-100">
                             <span th:text="${evidenciaSubida ? 'Agregar otra evidencia' : 'Subir evidencia'}">Subir</span>
                         </a>
@@ -138,7 +136,7 @@
                                 Llena el Anexo 19 con la descripción de la actividad y observaciones.
                             </p>
                         </div>
-                        <a th:href="@{/reporte/sesion/{id}(id=${sesion.id})}"
+                        <a th:href="@{/tutor/sesiones/{id}/reporte(id=${sesion.id})}"
                            class="btn btn-sm btn-info text-dark w-100">
                             <span th:text="${reporteRegistrado ? 'Ver / editar reporte' : 'Llenar reporte'}">Reporte</span>
                         </a>
@@ -160,18 +158,16 @@
                                 Marca que un tutorado recuperó una falta asistiendo a un taller.
                             </p>
                         </div>
-                        <a th:href="@{/asistencia(tipoBusqueda=sesion,idSesion=${sesion.id})}"
+                        <a th:href="@{/tutor/sesiones/{id}/recuperacion(id=${sesion.id})}"
                            class="btn btn-sm btn-outline-success w-100">Gestionar recuperaciones</a>
                     </div>
                 </div>
             </div>
 
             <!-- Lista de asistencias registradas -->
-            <div th:if="${!mapaAsistencias.isEmpty()}" class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">Asistencia registrada</h6>
-                </div>
-                <div class="card-body p-0">
+            <div th:if="${!mapaAsistencias.isEmpty()}" class="glass-surface mb-3">
+                <h6 class="section-title">Asistencia registrada</h6>
+                <div class="table-wrapper">
                     <div class="table-responsive">
                         <table class="table table-sm mb-0">
                             <thead>
@@ -182,20 +178,20 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="gt : ${tutorados}">
-                                    <td th:text="${gt.tutorado.nombre + ' ' + gt.tutorado.apellido}">—</td>
+                                <tr th:each="asignacion : ${tutorados}">
+                                    <td th:text="${asignacion.tutorado.nombre + ' ' + asignacion.tutorado.apellido}">—</td>
                                     <td class="text-center">
-                                        <span th:if="${mapaAsistencias[gt.tutorado.id] != null and mapaAsistencias[gt.tutorado.id].presente == 1}"
+                                        <span th:if="${mapaAsistencias[asignacion.tutorado.id] != null and mapaAsistencias[asignacion.tutorado.id].presente == 1}"
                                               class="badge bg-success">Sí</span>
-                                        <span th:if="${mapaAsistencias[gt.tutorado.id] != null and mapaAsistencias[gt.tutorado.id].presente == 0}"
+                                        <span th:if="${mapaAsistencias[asignacion.tutorado.id] != null and mapaAsistencias[asignacion.tutorado.id].presente == 0}"
                                               class="badge bg-danger">No</span>
-                                        <span th:if="${mapaAsistencias[gt.tutorado.id] == null}"
+                                        <span th:if="${mapaAsistencias[asignacion.tutorado.id] == null}"
                                               class="badge bg-secondary">—</span>
                                     </td>
                                     <td class="text-center">
-                                        <span th:if="${mapaAsistencias[gt.tutorado.id] != null and mapaAsistencias[gt.tutorado.id].recuperada == 1}"
+                                        <span th:if="${mapaAsistencias[asignacion.tutorado.id] != null and mapaAsistencias[asignacion.tutorado.id].recuperada == 1}"
                                               class="badge bg-info text-dark">Sí</span>
-                                        <span th:if="${mapaAsistencias[gt.tutorado.id] == null or mapaAsistencias[gt.tutorado.id].recuperada != 1}"
+                                        <span th:if="${mapaAsistencias[asignacion.tutorado.id] == null or mapaAsistencias[asignacion.tutorado.id].recuperada != 1}"
                                               class="text-body-secondary small">—</span>
                                     </td>
                                 </tr>
@@ -206,17 +202,17 @@
             </div>
 
             <!-- Evidencias -->
-            <div th:if="${!evidencias.isEmpty()}" class="card">
-                <div class="card-header"><h6 class="mb-0">Evidencias subidas</h6></div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        <li th:each="ev : ${evidencias}" class="list-group-item d-flex align-items-center justify-content-between">
-                            <span class="small" th:text="${ev.archivoUrl}">archivo.pdf</span>
-                            <span class="badge"
-                                  th:classappend="${ev.estatusValidacion == 'VALIDADA' ? 'bg-success' : (ev.estatusValidacion == 'RECHAZADA' ? 'bg-danger' : 'bg-warning text-dark')}"
-                                  th:text="${ev.estatusValidacion ?: 'PENDIENTE'}">—</span>
-                        </li>
-                    </ul>
+            <div th:if="${!evidencias.isEmpty()}" class="glass-surface">
+                <h6 class="section-title">Evidencias subidas</h6>
+                <div class="d-flex flex-column gap-2">
+                    <div th:each="ev : ${evidencias}"
+                         class="d-flex align-items-center justify-content-between py-2"
+                         style="border-bottom: 1px solid rgba(255,255,255,0.05)">
+                        <span class="small text-body-secondary" th:text="${ev.archivoUrl}">archivo.pdf</span>
+                        <span class="badge"
+                              th:classappend="${ev.estatusValidacion == 'VALIDADA' ? 'bg-success' : (ev.estatusValidacion == 'RECHAZADA' ? 'bg-danger' : 'bg-warning text-dark')}"
+                              th:text="${ev.estatusValidacion ?: 'PENDIENTE'}">—</span>
+                    </div>
                 </div>
             </div>
 

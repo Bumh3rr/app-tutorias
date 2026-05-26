@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface GrupoTutoradoService {
     List<GrupoTutorado> obtenerTodosGrupoTutorados();
-    void asignarTutorados(Integer idGrupo, Integer[] idsTutorados);
+    List<String> asignarTutorados(Integer idGrupo, Integer[] idsTutorados);
     void eliminarTutoradoDeGrupo(Integer id);
     List<GrupoTutorado> buscarPorGrupo(Integer idGrupo);
     List<GrupoTutorado> buscarTutoriasPorTutorado(Integer idTutorado);

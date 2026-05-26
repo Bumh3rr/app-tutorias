@@ -28,21 +28,28 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div th:if="${asignaciones == null or #lists.isEmpty(asignaciones)}" class="alert alert-info">
-                No tienes tutorados asignados en el semestre vigente.
+            <div th:if="${asignaciones == null or #lists.isEmpty(asignaciones)}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <h5>Sin tutorados asignados</h5>
+                <p>No tienes tutorados asignados en el semestre vigente.</p>
             </div>
 
-            <div th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}" class="card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h6 class="mb-0">Tutorados y estado de detección</h6>
+            <div th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}" class="glass-surface">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="section-title mb-0">Tutorados y estado de detección</h6>
                     <div>
                         <span class="badge bg-success me-1"
-                              th:text="${#lists.size(asignaciones.?[deteccionAplicada[tutorado.id] == true])} + ' aplicadas'">0 aplicadas</span>
+                              th:text="${deteccionAplicadasCount} + ' aplicadas'">0 aplicadas</span>
                         <span class="badge bg-warning text-dark"
-                              th:text="${#lists.size(asignaciones.?[deteccionAplicada[tutorado.id] != true])} + ' pendientes'">0 pendientes</span>
+                              th:text="${deteccionPendientesCount} + ' pendientes'">0 pendientes</span>
                     </div>
                 </div>
-                <div class="card-body p-0">
+                <div class="table-wrapper">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
@@ -55,25 +62,25 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="gt : ${asignaciones}">
+                                <tr th:each="asignacion : ${asignaciones}">
                                     <td>
                                         <span class="fw-semibold"
-                                              th:text="${gt.tutorado.nombre + ' ' + gt.tutorado.apellido}">—</span>
+                                              th:text="${asignacion.tutorado.nombre + ' ' + asignacion.tutorado.apellido}">—</span>
                                     </td>
                                     <td class="text-body-secondary small"
-                                        th:text="${gt.tutorado.numeroControl}">—</td>
-                                    <td class="small" th:text="${gt.grupo?.nombre ?: '—'}">—</td>
+                                        th:text="${asignacion.tutorado.numeroControl}">—</td>
+                                    <td class="small" th:text="${asignacion.grupo?.nombre ?: '—'}">—</td>
                                     <td class="text-center">
-                                        <span th:if="${deteccionAplicada[gt.tutorado.id]}"
+                                        <span th:if="${deteccionAplicada[asignacion.tutorado.id]}"
                                               class="badge bg-success">Aplicada</span>
-                                        <span th:if="${!deteccionAplicada[gt.tutorado.id]}"
+                                        <span th:if="${!deteccionAplicada[asignacion.tutorado.id]}"
                                               class="badge bg-warning text-dark">Pendiente</span>
                                     </td>
                                     <td>
-                                        <a th:href="@{/tutor/deteccion/{id}(id=${gt.tutorado.id})}"
+                                        <a th:href="@{/tutor/deteccion/{id}(id=${asignacion.tutorado.id})}"
                                            class="btn btn-sm"
-                                           th:classappend="${deteccionAplicada[gt.tutorado.id] ? 'btn-outline-secondary' : 'btn-primary'}">
-                                            <span th:text="${deteccionAplicada[gt.tutorado.id] ? 'Ver / nueva' : 'Aplicar ahora'}">Aplicar</span>
+                                           th:classappend="${deteccionAplicada[asignacion.tutorado.id] ? 'btn-outline-secondary' : 'btn-primary'}">
+                                            <span th:text="${deteccionAplicada[asignacion.tutorado.id] ? 'Ver / nueva' : 'Aplicar ahora'}">Aplicar</span>
                                         </a>
                                     </td>
                                 </tr>

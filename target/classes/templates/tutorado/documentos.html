@@ -8,9 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
     <style>
-        .doc-card { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; }
-        .doc-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-        .doc-icon svg { width: 26px; height: 26px; }
+        .action-card { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; transition: border-color .2s, background .2s; }
+        .action-card:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.02); }
+        .action-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .action-icon svg { width: 26px; height: 26px; }
     </style>
 </head>
 <body>
@@ -22,34 +23,38 @@
             <div class="page-header">
                 <div>
                     <h3>Mis Documentos</h3>
-                    <p class="text-body-secondary mb-0"
-                       th:text="${semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : ''}"></p>
+                    <p class="text-body-secondary mb-0">Descarga aquí tus documentos personales del programa de tutorías</p>
                 </div>
                 <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
             </div>
 
-            <!-- Resumen de asistencia si aplica -->
-            <div th:if="${resumen != null}" class="alert alert-secondary d-flex align-items-center gap-3 mb-4">
+            <!-- Resumen de asistencia -->
+            <div th:if="${resumen != null}" class="glass-surface mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div>
-                    <strong th:text="${#numbers.formatDecimal(resumen.porcentaje, 1, 1) + '% de asistencia'}">0%</strong>
-                    <span class="ms-2 badge"
-                          th:classappend="${resumen.acreditado ? 'bg-success' : 'bg-warning text-dark'}"
-                          th:text="${resumen.acreditado ? 'Acreditado' : 'En riesgo'}">—</span>
-                    <p class="mb-0 small text-body-secondary mt-1">
-                        La constancia de participación requiere al menos 80% de asistencia.
-                    </p>
+                    <p class="text-body-secondary small text-uppercase mb-1" style="letter-spacing:.06em; font-size:.72rem">Mi asistencia actual</p>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold fs-5"
+                              th:style="${resumen.porcentaje >= 80 ? 'color:#75b798' : (resumen.porcentaje >= 60 ? 'color:#fbbf24' : 'color:#f87171')}"
+                              th:text="${#numbers.formatDecimal(resumen.porcentaje, 1, 1) + '%'}">0%</span>
+                        <span class="badge"
+                              th:classappend="${resumen.porcentaje >= 80 ? 'bg-success' : (resumen.porcentaje >= 60 ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${resumen.porcentaje >= 80 ? 'Acreditado' : (resumen.porcentaje >= 60 ? 'En riesgo' : 'No acreditado')}">—</span>
+                    </div>
                 </div>
+                <p class="small text-body-secondary mb-0">La constancia de participación requiere al menos 80% de asistencia.</p>
             </div>
 
             <div class="row g-4">
 
                 <!-- Carnet de tutoría -->
                 <div class="col-md-6">
-                    <div class="doc-card h-100 d-flex flex-column">
-                        <div class="doc-icon bg-primary bg-opacity-25">
+                    <div class="action-card h-100 d-flex flex-column">
+                        <div class="action-icon bg-primary bg-opacity-25">
                             <svg viewBox="0 0 24 24" fill="none" stroke="#6ea8fe" stroke-width="1.8">
                                 <rect x="2" y="5" width="20" height="14" rx="2"/>
                                 <line x1="2" y1="10" x2="22" y2="10"/>
+                                <line x1="6" y1="14" x2="10" y2="14"/>
+                                <line x1="14" y1="14" x2="16" y2="14"/>
                             </svg>
                         </div>
                         <h5 class="mb-1">Carnet de Tutoría</h5>
@@ -76,11 +81,11 @@
 
                 <!-- Constancia de participación -->
                 <div class="col-md-6">
-                    <div class="doc-card h-100 d-flex flex-column">
-                        <div class="doc-icon"
+                    <div class="action-card h-100 d-flex flex-column">
+                        <div class="action-icon"
                              th:style="${constanciaError == null ? 'background:rgba(117,183,152,.18)' : 'background:rgba(255,255,255,.05)'}">
                             <svg viewBox="0 0 24 24" fill="none"
-                                 th:attr="stroke=${constanciaError == null ? '#75b798' : '#6c757d'}"
+                                 th:attr="stroke=${constanciaError == null ? '#75b798' : 'rgba(255,255,255,0.25)'}"
                                  stroke-width="1.8">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                 <polyline points="14 2 14 8 20 8"/>
@@ -101,10 +106,16 @@
                                 </svg>
                                 Descargar constancia
                             </a>
+                            <p class="small text-body-secondary mt-2 mb-0" th:if="${resumen != null}"
+                               th:text="${'Tu porcentaje: ' + #numbers.formatDecimal(resumen.porcentaje, 1, 1) + '%'}"></p>
                         </div>
                         <div th:if="${constanciaError != null}">
                             <button class="btn btn-secondary w-100" disabled>Descargar constancia</button>
-                            <p class="small text-body-secondary mt-2 mb-0" th:text="${constanciaError}"></p>
+                            <div class="alert alert-warning mt-2 mb-0 py-2 small" th:if="${resumen != null}">
+                                <span th:text="${'Disponible cuando alcances el 80% de asistencia mínima. Tu porcentaje actual es ' + #numbers.formatDecimal(resumen.porcentaje, 1, 1) + '%.'}">—</span>
+                            </div>
+                            <p class="small text-body-secondary mt-2 mb-0" th:if="${resumen == null}"
+                               th:text="${constanciaError}"></p>
                         </div>
                     </div>
                 </div>

@@ -279,8 +279,13 @@ public class GrupoController {
             @RequestParam(value = "idsTutorados", required = false) Integer[] idsTutorados,
             RedirectAttributes attributes) {
         try {
-            this.grupoTutoradoService.asignarTutorados(idGrupo, idsTutorados);
-            attributes.addFlashAttribute("msg_success", "Tutorados asignados correctamente");
+            java.util.List<String> advertencias = this.grupoTutoradoService.asignarTutorados(idGrupo, idsTutorados);
+            if (advertencias.isEmpty()) {
+                attributes.addFlashAttribute("msg_success", "Tutorados asignados correctamente");
+            } else {
+                attributes.addFlashAttribute("msg_success", "Asignación completada con observaciones");
+                attributes.addFlashAttribute("msg_warning", String.join(" | ", advertencias));
+            }
         } catch (Exception e) {
             attributes.addFlashAttribute("msg_error", "Error al asignar tutorados: " + e.getMessage());
         }

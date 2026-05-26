@@ -7,17 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
-    <style>
-        .nec-chip {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: .78rem;
-            background: rgba(99,102,241,.18);
-            color: #a5b4fc;
-            margin: 2px;
-        }
-    </style>
 </head>
 <body>
 <div class="app-layout">
@@ -35,75 +24,104 @@
                     <a th:if="${detecciones != null and !detecciones.isEmpty()}"
                        th:href="@{/tutorado/deteccion/pdf}"
                        target="_blank"
-                       class="btn btn-outline-primary btn-sm">Descargar PDF</a>
+                       class="btn btn-outline-primary btn-sm">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Descargar PDF
+                    </a>
                     <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
                 </div>
             </div>
 
-            <div th:if="${detecciones == null or detecciones.isEmpty()}" class="alert alert-info">
-                Aún no tienes una detección de necesidades registrada. Tu tutor la completará durante las sesiones de tutoría.
+            <!-- Sin detección -->
+            <div th:if="${detecciones == null or detecciones.isEmpty()}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3" style="opacity:.3">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <h5>Detección de Necesidades Pendiente</h5>
+                <p>Tu tutor aún no te ha aplicado el instrumento de detección de necesidades. Esto se realiza durante una de las primeras sesiones del semestre. Si la primera sesión ya pasó y no se ha aplicado, contacta directamente a tu tutor.</p>
             </div>
 
-            <div th:each="d : ${detecciones}" class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Detección registrada</h6>
+            <!-- Detecciones registradas -->
+            <div th:each="d : ${detecciones}" class="glass-surface mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="section-title mb-0">Detección registrada</h6>
                     <small class="text-body-secondary"
-                           th:text="${d.fechaRegistro != null ? #temporals.format(d.fechaRegistro, 'dd/MM/yyyy') : ''}"></small>
+                           th:text="${d.fechaRegistro != null ? #dates.format(d.fechaRegistro, 'dd/MM/yyyy') : ''}"></small>
                 </div>
-                <div class="card-body">
 
-                    <!-- Necesidades académicas -->
-                    <div th:if="${d.necesidadAlgebra == 1 or d.necesidadCalculo == 1 or d.necesidadDerecho == 1 or d.necesidadOtra != null}" class="mb-3">
-                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Necesidades académicas</p>
-                        <span th:if="${d.necesidadAlgebra == 1}" class="nec-chip">Álgebra</span>
-                        <span th:if="${d.necesidadCalculo == 1}" class="nec-chip">Cálculo</span>
-                        <span th:if="${d.necesidadDerecho == 1}" class="nec-chip">Intro. al Derecho</span>
+                <!-- Necesidades académicas -->
+                <div th:if="${d.necesidadAlgebra == 1 or d.necesidadCalculo == 1 or d.necesidadDerecho == 1 or (d.necesidadOtra != null and !d.necesidadOtra.isEmpty())}" class="mb-3">
+                    <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em; font-size:.72rem">Necesidades académicas</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span th:if="${d.necesidadAlgebra == 1}"
+                              class="badge badge-pendiente">Álgebra</span>
+                        <span th:if="${d.necesidadCalculo == 1}"
+                              class="badge badge-pendiente">Cálculo</span>
+                        <span th:if="${d.necesidadDerecho == 1}"
+                              class="badge badge-pendiente">Intro. al Derecho</span>
                         <span th:if="${d.necesidadOtra != null and !d.necesidadOtra.isEmpty()}"
-                              class="nec-chip" th:text="${d.necesidadOtra}">—</span>
+                              class="badge badge-pendiente" th:text="${d.necesidadOtra}">—</span>
                     </div>
+                </div>
 
-                    <!-- Apoyo psicológico -->
-                    <div th:if="${d.necesidadPsicologica == 1}" class="mb-3">
-                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Apoyo psicológico</p>
-                        <span class="nec-chip" style="background:rgba(234,134,143,.15);color:#ea868f">Apoyo psicológico</span>
+                <!-- Apoyo psicológico -->
+                <div th:if="${d.necesidadPsicologica == 1}" class="mb-3">
+                    <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em; font-size:.72rem">Apoyo psicológico</p>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-danger bg-opacity-25" style="color:#ea868f">Apoyo psicológico</span>
                         <span th:if="${d.temaPsicologico != null and !d.temaPsicologico.isEmpty()}"
-                              class="small text-body-secondary ms-2" th:text="${d.temaPsicologico}"></span>
+                              class="small text-body-secondary" th:text="${d.temaPsicologico}"></span>
                     </div>
+                </div>
 
-                    <!-- Situación económica -->
-                    <div th:if="${d.necesidadEconomica == 1 or d.tieneBeca == 1 or d.tieneEscasezMateriales == 1}" class="mb-3">
-                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Situación económica</p>
-                        <span th:if="${d.necesidadEconomica == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">Apoyo económico</span>
-                        <span th:if="${d.tieneBeca == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">
+                <!-- Situación económica -->
+                <div th:if="${d.necesidadEconomica == 1 or d.tieneBeca == 1 or d.tieneEscasezMateriales == 1}" class="mb-3">
+                    <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em; font-size:.72rem">Situación económica</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span th:if="${d.necesidadEconomica == 1}"
+                              class="badge bg-warning bg-opacity-25" style="color:#fbbf24">Apoyo económico</span>
+                        <span th:if="${d.tieneBeca == 1}"
+                              class="badge bg-warning bg-opacity-25" style="color:#fbbf24">
                             Beca<span th:if="${d.nombreBeca != null and !d.nombreBeca.isEmpty()}" th:text="': ' + ${d.nombreBeca}"></span>
                         </span>
-                        <span th:if="${d.tieneEscasezMateriales == 1}" class="nec-chip" style="background:rgba(255,218,106,.12);color:#ffda6a">
-                            Escasez de materiales<span th:if="${d.materialesRequeridos != null and !d.materialesRequeridos.isEmpty()}" th:text="' — ' + ${d.materialesRequeridos}"></span>
+                        <span th:if="${d.tieneEscasezMateriales == 1}"
+                              class="badge bg-warning bg-opacity-25" style="color:#fbbf24">
+                            Materiales<span th:if="${d.materialesRequeridos != null and !d.materialesRequeridos.isEmpty()}" th:text="' — ' + ${d.materialesRequeridos}"></span>
                         </span>
                     </div>
+                </div>
 
-                    <!-- Salud y familia -->
-                    <div th:if="${d.tieneAtencionMedica == 1 or d.tieneVinculacionFamilia == 1}" class="mb-3">
-                        <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em">Salud y familia</p>
-                        <span th:if="${d.tieneAtencionMedica == 1}" class="nec-chip" style="background:rgba(110,255,198,.1);color:#75b798">
+                <!-- Salud y familia -->
+                <div th:if="${d.tieneAtencionMedica == 1 or d.tieneVinculacionFamilia == 1}" class="mb-3">
+                    <p class="text-body-secondary small text-uppercase mb-2" style="letter-spacing:.06em; font-size:.72rem">Salud y familia</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span th:if="${d.tieneAtencionMedica == 1}"
+                              class="badge bg-success bg-opacity-25" style="color:#75b798">
                             Atención médica<span th:if="${d.especificacionMedica != null and !d.especificacionMedica.isEmpty()}" th:text="' — ' + ${d.especificacionMedica}"></span>
                         </span>
-                        <span th:if="${d.tieneVinculacionFamilia == 1}" class="nec-chip" style="background:rgba(110,255,198,.1);color:#75b798">
+                        <span th:if="${d.tieneVinculacionFamilia == 1}"
+                              class="badge bg-success bg-opacity-25" style="color:#75b798">
                             Vinculación familiar<span th:if="${d.razonVinculacion != null and !d.razonVinculacion.isEmpty()}" th:text="' — ' + ${d.razonVinculacion}"></span>
                         </span>
                     </div>
+                </div>
 
-                    <!-- Observaciones -->
-                    <div th:if="${d.observaciones != null and !d.observaciones.isEmpty()}">
-                        <p class="text-body-secondary small text-uppercase mb-1" style="letter-spacing:.06em">Observaciones</p>
-                        <p class="small mb-0" th:text="${d.observaciones}">—</p>
-                    </div>
+                <!-- Observaciones -->
+                <div th:if="${d.observaciones != null and !d.observaciones.isEmpty()}">
+                    <p class="text-body-secondary small text-uppercase mb-1" style="letter-spacing:.06em; font-size:.72rem">Observaciones</p>
+                    <p class="small mb-0" th:text="${d.observaciones}">—</p>
+                </div>
 
-                    <!-- Sin necesidades detectadas -->
-                    <div th:if="${d.necesidadAlgebra != 1 and d.necesidadCalculo != 1 and d.necesidadDerecho != 1 and d.necesidadPsicologica != 1 and d.necesidadEconomica != 1 and d.tieneBeca != 1 and d.tieneEscasezMateriales != 1 and d.tieneAtencionMedica != 1 and d.tieneVinculacionFamilia != 1 and (d.necesidadOtra == null or d.necesidadOtra.isEmpty()) and (d.observaciones == null or d.observaciones.isEmpty())}"
-                         class="text-body-secondary small">
-                        No se registraron necesidades específicas en esta detección.
-                    </div>
+                <!-- Sin necesidades detectadas -->
+                <div th:if="${d.necesidadAlgebra != 1 and d.necesidadCalculo != 1 and d.necesidadDerecho != 1 and d.necesidadPsicologica != 1 and d.necesidadEconomica != 1 and d.tieneBeca != 1 and d.tieneEscasezMateriales != 1 and d.tieneAtencionMedica != 1 and d.tieneVinculacionFamilia != 1 and (d.necesidadOtra == null or d.necesidadOtra.isEmpty()) and (d.observaciones == null or d.observaciones.isEmpty())}"
+                     class="text-body-secondary small">
+                    No se registraron necesidades específicas en esta detección.
                 </div>
             </div>
 

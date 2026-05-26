@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+    <style>
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .stat-icon svg { width: 20px; height: 20px; }
+    </style>
 </head>
 <body>
 <div class="app-layout">
@@ -18,24 +22,93 @@
                 <div>
                     <h3>Mis Sesiones</h3>
                     <p class="text-body-secondary mb-0"
-                       th:text="${semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : ''}"></p>
+                       th:text="${(tutoriaVigente != null ? tutoriaVigente.grupo?.nombre + ' · ' : '') + (semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : '')}"></p>
                 </div>
                 <a th:href="@{/tutorado/mi-tutoria}" class="btn btn-outline-secondary btn-sm">← Mi Tutoría</a>
             </div>
 
-            <div th:if="${sesiones == null or sesiones.isEmpty()}" class="alert alert-info">
-                No hay sesiones registradas para tu grupo en este semestre.
+            <!-- Stat cards (solo si hay resumen) -->
+            <div th:if="${resumen != null}" class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="stat-icon bg-secondary bg-opacity-25">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" th:text="${resumen.totalSesiones}">0</div>
+                        <div class="stat-label">Total sesiones</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="stat-icon bg-success bg-opacity-25">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#75b798" stroke-width="1.8">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value text-success" th:text="${resumen.asistenciasPresente}">0</div>
+                        <div class="stat-label">Asistidas</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="stat-icon bg-info bg-opacity-25">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#6edff6" stroke-width="1.8">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 .49-3.36"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value text-info" th:text="${resumen.asistenciasRecuperadas}">0</div>
+                        <div class="stat-label">Recuperadas</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="stat-icon bg-warning bg-opacity-25">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="stat-value"
+                             th:style="${resumen.porcentaje >= 80 ? 'color:#75b798' : (resumen.porcentaje >= 60 ? 'color:#fbbf24' : 'color:#f87171')}"
+                             th:text="${#numbers.formatDecimal(resumen.porcentaje, 1, 1) + '%'}">0%</div>
+                        <div class="stat-label">Mi asistencia</div>
+                    </div>
+                </div>
             </div>
 
-            <div th:if="${sesiones != null and !sesiones.isEmpty()}" class="card">
-                <div class="card-body p-0">
+            <!-- Sin sesiones -->
+            <div th:if="${sesiones == null or sesiones.isEmpty()}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3" style="opacity:.3">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <h5 th:text="${tutoriaVigente == null ? 'Sin grupo asignado' : 'Sin sesiones programadas'}">Sin sesiones</h5>
+                <p th:text="${tutoriaVigente == null
+                    ? 'No tienes sesiones porque aún no estás asignado a un grupo de tutoría.'
+                    : 'Aún no se han programado sesiones para tu grupo en este semestre.'}">—</p>
+            </div>
+
+            <!-- Tabla de sesiones -->
+            <div th:if="${sesiones != null and !sesiones.isEmpty()}" class="glass-surface">
+                <div class="table-wrapper">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Semana</th>
                                     <th>Fecha</th>
-                                    <th>Grupo</th>
                                     <th>Actividad PAT</th>
                                     <th class="text-center">Estatus sesión</th>
                                     <th class="text-center">Mi asistencia</th>
@@ -43,22 +116,26 @@
                             </thead>
                             <tbody>
                                 <tr th:each="s : ${sesiones}">
-                                    <td class="fw-semibold" th:text="${s.semana != null ? 'Semana ' + s.semana : '—'}">—</td>
-                                    <td th:text="${s.fechaImparticion != null ? #temporals.format(s.fechaImparticion, 'dd/MM/yyyy') : '—'}">—</td>
-                                    <td class="small text-body-secondary" th:text="${s.grupo?.nombre ?: '—'}">—</td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${s.semana != null ? s.semana : '—'}">—</span>
+                                    </td>
+                                    <td th:text="${s.fechaImparticion != null ? #dates.format(s.fechaImparticion, 'dd/MM/yyyy') : '—'}">—</td>
                                     <td class="small" th:text="${s.actividad?.nombre ?: '—'}">—</td>
                                     <td class="text-center">
                                         <span class="badge"
                                               th:classappend="${s.estatusRegistro == 'REALIZADA' ? 'bg-success' : (s.estatusRegistro == 'CANCELADA' ? 'bg-danger' : 'bg-warning text-dark')}"
-                                              th:text="${s.estatusRegistro ?: 'PROGRAMADA'}">—</span>
+                                              th:text="${s.estatusRegistro ?: 'PENDIENTE'}">—</span>
                                     </td>
                                     <td class="text-center">
-                                        <!-- Sesión no realizada aún -->
-                                        <span th:if="${s.estatusRegistro != 'REALIZADA'}"
-                                              class="badge bg-secondary">Pendiente</span>
-                                        <!-- Sesión realizada, sin registro de asistencia -->
-                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] == null}"
+                                        <!-- Sesión pendiente -->
+                                        <span th:if="${s.estatusRegistro != 'REALIZADA' and s.estatusRegistro != 'CANCELADA'}"
+                                              class="badge bg-secondary">Programada</span>
+                                        <!-- Cancelada -->
+                                        <span th:if="${s.estatusRegistro == 'CANCELADA'}"
                                               class="badge bg-secondary">—</span>
+                                        <!-- Realizada sin asistencia registrada -->
+                                        <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] == null}"
+                                              class="badge bg-secondary">Sin dato</span>
                                         <!-- Presente -->
                                         <span th:if="${s.estatusRegistro == 'REALIZADA' and mapaAsistencias[s.id] != null and mapaAsistencias[s.id].presente == 1 and (mapaAsistencias[s.id].recuperada == null or mapaAsistencias[s.id].recuperada != 1)}"
                                               class="badge bg-success">Presente</span>

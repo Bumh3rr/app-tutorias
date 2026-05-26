@@ -5,6 +5,7 @@ import com.bumh3r.entity.*;
 import com.bumh3r.repository.IUsuarioRepository;
 import com.bumh3r.repository.ISemestreRepository;
 import com.bumh3r.service.*;
+import com.bumh3r.service.enums.FileType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,8 +13,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public class TutorDashboardController {
     @Autowired private DeteccionNecesidadesService deteccionService;
     @Autowired private EvidenciaSesionService evidenciaSesionService;
     @Autowired private ReporteSesionService reporteSesionService;
+    @Autowired private FileStoreService fileStoreService;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -237,9 +241,14 @@ public class TutorDashboardController {
             }
         }
 
+        long deteccionAplicadasCount = deteccionAplicada.values().stream().filter(Boolean::booleanValue).count();
+        long deteccionPendientesCount = deteccionAplicada.values().stream().filter(v -> !v).count();
+
         model.addAttribute("tutor", tutor);
-        model.addAttribute("asignaciones", asignacionPorTutorado.values());
+        model.addAttribute("asignaciones", new java.util.ArrayList<>(asignacionPorTutorado.values()));
         model.addAttribute("deteccionAplicada", deteccionAplicada);
+        model.addAttribute("deteccionAplicadasCount", deteccionAplicadasCount);
+        model.addAttribute("deteccionPendientesCount", deteccionPendientesCount);
         model.addAttribute("semestreVigente", vigente);
         return "tutor/deteccion";
     }
@@ -353,5 +362,207 @@ public class TutorDashboardController {
         model.addAttribute("grupoPorTutorado", grupoPorTutorado);
         model.addAttribute("semestreVigente", vigente);
         return "tutor/asistencias";
+    }
+
+    // ── Registro masivo de asistencia ─────────────────────────────────────────
+
+    @GetMapping("/sesiones/{idSesion}/asistencia")
+    public String asistenciaForm(@PathVariable Integer idSesion, Authentication auth, Model model) {
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        List<GrupoTutorado> tutorados = grupoTutoradoService.buscarPorGrupo(sesion.getGrupo().getId());
+        List<Asistencia> asistencias = asistenciaService.buscarAsistenciasPorSesion(idSesion);
+        Map<Integer, Integer> mapaPresente = asistencias.stream()
+                .collect(Collectors.toMap(a -> a.getTutorado().getId(), Asistencia::getPresente));
+
+        model.addAttribute("sesion", sesion);
+        model.addAttribute("tutorados", tutorados);
+        model.addAttribute("mapaPresente", mapaPresente);
+        return "tutor/asistencia-form";
+    }
+
+    @PostMapping("/sesiones/{idSesion}/asistencia")
+    public String asistenciaGuardar(
+            @PathVariable Integer idSesion,
+            @RequestParam(value = "idsTutoradosPresentes", required = false) Integer[] idsTutoradosPresentes,
+            Authentication auth,
+            RedirectAttributes attrs) {
+
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        try {
+            asistenciaService.registrarAsistenciaMasiva(idSesion,
+                    idsTutoradosPresentes != null ? idsTutoradosPresentes : new Integer[0]);
+            attrs.addFlashAttribute("msg_success", "Asistencia registrada correctamente.");
+        } catch (Exception e) {
+            log.error("Error al registrar asistencia: {}", e.getMessage());
+            attrs.addFlashAttribute("msg_error", "Error al registrar asistencia: " + e.getMessage());
+        }
+        return "redirect:/tutor/sesiones/" + idSesion;
+    }
+
+    // ── Evidencia ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/sesiones/{idSesion}/evidencia")
+    public String evidenciaForm(@PathVariable Integer idSesion, Authentication auth, Model model) {
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        List<EvidenciaSesion> evidencias = evidenciaSesionService.buscarEvidenciasPorSesion(idSesion);
+
+        model.addAttribute("sesion", sesion);
+        model.addAttribute("evidencias", evidencias);
+        return "tutor/evidencia-form";
+    }
+
+    @PostMapping("/sesiones/{idSesion}/evidencia")
+    public String evidenciaGuardar(
+            @PathVariable Integer idSesion,
+            @RequestParam(value = "archivoEvidencia", required = false) MultipartFile archivoEvidencia,
+            Authentication auth,
+            RedirectAttributes attrs) {
+
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        if (archivoEvidencia == null || archivoEvidencia.isEmpty()) {
+            attrs.addFlashAttribute("msg_error", "Debes seleccionar un archivo para subir.");
+            return "redirect:/tutor/sesiones/" + idSesion + "/evidencia";
+        }
+
+        try {
+            String url = fileStoreService.save(archivoEvidencia, FileType.EVIDENCIA);
+            EvidenciaSesion evidencia = new EvidenciaSesion();
+            evidencia.setSesion(sesion);
+            evidencia.setArchivoUrl(url);
+            evidencia.setFechaSubida(new java.util.Date());
+            evidencia.setEstatusValidacion("PENDIENTE");
+            evidencia.setActivo(1);
+            evidenciaSesionService.guardarEvidencia(evidencia);
+            attrs.addFlashAttribute("msg_success", "Evidencia subida correctamente.");
+        } catch (Exception e) {
+            log.error("Error al subir evidencia: {}", e.getMessage());
+            attrs.addFlashAttribute("msg_error", "Error al subir la evidencia: " + e.getMessage());
+            return "redirect:/tutor/sesiones/" + idSesion + "/evidencia";
+        }
+        return "redirect:/tutor/sesiones/" + idSesion;
+    }
+
+    // ── Reporte de sesión ──────────────────────────────────────────────────────
+
+    @GetMapping("/sesiones/{idSesion}/reporte")
+    public String reporteForm(@PathVariable Integer idSesion, Authentication auth, Model model) {
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        ReporteSesion reporte = reporteSesionService.obtenerReportePorSesion(idSesion);
+        List<Asistencia> asistencias = asistenciaService.buscarAsistenciasPorSesion(idSesion);
+        long presentes = asistencias.stream()
+                .filter(a -> a.getPresente() != null && a.getPresente() == 1)
+                .count();
+
+        model.addAttribute("sesion", sesion);
+        model.addAttribute("reporte", reporte);
+        model.addAttribute("alumnosPresentesCount", presentes);
+        return "tutor/reporte-form";
+    }
+
+    @PostMapping("/sesiones/{idSesion}/reporte")
+    public String reporteGuardar(
+            @PathVariable Integer idSesion,
+            @RequestParam("descripcionActividad") String descripcionActividad,
+            @RequestParam(value = "observaciones", required = false) String observaciones,
+            @RequestParam(value = "alumnosPresentes", required = false) Integer alumnosPresentes,
+            @RequestParam(value = "fechaEntrega", required = false) String fechaEntregaStr,
+            Authentication auth,
+            RedirectAttributes attrs) {
+
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        try {
+            ReporteSesion existente = reporteSesionService.obtenerReportePorSesion(idSesion);
+            ReporteSesion reporte = existente != null ? existente : new ReporteSesion();
+            reporte.setSesion(sesion);
+            reporte.setDescripcionActividad(descripcionActividad);
+            reporte.setObservaciones(observaciones);
+            reporte.setAlumnosPresentes(alumnosPresentes);
+            if (fechaEntregaStr != null && !fechaEntregaStr.isBlank()) {
+                try { reporte.setFechaEntrega(new SimpleDateFormat("yyyy-MM-dd").parse(fechaEntregaStr)); }
+                catch (Exception ignored) {}
+            }
+            if (reporte.getEstatusRevision() == null) reporte.setEstatusRevision("PENDIENTE");
+            if (reporte.getActivo() == null) reporte.setActivo(1);
+            reporteSesionService.guardarReporte(reporte);
+            attrs.addFlashAttribute("msg_success", "Reporte guardado correctamente.");
+        } catch (Exception e) {
+            log.error("Error al guardar reporte: {}", e.getMessage());
+            attrs.addFlashAttribute("msg_error", "Error al guardar el reporte: " + e.getMessage());
+            return "redirect:/tutor/sesiones/" + idSesion + "/reporte";
+        }
+        return "redirect:/tutor/sesiones/" + idSesion;
+    }
+
+    // ── Recuperación de asistencia ─────────────────────────────────────────────
+
+    @GetMapping("/sesiones/{idSesion}/recuperacion")
+    public String recuperacionForm(@PathVariable Integer idSesion, Authentication auth, Model model) {
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        List<Asistencia> asistencias = asistenciaService.buscarAsistenciasPorSesion(idSesion);
+        List<Asistencia> ausentes = asistencias.stream()
+                .filter(a -> a.getPresente() != null && a.getPresente() == 0
+                        && (a.getRecuperada() == null || a.getRecuperada() != 1))
+                .toList();
+
+        model.addAttribute("sesion", sesion);
+        model.addAttribute("ausentes", ausentes);
+        return "tutor/recuperacion-form";
+    }
+
+    @PostMapping("/sesiones/{idSesion}/recuperacion")
+    public String recuperacionGuardar(
+            @PathVariable Integer idSesion,
+            @RequestParam(value = "idsRecuperados", required = false) Integer[] idsRecuperados,
+            Authentication auth,
+            RedirectAttributes attrs) {
+
+        Tutor tutor = resolverTutor(auth);
+        Sesion sesion = sesionService.obtenerSesion(idSesion);
+        validarSesionDelTutor(sesion, tutor);
+
+        if (idsRecuperados == null || idsRecuperados.length == 0) {
+            attrs.addFlashAttribute("msg_error", "No se seleccionó ningún tutorado para recuperar.");
+            return "redirect:/tutor/sesiones/" + idSesion + "/recuperacion";
+        }
+
+        try {
+            List<Asistencia> asistencias = asistenciaService.buscarAsistenciasPorSesion(idSesion);
+            Map<Integer, Asistencia> mapaAsistencias = asistencias.stream()
+                    .collect(Collectors.toMap(a -> a.getTutorado().getId(), a -> a));
+
+            for (Integer idTutorado : idsRecuperados) {
+                Asistencia a = mapaAsistencias.get(idTutorado);
+                if (a != null) {
+                    a.setRecuperada(1);
+                    asistenciaService.actualizarAsistencia(a.getId(), a);
+                }
+            }
+            attrs.addFlashAttribute("msg_success", "Recuperaciones registradas correctamente.");
+        } catch (Exception e) {
+            log.error("Error al registrar recuperaciones: {}", e.getMessage());
+            attrs.addFlashAttribute("msg_error", "Error al registrar recuperaciones: " + e.getMessage());
+        }
+        return "redirect:/tutor/sesiones/" + idSesion;
     }
 }

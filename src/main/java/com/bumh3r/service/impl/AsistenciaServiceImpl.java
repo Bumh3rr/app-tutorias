@@ -104,9 +104,9 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                     "No se puede registrar asistencia en una sesión cancelada.");
         }
 
-        List<GrupoTutorado> grupoTutorados = this.iGrupoTutoradoRepository
-                .findByActivoAndGrupo(1, sesion.getGrupo());
-        List<Tutorado> todosTutorados = grupoTutorados.stream()
+        List<GrupoTutorado> grupoTurorados = this.iGrupoTutoradoRepository
+                .findActiveByGrupo(sesion.getGrupo());
+        List<Tutorado> todosTutorados = grupoTurorados.stream()
                 .map(GrupoTutorado::getTutorado)
                 .collect(Collectors.toList());
 

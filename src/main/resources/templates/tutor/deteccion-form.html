@@ -48,7 +48,7 @@
                             <option value="">— Sin sesión específica —</option>
                             <option th:each="s : ${sesiones}"
                                     th:value="${s.id}"
-                                    th:text="'Semana ' + ${s.semana} + ' · ' + ${#temporals.format(s.fechaImparticion, 'dd/MM/yyyy')} + ' · ' + ${s.grupo.nombre}">
+                                    th:text="'Semana ' + ${s.semana} + ' · ' + ${s.fechaImparticion != null ? #dates.format(s.fechaImparticion, 'dd/MM/yyyy') : '—'} + ' · ' + ${s.grupo.nombre}">
                             </option>
                         </select>
                     </div>

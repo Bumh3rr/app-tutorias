@@ -4,12 +4,14 @@ import com.bumh3r.entity.Tutor;
 import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ITutorRepository;
 import com.bumh3r.service.TutorService;
+import com.bumh3r.service.UsuarioService;
 import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,9 +23,12 @@ public class TutorServiceImpl implements TutorService {
     @Autowired
     private ITutorRepository iTutorRepository;
     @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
     private PaginationUtil paginationUtil;
 
     @Override
+    @Transactional
     public void guardarTutor(Tutor tutor) {
         this.iTutorRepository.findByNumeroControl(tutor.getNumeroControl()).ifPresent(existente -> {
             if (existente.getActivo() == 1)
@@ -37,6 +42,7 @@ public class TutorServiceImpl implements TutorService {
         });
         tutor.setActivo(1);
         this.iTutorRepository.save(tutor);
+        this.usuarioService.crearParaTutor(tutor);
     }
 
     @Override

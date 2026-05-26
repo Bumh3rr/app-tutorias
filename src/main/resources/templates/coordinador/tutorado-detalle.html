@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Tutorado | Sistema Tutorías</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/fragment::sidebar}"></div>
+    <div class="app-content">
+        <main class="app-main">
+
+            <div class="page-header">
+                <div>
+                    <h3 th:text="${(tutorado?.nombre ?: '') + ' ' + (tutorado?.apellido ?: '')}">Tutorado</h3>
+                    <p class="text-body-secondary mb-0" th:text="${tutorado?.numeroControl ?: ''}">—</p>
+                </div>
+                <a th:href="@{/coordinador/tutorados}" class="btn btn-outline-secondary btn-sm">← Mis Tutorados</a>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Datos del tutorado -->
+                <div class="col-md-4">
+                    <div class="glass-surface h-100">
+                        <p class="section-title">Datos del estudiante</p>
+                        <div class="text-center mb-4">
+                            <div th:if="${tutorado?.foto != null and !tutorado?.foto.isEmpty()}"
+                                 style="width:88px;height:88px;border-radius:50%;overflow:hidden;margin:0 auto">
+                                <img th:src="@{${tutorado.foto}}" alt="Foto" style="width:100%;height:100%;object-fit:cover">
+                            </div>
+                            <div th:if="${tutorado?.foto == null or tutorado?.foto.isEmpty()}"
+                                 style="width:88px;height:88px;border-radius:50%;background:rgba(117,183,152,.2);color:#75b798;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto"
+                                 th:text="${(tutorado?.nombre != null ? #strings.substring(tutorado.nombre,0,1) : '') + (tutorado?.apellido != null ? #strings.substring(tutorado.apellido,0,1) : '')}">AB</div>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Nombre</span>
+                            <span th:text="${(tutorado?.nombre ?: '') + ' ' + (tutorado?.apellido ?: '')}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">N° Control</span>
+                            <span th:text="${tutorado?.numeroControl ?: '—'}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Correo</span>
+                            <span th:text="${tutorado?.email ?: '—'}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Carrera</span>
+                            <span th:text="${tutorado?.carrera?.nombre ?: '—'}">—</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Grado</span>
+                            <span th:text="${tutorado?.grado != null ? tutorado.grado + '° semestre' : '—'}">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asistencia y grupos -->
+                <div class="col-md-8">
+
+                    <!-- Resumen de asistencia -->
+                    <div th:if="${resumen != null}" class="glass-surface mb-4">
+                        <p class="section-title">Asistencia actual</p>
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <div>
+                                <p class="text-body-secondary small text-uppercase mb-1" style="letter-spacing:.06em;font-size:.72rem">Porcentaje</p>
+                                <span class="fw-bold fs-4"
+                                      th:style="${resumen.porcentaje >= 80 ? 'color:#75b798' : (resumen.porcentaje >= 60 ? 'color:#fbbf24' : 'color:#f87171')}"
+                                      th:text="${#numbers.formatDecimal(resumen.porcentaje, 1, 1) + '%'}">0%</span>
+                            </div>
+                            <div>
+                                <span class="badge fs-6"
+                                      th:classappend="${resumen.porcentaje >= 80 ? 'bg-success' : (resumen.porcentaje >= 60 ? 'bg-warning text-dark' : 'bg-danger')}"
+                                      th:text="${resumen.porcentaje >= 80 ? 'Acreditado' : (resumen.porcentaje >= 60 ? 'En riesgo' : 'No acreditado')}">—</span>
+                            </div>
+                            <div class="ms-auto d-flex gap-4 flex-wrap">
+                                <div class="text-center">
+                                    <div class="fw-semibold" th:text="${resumen.totalSesiones}">0</div>
+                                    <div class="text-body-secondary small">Sesiones</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-semibold text-success" th:text="${resumen.asistenciasPresente}">0</div>
+                                    <div class="text-body-secondary small">Asistidas</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-semibold text-info" th:text="${resumen.asistenciasRecuperadas}">0</div>
+                                    <div class="text-body-secondary small">Recuperadas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${resumen == null}" class="glass-surface mb-4">
+                        <p class="section-title">Asistencia actual</p>
+                        <p class="text-body-secondary small mb-0">Sin datos de asistencia disponibles.</p>
+                    </div>
+
+                    <!-- Historial de tutorías -->
+                    <div class="glass-surface">
+                        <p class="section-title">Historial de tutorías</p>
+                        <div th:if="${grupoTutorados == null or grupoTutorados.isEmpty()}" class="text-body-secondary small">
+                            Sin historial de tutorías.
+                        </div>
+                        <div th:if="${grupoTutorados != null and !grupoTutorados.isEmpty()}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Grupo</th>
+                                        <th>Semestre</th>
+                                        <th>Tutor</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="ins : ${grupoTutorados}">
+                                        <td th:text="${ins.grupo?.nombre ?: '—'}">—</td>
+                                        <td class="small text-body-secondary"
+                                            th:text="${ins.grupo?.semestre != null ? ins.grupo.semestre.periodo + ' ' + ins.grupo.semestre.anio : '—'}">—</td>
+                                        <td class="small text-body-secondary"
+                                            th:text="${ins.grupo?.tutor != null ? ins.grupo.tutor.nombre + ' ' + ins.grupo.tutor.apellido : 'Sin tutor'}">—</td>
+                                        <td class="text-center">
+                                            <span class="badge"
+                                                  th:classappend="${ins.activo == 1 ? 'bg-success' : 'bg-secondary'}"
+                                                  th:text="${ins.activo == 1 ? 'Activo' : 'Histórico'}">—</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/fragment::footer}"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/sidebar.js}"></script>
+</body>
+</html>

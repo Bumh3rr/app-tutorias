@@ -6,6 +6,7 @@ import com.bumh3r.exception.RegistroInactivoExistenteException;
 import com.bumh3r.repository.ICarreraRepository;
 import com.bumh3r.repository.ITutoradoRepository;
 import com.bumh3r.service.TutoradoService;
+import com.bumh3r.service.UsuarioService;
 import com.bumh3r.service.utils.PaginationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,6 +29,8 @@ public class TutoradoServiceImpl implements TutoradoService {
     @Autowired
     private ICarreraRepository iCarreraRepository;
     @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
     private PaginationUtil paginationUtil;
 
     @Override
@@ -35,6 +39,7 @@ public class TutoradoServiceImpl implements TutoradoService {
     }
 
     @Override
+    @Transactional
     public void guardarTutorado(Tutorado tutorado) {
         resolverRelaciones(tutorado);
         this.iTutoradoRepository.findByNumeroControl(tutorado.getNumeroControl()).ifPresent(existente -> {
@@ -49,6 +54,7 @@ public class TutoradoServiceImpl implements TutoradoService {
         });
         tutorado.setActivo(1);
         this.iTutoradoRepository.save(tutorado);
+        this.usuarioService.crearParaTutorado(tutorado);
     }
 
     @Override

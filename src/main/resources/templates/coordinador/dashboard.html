@@ -9,7 +9,6 @@
     <link rel="stylesheet" th:href="@{/styles/sidebar.css}">
 </head>
 <body>
-
 <div class="app-layout">
     <div th:replace="~{fragments/fragment::sidebar}"></div>
     <div class="app-content">
@@ -18,81 +17,117 @@
             <div class="page-header">
                 <div>
                     <h3>Panel del Coordinador</h3>
-                    <p th:if="${coordinador != null}"
-                       th:text="${coordinador.carrera?.nombre ?: 'Sin carrera asignada'}">Carrera</p>
+                    <p class="text-body-secondary mb-0"
+                       th:text="${coordinador?.carrera?.nombre ?: 'Sin carrera asignada'}">Carrera</p>
+                </div>
+                <span class="badge bg-secondary"
+                      th:text="${semestreVigente != null ? semestreVigente.periodo + ' ' + semestreVigente.anio : 'Sin semestre vigente'}">—</span>
+            </div>
+
+            <!-- Stat cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-value" th:text="${totalGrupos ?: 0}">0</div>
+                        <div class="stat-label">Grupos</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-value" th:text="${totalTutores ?: 0}">0</div>
+                        <div class="stat-label">Tutores activos</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-value" th:text="${totalTutorados ?: 0}">0</div>
+                        <div class="stat-label">Tutorados</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-value"
+                             th:classappend="${(totalEvidenciasPendientes ?: 0) > 0 ? 'text-warning' : ''}"
+                             th:text="${totalEvidenciasPendientes ?: 0}">0</div>
+                        <div class="stat-label">Evidencias pendientes</div>
+                    </div>
                 </div>
             </div>
 
-            <div th:if="${coordinador == null}" class="alert alert-warning">
-                No se encontró información de coordinador asociada a tu cuenta.
-            </div>
-
-            <div th:if="${coordinador != null}">
-
-                <!-- Datos del coordinador -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-5">
-                        <div class="card">
-                            <div class="card-header"><h6 class="mb-0">Mis datos</h6></div>
-                            <div class="card-body">
-                                <div class="row g-2">
-                                    <div class="col-12">
-                                        <p class="text-muted small mb-1">Nombre</p>
-                                        <p class="fw-semibold" th:text="${coordinador.nombre + ' ' + coordinador.apellido}">—</p>
-                                    </div>
-                                    <div class="col-12">
-                                        <p class="text-muted small mb-1">Carrera</p>
-                                        <p th:text="${coordinador.carrera?.nombre ?: '—'}">—</p>
-                                    </div>
-                                    <div class="col-12">
-                                        <p class="text-muted small mb-1">Correo</p>
-                                        <p th:text="${coordinador.email ?: '—'}">—</p>
-                                    </div>
-                                </div>
+            <!-- Accesos rápidos -->
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/coordinador/tutores}" class="glass-surface d-block text-decoration-none h-100" style="padding:20px">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.8">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">Mis Tutores</p>
+                                <p class="small text-body-secondary mb-0">Ver tutores de mi carrera</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
-
-                <!-- Tutores de mi carrera -->
-                <div class="card" th:if="${tutores != null}">
-                    <div class="card-header">
-                        <h6 class="mb-0">Tutores activos en mi carrera</h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <div th:if="${tutores.isEmpty()}" class="p-4 text-center text-muted">
-                            No hay tutores activos asociados a esta carrera.
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/coordinador/tutorados}" class="glass-surface d-block text-decoration-none h-100" style="padding:20px">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(117,183,152,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#75b798" stroke-width="1.8">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">Mis Tutorados</p>
+                                <p class="small text-body-secondary mb-0">Estudiantes de mi carrera</p>
+                            </div>
                         </div>
-                        <div th:if="${!tutores.isEmpty()}" class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Correo</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="t : ${tutores}" class="fade-in-up">
-                                        <td th:text="${t.nombre + ' ' + t.apellido}">—</td>
-                                        <td th:text="${t.email ?: '—'}">—</td>
-                                        <td>
-                                            <span class="badge bg-success">Activo</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/coordinador/evidencias}" class="glass-surface d-block text-decoration-none h-100" style="padding:20px">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(251,191,36,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">Evidencias</p>
+                                <p class="small text-body-secondary mb-0">Validar evidencias de sesiones</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <a th:href="@{/coordinador/pat}" class="glass-surface d-block text-decoration-none h-100" style="padding:20px">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:44px;height:44px;border-radius:10px;background:rgba(110,223,246,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6edff6" stroke-width="1.8">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="fw-semibold mb-0">PAT de mi Carrera</p>
+                                <p class="small text-body-secondary mb-0">Plan de Acción Tutorial</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </div>
 
         </main>
         <div th:replace="~{fragments/fragment::footer}"></div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 </body>

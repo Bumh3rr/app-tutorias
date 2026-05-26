@@ -23,13 +23,20 @@
                 <a th:href="@{/tutor/dashboard}" class="btn btn-outline-secondary btn-sm">← Dashboard</a>
             </div>
 
-            <div th:if="${grupos == null or grupos.isEmpty()}" class="alert alert-info">
-                No tienes grupos asignados en el semestre vigente. Si esto es un error, contacta a la Coordinación Institucional de Tutorías.
+            <div th:if="${grupos == null or grupos.isEmpty()}" class="empty-state">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-3">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <h5>Sin grupos asignados</h5>
+                <p>No tienes grupos asignados en el semestre vigente. Si esto es un error, contacta a la Coordinación Institucional de Tutorías.</p>
             </div>
 
             <div th:if="${grupos != null and !grupos.isEmpty()}" class="row g-3">
                 <div th:each="g : ${grupos}" class="col-md-6 col-xl-4">
-                    <div class="card h-100">
+                    <div class="card entity-card h-100">
                         <div class="card-body">
                             <div class="d-flex align-items-start justify-content-between mb-3">
                                 <div>
