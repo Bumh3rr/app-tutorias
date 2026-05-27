@@ -50,4 +50,12 @@ public interface ISesionRepository extends JpaRepository<Sesion, Integer> {
     java.util.Optional<Sesion> findTopByGrupoAndActivoOrderBySemanaDesc(Grupo grupo, Integer activo);
 
     java.util.Optional<Sesion> findTopByGrupoAndEstatusRegistroAndActivoOrderBySemanaDesc(Grupo grupo, String estatusRegistro, Integer activo);
+
+    long countByGrupoAndActivo(Grupo grupo, Integer activo);
+
+    @Query("SELECT COUNT(s) > 0 FROM Sesion s WHERE s.grupo.aula = :aula AND s.fechaImparticion >= :dayStart AND s.fechaImparticion < :dayEnd AND s.activo = 1 AND s.grupo.id <> :idGrupo")
+    boolean existsByAulaAndFechaRange(@Param("aula") String aula, @Param("dayStart") java.util.Date dayStart, @Param("dayEnd") java.util.Date dayEnd, @Param("idGrupo") Integer idGrupo);
+
+    @Query("SELECT COUNT(s) > 0 FROM Sesion s WHERE s.grupo.tutor.id = :idTutor AND s.fechaImparticion >= :dayStart AND s.fechaImparticion < :dayEnd AND s.activo = 1 AND s.grupo.id <> :idGrupo")
+    boolean existsByTutorAndFechaRange(@Param("idTutor") Integer idTutor, @Param("dayStart") java.util.Date dayStart, @Param("dayEnd") java.util.Date dayEnd, @Param("idGrupo") Integer idGrupo);
 }

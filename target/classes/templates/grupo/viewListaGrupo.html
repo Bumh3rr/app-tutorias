@@ -49,8 +49,14 @@
     <div class="app-content">
         <main class="app-main">
 
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-2" role="alert">
                 <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_info_action}" class="alert alert-info alert-dismissible fade show mb-4 d-flex align-items-center justify-content-between gap-3" role="alert">
+                <span th:text="${msg_info_action}"></span>
+                <a th:href="${msg_info_action_url}" class="btn btn-sm btn-outline-info text-nowrap"
+                   th:text="${msg_info_action_label}">Ir →</a>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
@@ -217,6 +223,8 @@
                                         </span>
                                     </div>
                                     <span class="badge rounded-pill" th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                    <span th:if="${idsSinSesiones != null and idsSinSesiones.contains(grupo.id)}"
+                                          class="badge rounded-pill bg-warning text-dark" style="font-size:10px;">Sin sesiones</span>
                                 </div>
                                 <div class="grupo-card-footer">
                                     <span class="g-rel-time" th:if="${grupo.fechaRegistro != null}">
@@ -282,7 +290,11 @@
                                 <td><span class="badge rounded-pill" th:text="${grupo.aula != null and !grupo.aula.isEmpty()} ? ${grupo.aula} : '—'" th:classappend="${grupo.aula != null and !grupo.aula.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
                                 <td><span class="badge rounded-pill" th:text="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? ${grupo.diaSemana} : '—'" th:classappend="${grupo.diaSemana != null and !grupo.diaSemana.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
                                 <td><span class="badge rounded-pill" th:text="${grupo.horario != null and !grupo.horario.isEmpty()} ? ${grupo.horario} : '—'" th:classappend="${grupo.horario != null and !grupo.horario.isEmpty()} ? '' : 'badge-sin-asignar'"></span></td>
-                                <td><span class="badge rounded-pill" th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'"></span></td>
+                                <td>
+                                    <span class="badge rounded-pill" th:text="${grupo.activo == 1} ? 'Activo' : 'Inactivo'" th:classappend="${grupo.activo == 1} ? 'badge-active' : 'badge-inactive'"></span>
+                                    <span th:if="${idsSinSesiones != null and idsSinSesiones.contains(grupo.id)}"
+                                          class="badge rounded-pill bg-warning text-dark ms-1" style="font-size:10px;">Sin sesiones</span>
+                                </td>
                                 <td th:if="${grupo.fechaRegistro != null}" th:data-ts="${grupo.fechaRegistro.time}">
                                     <span class="rel-badge badge rounded-pill badge-sin-asignar" data-bs-toggle="tooltip" data-bs-placement="top" th:title="${#dates.format(grupo.fechaRegistro, 'dd/MM/yyyy hh:mm a')}">...</span>
                                 </td>

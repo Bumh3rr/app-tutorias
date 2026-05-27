@@ -19,15 +19,20 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/ReporteSesionController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/SemestreController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/SesionController.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/SesionGeneracionController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/SubdirectorController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutorController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutorDashboardController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutoradoController.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/controller/TutoradoDashboardController.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/ConflictoDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/CoordinadorNotificacionDTO.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/PatDisponibleDTO.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/PreviewGeneracionDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/PublicDeteccionForm.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/ResumenAsistenciaDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/SearchResultDTO.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/dto/SesionPropuestaDTO.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Actividad.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Asistencia.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/entity/Carrera.java
@@ -80,6 +85,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ReporteSesionPdfService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/ReporteSesionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SemestreService.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SesionGeneracionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SesionService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/SessionRegistryService.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/TutorService.java
@@ -105,6 +111,7 @@
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ReporteSesionPdfServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/ReporteSesionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SemestreServiceImpl.java
+/Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SesionGeneracionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SesionServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/SessionRegistryServiceImpl.java
 /Users/bumh3r/Documents/GitHub/app-tutorias/src/main/java/com/bumh3r/service/impl/TutorServiceImpl.java

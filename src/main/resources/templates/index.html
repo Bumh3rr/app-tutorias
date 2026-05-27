@@ -27,6 +27,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Alerta: grupos con tutor pero sin sesiones -->
+            <div th:if="${gruposSinSesiones != null and !#lists.isEmpty(gruposSinSesiones)}"
+                 class="alert alert-warning alert-dismissible fade show d-flex align-items-start gap-3 mb-4" role="alert">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-1">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <div class="flex-grow-1">
+                    <strong th:text="${#lists.size(gruposSinSesiones)} + ' grupo(s) sin sesiones'"></strong>
+                    — Tienen tutor asignado pero aún no tienen sesiones del semestre generadas.
+                    <div class="mt-2 d-flex flex-wrap gap-2">
+                        <a th:each="g : ${gruposSinSesiones}"
+                           th:href="@{/admin/grupo/ver/{id}(id=${g.id})}"
+                           class="btn btn-sm btn-outline-warning"
+                           th:text="${g.nombre}">Grupo</a>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
             <!-- Tarjetas estadísticas -->
             <div class="row g-3 mb-4 stagger">
 

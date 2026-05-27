@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface GrupoService {
     List<Grupo> obtenerTodosGrupos();
-    void guardarGrupo(Grupo grupo);
+    Grupo guardarGrupo(Grupo grupo);
     void actualizarGrupo(Integer id, Grupo grupo);
     Grupo obtenerGrupo(Integer id);
     void eliminarGrupo(Integer id);
@@ -36,4 +36,5 @@ public interface GrupoService {
 
     void reactivar(Integer id);
     Page<Grupo> obtenerPorEstadoPaginado(String filtroEstado, int page, int pageSize, String sortBy, String sort);
+    List<Grupo> obtenerActivosConTutorSinSesiones();
 }

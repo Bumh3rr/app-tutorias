@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title th:text="${grupo.nombre} + ' | Sistema Tutorías'">Detalle Grupo | Sistema Tutorías</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -700,13 +702,24 @@
                         </div>
 
                         <div th:unless="${sesiones != null and !#lists.isEmpty(sesiones)}"
-                             class="text-center py-5" style="opacity:0.45;">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto">
+                             class="text-center py-4">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mb-2 d-block mx-auto" style="opacity:.4">
                                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                                 <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                             </svg>
-                            <p class="small mb-2">No hay sesiones registradas</p>
-                            <a th:href="@{/admin/sesion/agregar}" class="btn btn-sm btn-outline-primary">Nueva sesión</a>
+                            <p class="small mb-3" style="opacity:.5">No hay sesiones registradas</p>
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        th:if="${grupo.tutor != null}"
+                                        data-bs-toggle="modal" data-bs-target="#modalGenerarSesiones">
+                                    Generar 10 sesiones
+                                </button>
+                                <a th:href="@{/admin/sesion/agregar}" class="btn btn-sm btn-outline-secondary">+ Nueva sesión</a>
+                            </div>
+                            <p th:if="${grupo.tutor == null}" class="small mt-2 text-warning" style="font-size:.8rem">
+                                Asigna un tutor al grupo para poder generar sesiones masivamente.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -718,6 +731,8 @@
     </div>
 </div>
 
+<div th:replace="~{fragments/modal-generar-sesiones::modal(${grupo})}"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/js/sidebar.js}"></script>
 <script th:src="@{/js/rel-time.js}"></script>
@@ -728,5 +743,6 @@
         });
     });
 </script>
+<th:block th:replace="~{fragments/modal-generar-sesiones::script(${grupo.id})}"></th:block>
 </body>
 </html>

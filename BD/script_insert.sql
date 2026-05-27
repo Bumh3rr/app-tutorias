@@ -107,10 +107,14 @@ INSERT INTO pat (nombre, descripcion, foto, id_semestre, id_carrera, es_general,
  NULL, 2, NULL, 1, 1, '2025-06-15 09:00:00');                                                                               -- 5
 
 -- ─────────────────────────────────────────────────────────────
---  7. ACTIVIDADES  (id 1-16)
+--  7. ACTIVIDADES  (id 1-18)
+-- ─────────────────────────────────────────────────────────────
+--  Nota de diseño: los PATs de carrera solo definen OVERRIDES para
+--  semanas específicas; para las semanas restantes el servicio
+--  cae automáticamente al PAT General del mismo semestre.
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO actividad (nombre, descripcion, fecha, semana, foto, id_pat, activo, fecha_registro) VALUES
--- PAT General Ene-Jun 2026 (id_pat=1) — 10 sesiones
+-- PAT General Ene-Jun 2026 (id_pat=1) — 10 sesiones completas
 ('Bienvenida e Inducción',             'Presentación del programa, reglas y expectativas del semestre.',                                   '2026-01-23', 1,  NULL, 1, 1, '2026-01-12 09:00:00'),  -- 1
 ('Detección de Necesidades',           'Aplicación del instrumento de detección de necesidades académicas, económicas y psicológicas.',     '2026-01-30', 2,  NULL, 1, 1, '2026-01-12 09:05:00'),  -- 2
 ('Técnicas de Estudio',                'Taller sobre estrategias y técnicas de estudio efectivas para nivel superior.',                     '2026-02-06', 3,  NULL, 1, 1, '2026-01-12 09:10:00'),  -- 3
@@ -121,15 +125,18 @@ INSERT INTO actividad (nombre, descripcion, fecha, semana, foto, id_pat, activo,
 ('Asesorías Académicas',               'Canalización de alumnos con bajo rendimiento a asesorías en materias críticas.',                   '2026-03-13', 8,  NULL, 1, 1, '2026-01-12 09:35:00'),  -- 8
 ('Proyecto de Vida',                   'Taller sobre metas personales a corto, mediano y largo plazo.',                                    '2026-03-20', 9,  NULL, 1, 1, '2026-01-12 09:40:00'),  -- 9
 ('Cierre y Evaluación',                'Cierre del programa. Evaluación de satisfacción y entrega de evidencias.',                         '2026-03-27', 10, NULL, 1, 1, '2026-01-12 09:45:00'),  -- 10
--- PAT ISC (id_pat=2)
-('Nivelación Álgebra',                 'Identificación de alumnos con deficiencias en álgebra y canalización a asesorías.',                '2026-02-06', 3,  NULL, 2, 1, '2026-01-12 10:00:00'),  -- 11
-('Nivelación Cálculo Diferencial',     'Identificación y canalización de alumnos con deficiencias en cálculo diferencial.',                '2026-02-13', 4,  NULL, 2, 1, '2026-01-12 10:05:00'),  -- 12
--- PAT IGE (id_pat=3)
+-- PAT ISC (id_pat=2) — overrides semanas 3 y 4
+('Nivelación Álgebra (ISC)',           'Identificación de alumnos de ISC con deficiencias en álgebra y canalización a asesorías.',         '2026-02-06', 3,  NULL, 2, 1, '2026-01-12 10:00:00'),  -- 11
+('Nivelación Cálculo Diferencial (ISC)','Identificación y canalización de alumnos de ISC con deficiencias en cálculo diferencial.',        '2026-02-13', 4,  NULL, 2, 1, '2026-01-12 10:05:00'),  -- 12
+-- PAT IGE (id_pat=3) — overrides semanas 3 y 4
 ('Introducción al Derecho Empresarial','Nivelación en conceptos básicos de derecho para alumnos de IGE.',                                  '2026-02-06', 3,  NULL, 3, 1, '2026-01-12 10:10:00'),  -- 13
-('Fundamentos de Contabilidad',        'Apoyo en conceptos básicos de contabilidad para alumnos de nuevo ingreso.',                        '2026-02-13', 4,  NULL, 3, 1, '2026-01-12 10:15:00'),  -- 14
+('Fundamentos de Contabilidad',        'Apoyo en conceptos básicos de contabilidad para alumnos de nuevo ingreso de IGE.',                 '2026-02-13', 4,  NULL, 3, 1, '2026-01-12 10:15:00'),  -- 14
 -- PAT General Ago-Dic 2025 (id_pat=5)
 ('Bienvenida Agosto-Diciembre 2025',   'Sesión de bienvenida e inducción al programa, semestre Ago-Dic 2025.',                             '2025-08-22', 1,  NULL, 5, 1, '2025-06-16 09:00:00'),  -- 15
-('Detección de Necesidades Ago-Dic',   'Aplicación del instrumento de detección de necesidades, semestre Ago-Dic 2025.',                   '2025-08-29', 2,  NULL, 5, 1, NOW());                   -- 16 ← reciente
+('Detección de Necesidades Ago-Dic',   'Aplicación del instrumento de detección de necesidades, semestre Ago-Dic 2025.',                   '2025-08-29', 2,  NULL, 5, 1, '2025-06-16 09:05:00'),  -- 16
+-- PAT IC (id_pat=4) — overrides semanas 3 y 4
+('Nivelación Cálculo Diferencial (IC)','Identificación y canalización de alumnos de IC con deficiencias en cálculo diferencial.',          '2026-02-06', 3,  NULL, 4, 1, '2026-01-12 10:20:00'),  -- 17
+('Nivelación Geometría Descriptiva',   'Repaso de conceptos clave de geometría descriptiva para alumnos de nuevo ingreso de IC.',           '2026-02-13', 4,  NULL, 4, 1, NOW());                  -- 18 ← reciente
 
 -- ─────────────────────────────────────────────────────────────
 --  8. GRUPOS  (id 1-8)

@@ -63,8 +63,14 @@
             </div>
 
             <!-- Alertas -->
-            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <div th:if="${msg_success}" class="alert alert-success alert-dismissible fade show mb-2" role="alert">
                 <span th:text="${msg_success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${msg_info_action}" class="alert alert-info alert-dismissible fade show mb-3 d-flex align-items-center justify-content-between gap-3" role="alert">
+                <span th:text="${msg_info_action}"></span>
+                <a th:href="${msg_info_action_url}" class="btn btn-sm btn-outline-info text-nowrap"
+                   th:text="${msg_info_action_label}">Ir →</a>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             <div th:if="${msg_error}" class="alert alert-danger alert-dismissible fade show" role="alert">

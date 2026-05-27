@@ -71,4 +71,7 @@ public interface IGrupoRepository extends JpaRepository<Grupo, Integer> {
 
     @Query("SELECT g FROM Grupo g WHERE g.nombre = :nombre AND g.semestre.id = :idSemestre AND g.carrera.id = :idCarrera AND g.id <> :id")
     Optional<Grupo> findByNombreAndSemestreAndCarreraAndIdNot(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera, @Param("id") Integer id);
+
+    @Query("SELECT g FROM Grupo g WHERE g.activo = 1 AND g.tutor IS NOT NULL AND g.id NOT IN (SELECT DISTINCT s.grupo.id FROM Sesion s WHERE s.activo = 1)")
+    List<Grupo> findActivosConTutorSinSesiones();
 }

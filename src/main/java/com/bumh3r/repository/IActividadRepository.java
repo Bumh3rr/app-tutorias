@@ -61,4 +61,6 @@ public interface IActividadRepository extends JpaRepository<Actividad, Integer> 
 
     @Query("SELECT a FROM Actividad a WHERE a.pat = :pat AND a.semana = :semana AND a.id <> :id")
     Optional<Actividad> findByPatAndSemanaAndIdNot(@Param("pat") PAT pat, @Param("semana") Integer semana, @Param("id") Integer id);
+
+    Optional<Actividad> findByActivoAndPatAndSemana(Integer activo, PAT pat, Integer semana);
 }

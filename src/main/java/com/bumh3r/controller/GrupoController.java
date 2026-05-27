@@ -11,6 +11,9 @@ import com.bumh3r.service.SemestreService;
 import com.bumh3r.service.SesionService;
 import com.bumh3r.service.TutorService;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +102,9 @@ public class GrupoController {
 
         Map<Integer, Long> conteoAlumnos = this.grupoTutoradoService.contarAlumnosPorGrupo();
 
+        Set<Integer> idsSinSesiones = this.grupoService.obtenerActivosConTutorSinSesiones()
+                .stream().map(Grupo::getId).collect(Collectors.toSet());
+
         model.addAttribute("grupos", pageResult.getContent());
         model.addAttribute("paginaActual", pageResult.getNumber());
         model.addAttribute("totalPaginas", pageResult.getTotalPages());
@@ -115,8 +121,9 @@ public class GrupoController {
         model.addAttribute("q", q);
         model.addAttribute("filtroEstado", filtroEstado);
         model.addAttribute("conteoAlumnos", conteoAlumnos);
-                model.addAttribute("fechaInicio", fechaInicio);
+        model.addAttribute("fechaInicio", fechaInicio);
         model.addAttribute("fechaFin", fechaFin);
+        model.addAttribute("idsSinSesiones", idsSinSesiones);
         return "grupo/viewListaGrupo";
     }
 
@@ -145,8 +152,17 @@ public class GrupoController {
         }
         try {
             log.info("Guardar grupo: {}", grupo);
-            this.grupoService.guardarGrupo(grupo);
+            Grupo saved = this.grupoService.guardarGrupo(grupo);
             attributes.addFlashAttribute("msg_success", "Grupo guardado correctamente");
+            if (saved != null && saved.getTutor() == null) {
+                attributes.addFlashAttribute("msg_info_action", "¿Deseas asignar un tutor ahora?");
+                attributes.addFlashAttribute("msg_info_action_url", "/admin/grupo/asignar-tutor/" + saved.getId());
+                attributes.addFlashAttribute("msg_info_action_label", "Asignar tutor →");
+            } else if (saved != null) {
+                attributes.addFlashAttribute("msg_info_action", "¿Deseas generar las 10 sesiones del semestre?");
+                attributes.addFlashAttribute("msg_info_action_url", "/admin/grupo/ver/" + saved.getId() + "#sesiones");
+                attributes.addFlashAttribute("msg_info_action_label", "Generar sesiones →");
+            }
         } catch (RegistroInactivoExistenteException e) {
             attributes.addFlashAttribute("msg_warning", "Ya existe un " + e.getTipoEntidad() + " inactivo con el mismo " +
                 e.getCampoConflicto() + ": \"" + e.getValorConflicto() + "\". <a href='/admin/grupo?filtroEstado=inactivos'>Ver inactivos →</a>");
@@ -377,6 +393,12 @@ public class GrupoController {
         try {
             this.grupoService.asignarTutor(idGrupo, idTutor);
             attributes.addFlashAttribute("msg_success", "Tutor asignado correctamente");
+            List<com.bumh3r.entity.Sesion> sesionesExistentes = this.sesionService.buscarSesionesPorGrupo(idGrupo);
+            if (sesionesExistentes == null || sesionesExistentes.isEmpty()) {
+                attributes.addFlashAttribute("msg_info_action", "El grupo no tiene sesiones. ¿Deseas generarlas ahora?");
+                attributes.addFlashAttribute("msg_info_action_url", "/admin/grupo/ver/" + idGrupo + "#sesiones");
+                attributes.addFlashAttribute("msg_info_action_label", "Generar sesiones →");
+            }
         } catch (NoSuchElementException e) {
             attributes.addFlashAttribute("msg_error", e.getMessage());
             return "redirect:/admin/grupo/asignar-tutor/" + idGrupo;

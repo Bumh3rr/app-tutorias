@@ -121,11 +121,14 @@ public class MainController {
             log.info("Dashboard — tutores: {}, tutorados: {}, actividades: {}, grupos: {}",
                     tutores.size(), tutorados.size(), actividades.size(), grupos.size());
 
+            List<Grupo> gruposSinSesiones = grupoService.obtenerActivosConTutorSinSesiones();
+
             model.addAttribute("totalTutores", tutores.size());
             model.addAttribute("totalTutorados", tutorados.size());
             model.addAttribute("totalActividades", actividades.size());
             model.addAttribute("totalGrupos", grupos.size());
             model.addAttribute("proximasActividades", proximasActividades);
+            model.addAttribute("gruposSinSesiones", gruposSinSesiones);
 
         } catch (Exception e) {
             log.error("Error al cargar el dashboard: {}", e.getMessage());

@@ -40,7 +40,7 @@ public class GrupoServiceImpl implements GrupoService {
     }
 
     @Override
-    public void guardarGrupo(Grupo grupo) {
+    public Grupo guardarGrupo(Grupo grupo) {
         resolverRelaciones(grupo);
 
         this.iGrupoRepository.findByNombreAndSemestreAndCarrera(grupo.getNombre(), grupo.getSemestre().getId(), grupo.getCarrera().getId()).ifPresent(existente -> {
@@ -66,7 +66,7 @@ public class GrupoServiceImpl implements GrupoService {
         }
 
         grupo.setActivo(1);
-        this.iGrupoRepository.save(grupo);
+        return this.iGrupoRepository.save(grupo);
     }
 
     @Override
@@ -305,5 +305,10 @@ public class GrupoServiceImpl implements GrupoService {
             case "todos"     -> this.iGrupoRepository.findAll(pageable);
             default          -> this.iGrupoRepository.findByActivo(1, pageable);
         };
+    }
+
+    @Override
+    public List<Grupo> obtenerActivosConTutorSinSesiones() {
+        return this.iGrupoRepository.findActivosConTutorSinSesiones();
     }
 }

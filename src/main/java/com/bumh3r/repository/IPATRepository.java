@@ -44,4 +44,7 @@ public interface IPATRepository extends JpaRepository<PAT, Integer> {
 
     @Query("SELECT p FROM PAT p WHERE p.nombre = :nombre AND p.semestre.id = :idSemestre AND (p.esGeneral = 1 OR p.carrera.id = :idCarrera) AND p.id <> :id")
     Optional<PAT> findByUniqueComboAndIdNot(@Param("nombre") String nombre, @Param("idSemestre") Integer idSemestre, @Param("idCarrera") Integer idCarrera, @Param("id") Integer id);
+
+    @Query("SELECT p FROM PAT p WHERE p.activo = 1 AND p.esGeneral = 1 AND p.semestre = :semestre")
+    List<PAT> findGeneralesBySemestre(@Param("semestre") Semestre semestre);
 }
